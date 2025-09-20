@@ -1,0 +1,99 @@
+.auth-page {
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: linear-gradient(135deg,#f5f7fa,#e4ecf7);
+  }
+  
+  .auth-shell { width: 100%; max-width: 720px; padding: 0 12px; }
+  
+  .auth-card {
+    background: #fff;
+    border: 1px solid #eef2f7;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  }
+  
+  .auth-title { margin: 0; font-size: 44px; line-height: 1.1; text-align: center; }
+  .auth-sub { margin: 8px 0 20px; opacity: .75; text-align: center; }
+  
+  .auth-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 0 auto 16px;
+    max-width: 380px;
+  }
+  
+  .tab {
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .tab.active { background: #0ea5e9; color: #fff; border-color: #0ea5e9; }
+  
+  .auth-form {
+    display: grid;
+    gap: 14px;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  
+  .field { display: grid; gap: 6px; font-size: 14px; font-weight: 600; }
+  .field input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+    outline: none;
+    background: #fff;
+    font-size: 16px;
+  }
+  
+  .tos { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    max-width: 520px;
+    margin: 4px auto 0;
+  }
+  
+  .primary, .secondary {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: none;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .primary { background: #16a34a; color: #fff; }
+  .secondary { background: #f3f4f6; color: #111827; border: 1px solid #e5e7eb; }
+  
+  .link-btn {
+    background: transparent;
+    border: none;
+    color: #2563eb;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+  }
+  
+  .msg { padding: 12px; border-radius: 10px; font-size: 14px; }
+  .msg.error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+  .msg.ok { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+  
+  .fineprint { margin-top: 14px; font-size: 12px; opacity: .7; text-align: center; }
+  
+  /* Mobile tweaks */
+  @media (max-width: 640px) {
+    .auth-title { font-size: 32px; }
+    .row { grid-template-columns: 1fr; }
+    .auth-card { padding: 20px; }
+  }
