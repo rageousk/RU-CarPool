@@ -1,0 +1,113 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; 
+  }
+  
+  /* Smooth Scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Homepage Section */
+  .homepage {
+    height: 50vh; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative; 
+    color: white;
+    position: relative;
+  }
+  
+  .homepage-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1; 
+  }
+
+  .button-container {
+    position: absolute;
+    top: 70%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); /* Adjust for perfect centering */
+    display: flex;
+    gap: 60px; /* Space between the buttons */
+    z-index: 2; /* Ensure the buttons are above the image */
+    
+  }
+  
+  .rider-button,
+  .driver-button {
+    padding: 80px 150px;
+    font-size: 36px;
+    font-weight: bold;
+    color: rgb(7, 6, 6);
+    background-color: #FFCC00;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    opacity: 0.8;
+  }
+  
+  .rider-button:hover,
+  .driver-button:hover {
+    background-color: #57150B;
+    color: white;
+  }
+
+  /* Body */
+
+  .tag-line {
+    font-size: 40px;
+    font-weight: bold;
+    text-align: left; 
+    color: #000000;
+    margin-left: 100px; 
+    margin-bottom: 30px; 
+  }
+
+  .tag-line .highlight {
+    color: #57150B; 
+  }
+
+  .description{
+    color:#000000;
+    font-size: 14px;
+    font-family: SF Pro Display, SF Pro Icons, Helvetica Neue, Helvetica, Arial, sans-serif;
+    text-align: left;
+    margin-left: 100px;
+    margin-top: 10px;
+  }
+  
+  /* Body Section Container */
+.body-section {
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  padding: 20px 100px; 
+  gap: 20px;
+}
+
+/* Right Section */
+.body-section-right {
+  flex: 1; 
+  margin-bottom: 200px;
+}
+
+/* Left Section */
+.body-section-left {
+  flex: 1; 
+  display: flex;
+  justify-content: center; 
+  align-items: center; 
+}
+
+.body-image {
+  max-width: 100%; 
+  height: auto; 
+}
+  
