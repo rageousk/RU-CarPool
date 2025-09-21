@@ -1,113 +1,135 @@
 /* General Reset */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box; 
-  }
-  
-  /* Smooth Scrolling */
-  html {
-    scroll-behavior: smooth;
-  }
-  
-  /* Homepage Section */
-  .homepage {
-    height: 50vh; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative; 
-    color: white;
-    position: relative;
-  }
-  
-  .homepage-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: 1; 
-  }
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-  .button-container {
-    position: absolute;
-    top: 70%; 
-    left: 50%; 
-    transform: translate(-50%, -50%); /* Adjust for perfect centering */
-    display: flex;
-    gap: 60px; /* Space between the buttons */
-    z-index: 2; /* Ensure the buttons are above the image */
-    
-  }
-  
-  .rider-button,
-  .driver-button {
-    padding: 80px 150px;
-    font-size: 36px;
-    font-weight: bold;
-    color: rgb(7, 6, 6);
-    background-color: #FFCC00;
-    border: none;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    opacity: 0.8;
-  }
-  
-  .rider-button:hover,
-  .driver-button:hover {
-    background-color: #57150B;
-    color: white;
-  }
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
 
-  /* Body */
+/* Homepage Section */
+.homepage {
+  height: 60vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  color: white;
+}
 
-  .tag-line {
-    font-size: 40px;
-    font-weight: bold;
-    text-align: left; 
-    color: #000000;
-    margin-left: 100px; 
-    margin-bottom: 30px; 
-  }
+.homepage-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  filter: brightness(0.7); /* Restored original brightness */
+}
 
-  .tag-line .highlight {
-    color: #57150B; 
-  }
+/* Card Container Styles */
+.card-container {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 40px;
+  z-index: 2;
+  width: 80%;
+  max-width: 900px;
+}
 
-  .description{
-    color:#000000;
-    font-size: 14px;
-    font-family: SF Pro Display, SF Pro Icons, Helvetica Neue, Helvetica, Arial, sans-serif;
-    text-align: left;
-    margin-left: 100px;
-    margin-top: 10px;
-  }
-  
-  /* Body Section Container */
+.choice-card {
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #333;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+  color: #c78f00;
+}
+
+.card-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.card-description {
+  font-size: 16px;
+  margin-bottom: 25px;
+  flex-grow: 1;
+}
+
+.card-button {
+  width: 100%;
+  padding: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  background-color: #FFCC00;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.card-button:hover {
+  background-color: #e6b800;
+}
+
+/* Body Section */
 .body-section {
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
-  padding: 20px 100px; 
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 50px 100px;
   gap: 20px;
 }
 
-/* Right Section */
 .body-section-right {
-  flex: 1; 
-  margin-bottom: 200px;
+  flex: 1;
 }
 
-/* Left Section */
+.tag-line {
+  font-size: 40px;
+  font-weight: bold;
+  text-align: left;
+  color: #000000;
+  margin-bottom: 20px;
+}
+
+.tag-line .highlight {
+  color: #57150B;
+}
+
+.description {
+  color: #333;
+  font-size: 16px;
+  font-family: SF Pro Display, SF Pro Icons, Helvetica Neue, Helvetica, Arial, sans-serif;
+  text-align: left;
+  margin-top: 10px;
+}
+
 .body-section-left {
-  flex: 1; 
+  flex: 1;
   display: flex;
-  justify-content: center; 
-  align-items: center; 
+  justify-content: center;
+  align-items: center;
 }
 
 .body-image {
-  max-width: 100%; 
-  height: auto; 
+  max-width: 100%;
+  height: auto;
 }
-  
