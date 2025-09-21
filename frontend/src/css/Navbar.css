@@ -30,6 +30,11 @@
     text-decoration: none;
 }
 
+.main-content {
+  /* This value should be roughly the height of your navbar */
+  padding-top: 70px; 
+}
+
 .app-name:hover {
     color: #f0a500;
 }
