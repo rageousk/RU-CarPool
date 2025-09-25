@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import '../css/HomePage.css';
 import OfferRideModal from '../components/OfferRideModal';
 import RequestRideModal from '../components/RequestRideModal';
+import GoogleMapComponent from '../components/GoogleMap';
 import ruCarpoolHomepageImage from '../assets/ru_carpool_homepage.png';
 import bodyImage from '../assets/RU_Map.png';
 
@@ -50,6 +51,11 @@ function HomePage() {
             <img src={bodyImage} alt="Illustration of people carpooling" className="body-image" />
         </div>
       </div>
+
+      <div>
+        <h1>Carpool Map</h1>
+        <GoogleMapComponent />
+     </div>
 
       <OfferRideModal isOpen={isOfferModalOpen} onClose={() => setIsOfferModalOpen(false)} />
       <RequestRideModal isOpen={isRequestModalOpen} onClose={() => setIsRequestModalOpen(false)} />
