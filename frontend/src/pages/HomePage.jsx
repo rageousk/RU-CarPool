@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useJsApiLoader } from '@react-google-maps/api'; // Import the hook here
 import '../css/HomePage.css';
 import OfferRideModal from '../components/OfferRideModal';
 import RequestRideModal from '../components/RequestRideModal';
@@ -6,17 +7,32 @@ import GoogleMapComponent from '../components/GoogleMap';
 import ruCarpoolHomepageImage from '../assets/ru_carpool_homepage.png';
 import bodyImage from '../assets/RU_Map.png';
 
+// Put the setup outside the component
+const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+const libraries = ['places']; // We need the 'places' library for Autocomplete
+
 function HomePage() {
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
 
+  // Load the script here, in the parent component
+  const { isLoaded, loadError } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey,
+    libraries,
+  });
+
+  // Show error or loading screens
+  if (loadError) return <div>Error loading maps. Please check your API key.</div>;
+  if (!isLoaded) return <div>Loading...</div>;
+
+  // This will only render after the script is loaded successfully
   return (
     <>
       <div className="homepage">
         <img src={ruCarpoolHomepageImage} alt="Carpooling" className="homepage-image" />
         
         <div className="card-container">
-          {/* Rider Card */}
           <div className="choice-card">
             <div className="card-icon">📍</div>
             <h3 className="card-title">Need a Ride?</h3>
@@ -26,7 +42,6 @@ function HomePage() {
             <button className="card-button" onClick={() => setIsRequestModalOpen(true)}>Request a Ride</button>
           </div>
 
-          {/* Driver Card */}
           <div className="choice-card">
             <div className="card-icon">👥</div>
             <h3 className="card-title">Driving Somewhere?</h3>
@@ -52,10 +67,9 @@ function HomePage() {
         </div>
       </div>
 
-      <div>
-        <h1>Carpool Map</h1>
+      <div className="map-section-container">
         <GoogleMapComponent />
-     </div>
+      </div>
 
       <OfferRideModal isOpen={isOfferModalOpen} onClose={() => setIsOfferModalOpen(false)} />
       <RequestRideModal isOpen={isRequestModalOpen} onClose={() => setIsRequestModalOpen(false)} />
