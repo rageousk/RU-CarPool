@@ -1,4 +1,4 @@
-
+/* Modal Overlay */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -12,17 +12,19 @@
   z-index: 2000;
 }
 
+/* Modal Content */
 .modal-content {
   background: white;
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   width: 90%;
-  max-width: 500px;
+  max-width: 900px; 
   position: relative;
   text-align: left;
 }
 
+/* Close Button */
 .close-button {
   position: absolute;
   top: 15px;
@@ -35,9 +37,10 @@
 }
 
 .close-button:hover {
-    color: #333;
+  color: #333;
 }
 
+/* Form Layout */
 .request-ride-form {
   display: flex;
   flex-direction: column;
@@ -50,52 +53,77 @@
   font-size: 14px;
 }
 
-.request-ride-form input {
+/* Autocomplete Container */
+.autocomplete-container {
+  position: relative;
+  width: 100%;
+}
+
+/* Inputs inside autocomplete */
+.autocomplete-container input {
+  width: 100%;
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 16px;
+  box-sizing: border-box; /* ensures padding doesn't shrink width */
 }
 
-.slider-description {
-    font-size: 12px;
-    color: #666;
-    margin-top: -10px; /* Pulls it closer to the label */
+/* Autocomplete Dropdown */
+.autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%; 
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 0 0 6px 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.slider {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 8px;
-    border-radius: 5px;
-    background: #FFCC00;
-    outline: none;
-    opacity: 0.7;
-    transition: opacity .2s;
+.suggestion-item {
+  padding: 10px;
+  cursor: pointer;
 }
 
-.slider:hover {
-    opacity: 1;
+.suggestion-item:hover {
+  background-color: #f0f0f0;
 }
 
-.slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #57150B;
-    cursor: pointer;
+/* Form + Map Container */
+.form-map-container {
+  display: flex;
+  gap: 20px; /* spacing between form and map */
+  flex-wrap: wrap; /* stack vertically on small screens */
 }
 
-.slider::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #57150B;
-    cursor: pointer;
+.form-container {
+  flex: 1;
+  min-width: 300px; /* keep form readable */
 }
 
+.map-container {
+  flex: 1;
+  min-width: 300px;
+  margin-top: 50px;
+  height: 100%;
+}
+
+/* Inputs outside autocomplete */
+.request-ride-form input[type="datetime-local"],
+.request-ride-form input[type="number"],
+.request-ride-form input[type="text"] {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+/* Submit Button */
 .submit-button {
   background-color: #FFCC00;
   color: #333;
@@ -110,4 +138,30 @@
 
 .submit-button:hover {
   background-color: #e6b800;
+}
+
+/* Distance & Cost Card */
+.distance-cost-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 15px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-top: 15px;
+  font-family: "Roboto", sans-serif;
+  flex-wrap: wrap; 
+  gap: 10px;
+}
+
+.distance-cost-card .distance {
+  font-size: 14px;
+  color: #666;
+}
+
+.distance-cost-card .cost {
+  font-size: 20px;
+  font-weight: bold;
+  color: #FFCC00;
 }
