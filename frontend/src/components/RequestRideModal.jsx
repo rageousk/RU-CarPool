@@ -25,21 +25,20 @@ const useGoogleMapsLoaded = () => {
   return loaded;
 };
 
-const RequestRideModal = ({ isOpen, onClose }) => {
-  const [map, setMap] = useState(null);
+const RequestRideModal = ({ onClose }) => {
+  const mapInstance = useRef(null);
   const [mapCenter, setMapCenter] = useState(defaultCenter);
   const [pickup, setPickup] = useState("");
   const [destination, setDestination] = useState("");
   const [activeInput, setActiveInput] = useState(null);
   const [markers, setMarkers] = useState([]);
-  const [directionsRenderer, setDirectionsRenderer] = useState(null);
+  const directionsRenderer = useRef(null);
   const [distanceInfo, setDistanceInfo] = useState("");
   const [totalCost, setTotalCost] = useState(null);
-  const mapRef = useRef(null);
+  const mapRef = useRef(null); // Ref for the map container DIV
 
   const isMapsLoaded = useGoogleMapsLoaded();
 
-  // Only initialize autocomplete if maps are loaded
   const {
     ready,
     suggestions: { status, data },
@@ -50,29 +49,31 @@ const RequestRideModal = ({ isOpen, onClose }) => {
     enabled: isMapsLoaded,
   });
 
-  // Reset on modal close
-  useEffect(() => {
-    if (!isOpen) {
-      setPickup("");
-      setDestination("");
-      clearSuggestions();
-      setActiveInput(null);
-    }
-  }, [isOpen]);
+  // --- REMOVED ---
+  // This useEffect block was removed because it referenced the 'isOpen'
+  // prop, which no longer exists. This was causing the crash.
+  // The component now unmounts, so its state is automatically reset.
+  //
+  // useEffect(() => {
+  //   if (!isOpen) {
+  //     setPickup("");
+  //     // ... etc
+  //   }
+  // }, [isOpen]);
 
   // Initialize map
   useEffect(() => {
-    if (!isOpen || !isMapsLoaded || map) return;
+    if (!isMapsLoaded || !mapRef.current) return;
 
     const googleMap = new window.google.maps.Map(mapRef.current, {
       center: mapCenter,
       zoom: 13,
     });
-    setMap(googleMap);
+    mapInstance.current = googleMap;
 
     const directionsDisplay = new window.google.maps.DirectionsRenderer();
     directionsDisplay.setMap(googleMap);
-    setDirectionsRenderer(directionsDisplay);
+    directionsRenderer.current = directionsDisplay;
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -91,7 +92,7 @@ const RequestRideModal = ({ isOpen, onClose }) => {
         (err) => console.warn("Geolocation error:", err)
       );
     }
-  }, [isOpen, isMapsLoaded, map, mapCenter]);
+  }, [isMapsLoaded, mapCenter]);
 
   const handleInput = (e, field) => {
     const newValue = e.target.value;
@@ -115,7 +116,7 @@ const RequestRideModal = ({ isOpen, onClose }) => {
 
   // Route + distance calculation
   useEffect(() => {
-    if (!pickup || !destination || !map || !directionsRenderer) return;
+    if (!pickup || !destination || !mapInstance.current || !directionsRenderer.current) return;
 
     const directionsService = new window.google.maps.DirectionsService();
     directionsService.route(
@@ -125,7 +126,9 @@ const RequestRideModal = ({ isOpen, onClose }) => {
         travelMode: window.google.maps.TravelMode.DRIVING,
       },
       (result, status) => {
-        if (status === "OK") directionsRenderer.setDirections(result);
+        if (status === "OK") {
+          directionsRenderer.current.setDirections(result);
+        }
       }
     );
 
@@ -143,14 +146,19 @@ const RequestRideModal = ({ isOpen, onClose }) => {
           if (element.status === "OK") {
             setDistanceInfo(`${element.distance.text} (${element.duration.text})`);
             const miles = parseFloat(element.distance.text.replace(" mi", ""));
-            setTotalCost(miles * 1);
-          } else setDistanceInfo("Distance not available");
+            setTotalCost(miles * 1); // Assuming $1 per mile
+          } else {
+            setDistanceInfo("Distance not available");
+          }
         }
       }
     );
-  }, [pickup, destination, map, directionsRenderer]);
+  }, [pickup, destination]);
 
-  if (!isOpen) return null;
+  // --- REMOVED ---
+  // This line was also removed because it referenced the 'isOpen' prop.
+  //
+  // if (!isOpen) return null;
 
   return (
     <div className="modal-overlay">
@@ -164,7 +172,6 @@ const RequestRideModal = ({ isOpen, onClose }) => {
         <div className="form-map-container">
           <div className="form-container">
             <form className="request-ride-form" onSubmit={(e) => e.preventDefault()}>
-              {/* Render inputs only after maps are loaded */}
               {isMapsLoaded && (
                 <>
                   <label htmlFor="pickup-location">Pickup Location *</label>
