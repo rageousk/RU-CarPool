@@ -18,10 +18,34 @@
   border-radius: 12px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   width: 90%;
-  max-width: 500px;
+  max-width: 900px;
   position: relative;
   text-align: left;
 }
+
+/* Container for both the form and the map */
+.form-map-container {
+  display: flex;
+  gap: 20px; /* spacing between form and map */
+  margin-top: 20px;
+}
+
+/* Left column containing the form */
+.form-container {
+  flex: 1; /* Take up half the space */
+  min-width: 300px; 
+}
+
+/* Right column containing the map */
+.map-container {
+  flex: 1; /* Take up the other half */
+  min-width: 300px;
+  min-height: 400px; /* CRITICAL: This makes the map visible */
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #e0e0e0; /* Placeholder color */
+}
+
 .close-button {
   position: absolute;
   top: 15px;
@@ -102,4 +126,30 @@
   font-weight: bold;
   color: #333;
   border-bottom: 1px solid #eee;
+}
+
+/* === ADD THESE STYLES FOR THE DISTANCE & VALUE CARD === */
+
+.distance-cost-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f7f7f7;
+  padding: 15px 20px;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  margin-top: 15px;
+  flex-wrap: wrap; 
+  gap: 10px;
+}
+
+.distance-cost-card .distance {
+  font-size: 14px;
+  color: #666;
+}
+
+.distance-cost-card .cost {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
 }

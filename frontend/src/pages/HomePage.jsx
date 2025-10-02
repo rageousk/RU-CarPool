@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "../css/HomePage.css";
 import OfferRideModal from "../components/OfferRideModal";
 import RequestRideModal from "../components/RequestRideModal";
@@ -6,21 +6,12 @@ import ruCampus from "../assets/ru_campus.jpg";
 import bodyImage from "../assets/ru_carpool_homepage.png";
 
 function HomePage() {
+  // FIX: Ensure the initial state for both modals is set to 'false'.
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
-  const [isMapsLoaded, setIsMapsLoaded] = useState(false);
 
-  // Detect when Google Maps script is loaded
-  useEffect(() => {
-    const checkGoogleMaps = () => {
-      if (window.google && window.google.maps) {
-        setIsMapsLoaded(true);
-      } else {
-        setTimeout(checkGoogleMaps, 100);
-      }
-    };
-    checkGoogleMaps();
-  }, []);
+  // Note: The 'isMapsLoaded' logic that was here before has been removed.
+  // It's no longer needed because each modal now handles its own map loading detection.
 
   return (
     <>
@@ -66,8 +57,10 @@ function HomePage() {
         </div>
       </div>
 
-      <OfferRideModal isOpen={isOfferModalOpen} onClose={() => setIsOfferModalOpen(false)} isMapsLoaded={isMapsLoaded} />
-      <RequestRideModal isOpen={isRequestModalOpen} onClose={() => setIsRequestModalOpen(false)} isMapsLoaded={isMapsLoaded} />
+      {/* FIX: Use conditional rendering for both modals to ensure they only appear when clicked and can be closed correctly. */}
+      {isOfferModalOpen && <OfferRideModal onClose={() => setIsOfferModalOpen(false)} />}
+      
+      {isRequestModalOpen && <RequestRideModal onClose={() => setIsRequestModalOpen(false)} />}
     </>
   );
 }
