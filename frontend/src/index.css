@@ -1,0 +1,4 @@
+/* placeholder to satisfy import after merge */
+:root { color-scheme: light dark; }
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
