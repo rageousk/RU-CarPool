@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Link, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import HomePage from './pages/HomePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import { supabase } from './lib/supabaseClient';
 import './App.css';
 
-// lightweight dashboard so the route works immediately
 function Dashboard() {
   return (
     <div style={{
@@ -23,19 +22,24 @@ function Dashboard() {
 
 export default function App() {
   const loc = useLocation();
-  const [userEmail, setUserEmail] = useState(null);
-  const signedIn = !!userEmail;
+  const nav = useNavigate();
 
-  // keep header state in sync with auth
+  const [userEmail, setUserEmail] = useState(null);
+
+  // ✅ consider either a Supabase browser session OR a backend token as signed-in
+  const hasToken = !!localStorage.getItem('ru_token');
+  const signedIn = hasToken || !!userEmail;
+  const displayEmail = userEmail || localStorage.getItem('ru_email') || '';
+
   useEffect(() => {
     let mounted = true;
 
-    async function load() {
+    // still listen for Supabase auth if ever used directly in the browser
+    (async () => {
       const { data } = await supabase.auth.getSession();
       if (!mounted) return;
       setUserEmail(data.session?.user?.email ?? null);
-    }
-    load();
+    })();
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       setUserEmail(session?.user?.email ?? null);
@@ -44,14 +48,20 @@ export default function App() {
     return () => { mounted = false; sub.subscription.unsubscribe(); };
   }, []);
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
+  function handleLogout() {
+    // clear backend login artifacts
+    localStorage.removeItem('ru_token');
+    localStorage.removeItem('ru_email');
+    setUserEmail(null);
+    // also sign out of any browser Supabase session (no-op if none)
+    supabase.auth.signOut().catch(() => {});
+    nav('/login');
   }
 
   return (
     <div style={layout}>
       <header style={header}>
-        <nav style={nav}>
+        <nav style={navStyle}>
           <Link to="/" style={brand}>RU Carpooling</Link>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -62,7 +72,7 @@ export default function App() {
             {signedIn ? (
               <div style={userBox}>
                 <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 180 }}>
-                  {userEmail}
+                  {displayEmail}
                 </span>
                 <button onClick={handleLogout} style={logoutBtn}>Log out</button>
               </div>
@@ -113,18 +123,10 @@ function NavLink({ to, active, children }) {
   );
 }
 
-// minimal styles
 const layout = { minHeight: '100dvh', display: 'flex', flexDirection: 'column' };
 const header = { position: 'sticky', top: 0, zIndex: 10, background: '#0b1220', color: '#fff', borderBottom: '1px solid #111827' };
-const nav = { maxWidth: 1100, margin: '0 auto', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 };
+const navStyle = { maxWidth: 1100, margin: '0 auto', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 };
 const brand = { color: '#a7f3d0', textDecoration: 'none', fontWeight: 800, letterSpacing: 0.2 };
 const main = { flex: 1, padding: '20px 16px', background: 'linear-gradient(135deg,#f5f7fa,#e4ecf7)' };
-
-const userBox = {
-  display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px',
-  border: '1px solid #1f2937', borderRadius: 10, background: '#0f172a'
-};
-const logoutBtn = {
-  padding: '6px 10px', borderRadius: 8, border: '1px solid #334155',
-  background: '#111827', color: '#e5e7eb', cursor: 'pointer', fontWeight: 700
-};
+const userBox = { display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', border: '1px solid #1f2937', borderRadius: 10, background: '#0f172a' };
+const logoutBtn = { padding: '6px 10px', borderRadius: 8, border: '1px solid #334155', background: '#111827', color: '#e5e7eb', cursor: 'pointer', fontWeight: 700 };

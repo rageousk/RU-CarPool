@@ -1,8 +1,15 @@
-const express = require("express");
-const router = express.Router();
+// backend/routes/health.js
+import { Router } from "express";
+import { supabaseAdmin as supabase } from "../lib/supabase.js";
 
-router.get("/health", (_req, res) => {
-  res.json({ ok: true, service: "ru-carpool-backend", time: new Date().toISOString() });
+const router = Router();
+
+router.get("/", (_req, res) => {
+  res.json({
+    ok: true,
+    service: "ru-carpool-backend",
+    time: new Date().toISOString(),
+  });
 });
 
-module.exports = router;
+export default router;
