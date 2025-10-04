@@ -1,1 +1,12 @@
+# Global dependencies
 node_modules/
+
+# Environment variable files
+# These files contain secrets and should not be committed!
+.env
+.env.local
+
+# Editor and OS specific files
+.vscode
+.idea
+.DS_Store
