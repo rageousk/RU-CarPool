@@ -4,14 +4,28 @@ import OfferRideModal from "../components/OfferRideModal";
 import RequestRideModal from "../components/RequestRideModal";
 import ruCampus from "../assets/ru_campus.jpg";
 import bodyImage from "../assets/ru_carpool_homepage.png";
+import { useNavigate } from "react-router-dom";
 
-function HomePage() {
-  // FIX: Ensure the initial state for both modals is set to 'false'.
+function HomePage({ signedIn }) {
+  const navigate = useNavigate();
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
 
-  // Note: The 'isMapsLoaded' logic that was here before has been removed.
-  // It's no longer needed because each modal now handles its own map loading detection.
+  const handleRequestClick = () => {
+    if (!signedIn) {
+      navigate("/login");
+      return;
+    }
+    setIsRequestModalOpen(true);
+  };
+
+  const handleOfferClick = () => {
+    if (!signedIn) {
+      navigate("/login");
+      return;
+    }
+    setIsOfferModalOpen(true);
+  };
 
   return (
     <>
@@ -25,7 +39,7 @@ function HomePage() {
             <p className="card-description">
               Tell us where you want to go and when, and we'll match you with drivers heading your way.
             </p>
-            <button className="card-button" onClick={() => setIsRequestModalOpen(true)}>
+            <button className="request-button" onClick={handleRequestClick}>
               Request a Ride
             </button>
           </div>
@@ -36,7 +50,7 @@ function HomePage() {
             <p className="card-description">
               Share your trip details and pick up fellow students along the way.
             </p>
-            <button className="card-button" onClick={() => setIsOfferModalOpen(true)}>
+            <button className="offer-button" onClick={handleOfferClick}>
               Offer a Ride
             </button>
           </div>
@@ -57,9 +71,7 @@ function HomePage() {
         </div>
       </div>
 
-      {/* FIX: Use conditional rendering for both modals to ensure they only appear when clicked and can be closed correctly. */}
       {isOfferModalOpen && <OfferRideModal onClose={() => setIsOfferModalOpen(false)} />}
-      
       {isRequestModalOpen && <RequestRideModal onClose={() => setIsRequestModalOpen(false)} />}
     </>
   );
