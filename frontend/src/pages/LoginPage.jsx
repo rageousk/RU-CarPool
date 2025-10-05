@@ -1,5 +1,5 @@
 // frontend/src/pages/LoginPage.jsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/LoginPage.css";
 
@@ -19,6 +19,16 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState(null);
   const [err, setErr] = useState(null);
+
+  // Redirect and hide page when signed in
+  const [userEmail] = useState(null);
+  const hasToken = !!localStorage.getItem('ru_token');
+  const signedIn = hasToken || !!userEmail;
+
+  useEffect(() => {
+    if (signedIn)
+      nav("/dashboard");
+  }, []);
 
   function validate() {
     if (!ROWAN_REGEX.test(email))
@@ -129,7 +139,7 @@ export default function LoginPage() {
     }
   }
 
-  return (
+  return (!signedIn &&
     <div className="auth-page">
       <div className="auth-shell">
         <div className="auth-card">

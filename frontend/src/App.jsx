@@ -66,7 +66,7 @@ export default function App() {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <NavLink to="/" active={loc.pathname === '/'}>Home</NavLink>
-            <NavLink to="/login" active={loc.pathname.startsWith('/login')}>Login / Sign Up</NavLink>
+            {!signedIn && <NavLink to="/login" active={loc.pathname.startsWith('/login')}>Login / Sign Up</NavLink>}
             {signedIn && <NavLink to="/dashboard" active={loc.pathname.startsWith('/dashboard')}>Dashboard</NavLink>}
 
             {signedIn ? (
