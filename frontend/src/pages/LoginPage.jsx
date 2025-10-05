@@ -80,7 +80,14 @@ export default function LoginPage() {
           body: JSON.stringify({ email, password }),
         });
         const out = await res.json();
-        if (!res.ok) throw new Error(out.error || "Sign up failed");
+        if (!res.ok) {
+          // When signing up with a pre-existing email say the user already exists
+          const USER_EXISTS_ERR = `insert or update on table "users" violates foreign key constraint "users_id_fkey"`;
+          if (out.error == USER_EXISTS_ERR)
+            throw new Error("This user already exists. Do you want to login?");
+          else
+            throw new Error(out.error || "Sign up failed");
+        }
         setMsg("✅ Check your email to verify your account.");
       }
     } catch (e) {
