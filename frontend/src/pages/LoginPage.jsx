@@ -153,13 +153,19 @@ export default function LoginPage() {
 
           <div className="auth-tabs">
             <button
-              onClick={() => setMode("login")}
+              onClick={() => {
+                if (mode !== "login") setErr(null);
+                setMode("login");
+              }}
               className={`tab ${mode === "login" ? "active" : ""}`}
             >
               Login
             </button>
             <button
-              onClick={() => setMode("signup")}
+              onClick={() => {
+                if (mode !== "signup") setErr(null);
+                setMode("signup");
+              }}
               className={`tab ${mode === "signup" ? "active" : ""}`}
             >
               Sign Up
