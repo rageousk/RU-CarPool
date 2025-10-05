@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/LoginPage.css";
+import { LuEye, LuEyeClosed } from "react-icons/lu"
 
 // Rowan-only + basic password rule
 const ROWAN_REGEX = /@(?:students\.rowan\.edu|rowan\.edu)$/i;
@@ -29,6 +30,12 @@ export default function LoginPage() {
     if (signedIn)
       nav("/dashboard");
   }, []);
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  function toggleShow(target) {
+    if (target === "password") setShowPassword(!showPassword);
+  }
 
   function validate() {
     if (!ROWAN_REGEX.test(email))
@@ -186,13 +193,19 @@ export default function LoginPage() {
 
             <label className="field">
               <span>Password</span>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <p onClick={() => toggleShow("password")}>
+                  {showPassword && <LuEye size="1.5em"></LuEye>}
+                  {!showPassword && <LuEyeClosed size="1.5em"></LuEyeClosed>}
+                </p>
+              </div>
             </label>
 
             {mode === "signup" && (

@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Navigate, useLocation, useNavigate } from "react-router-dom"
+import { LuEye, LuEyeClosed } from "react-icons/lu"
 
 // Basic password rule
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
@@ -23,6 +24,14 @@ function ResetPasswordPage() {
     }
 
     const { access_token, refresh_token } = location.state;
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmedPassword, setShowConfirmedPassword] = useState(false);
+
+    function toggleShow(target) {
+        if (target === "password") setShowPassword(!showPassword);
+        else if (target === "confirmed-password") setShowConfirmedPassword(!showConfirmedPassword);
+    }
 
     function validate() {
         if (password != confirmedPassword)
@@ -61,6 +70,7 @@ function ResetPasswordPage() {
             setLoading(false);
         }
     }
+
     return (
         <div className="auth-page">
             <div className="auth-shell">
@@ -71,26 +81,38 @@ function ResetPasswordPage() {
                     <form onSubmit={onSubmit} className="auth-form">
                         <label className="field">
                             <span>New Password</span>
-                            <input
-                                type="password"
-                                placeholder="••••••••"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                disabled={inputDisabled}
-                            />
+                            <div>
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="••••••••"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    disabled={inputDisabled}
+                                />
+                                <p onClick={() => toggleShow("password")}>
+                                    {showPassword && <LuEye size="1.5em"></LuEye>}
+                                    {!showPassword && <LuEyeClosed size="1.5em"></LuEyeClosed>}
+                                </p>
+                            </div>
                         </label>
 
                         <label className="field">
                             <span>Confirm New Password</span>
-                            <input
-                                type="password"
-                                placeholder="••••••••"
-                                value={confirmedPassword}
-                                onChange={(e) => setConfirmedPassword(e.target.value)}
-                                required
-                                disabled={inputDisabled}
-                            />
+                            <div>
+                                <input
+                                    type={showConfirmedPassword ? "text" : "password"}
+                                    placeholder="••••••••"
+                                    value={confirmedPassword}
+                                    onChange={(e) => setConfirmedPassword(e.target.value)}
+                                    required
+                                    disabled={inputDisabled}
+                                />
+                                <p onClick={() => toggleShow("confirmed-password")}>
+                                    {showConfirmedPassword && <LuEye size="1.5em"></LuEye>}
+                                    {!showConfirmedPassword && <LuEyeClosed size="1.5em"></LuEyeClosed>}
+                                </p>
+                            </div>
                         </label>
 
                         {err && <div className="msg error">{err}</div>}
