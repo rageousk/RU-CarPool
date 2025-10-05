@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import HomePage from './pages/HomePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import { supabase } from './lib/supabaseClient';
 import './App.css';
 
@@ -41,8 +42,12 @@ export default function App() {
       setUserEmail(data.session?.user?.email ?? null);
     })();
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       setUserEmail(session?.user?.email ?? null);
+      if (event === 'PASSWORD_RECOVERY') {
+        const { access_token, refresh_token } = session;
+        nav("/reset-password", { state: { access_token, refresh_token } });
+      }
     });
 
     return () => { mounted = false; sub.subscription.unsubscribe(); };
@@ -85,6 +90,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route
             path="/dashboard"
             element={

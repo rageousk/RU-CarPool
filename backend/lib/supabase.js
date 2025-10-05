@@ -21,3 +21,14 @@ export const supabaseAnon = createClient(url, anon, {
 export const supabaseAdmin = createClient(url, serviceRole, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
+
+// User authenticated client
+export const createSupabaseUser = async (access_token, refresh_token) => {
+  const supabaseUser = createClient(url, anon, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { data, error } = await supabaseUser.auth.setSession({
+    access_token, refresh_token
+  });
+  return { supabaseUser, data, error };
+}

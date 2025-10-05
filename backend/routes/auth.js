@@ -1,6 +1,6 @@
 // backend/routes/auth.js
 import { Router } from 'express';
-import { supabaseAnon, supabaseAdmin } from '../lib/supabase.js';
+import { supabaseAnon, supabaseAdmin, createSupabaseUser } from '../lib/supabase.js';
 
 const router = Router();
 
@@ -99,5 +99,26 @@ router.post('/forgot', async (req, res) => {
   if (error) return res.status(400).json({ error: error.message });
   return res.json({ ok: true });
 });
+
+/**
+ * POST /api/auth/reset-password
+ * body: { access_token, refresh_token, password }
+ */
+router.post('/reset-password', async (req, res) => {
+  const { access_token, refresh_token, password } = req.body || {};
+  if (!access_token) return res.status(400).json({ error: "access_token is required" });
+  if (!refresh_token) return res.status(400).json({ error: "refresh_token is required" });
+  if (!password) return res.status(400).json({ error: 'password is required' });
+
+  const { supabaseUser, _supabaseData, supabaseError } = await createSupabaseUser(access_token, refresh_token);
+  if (supabaseError) return res.status(400).json({ error: supabaseError.message });
+
+  const { _data, error } = await supabaseUser.auth.updateUser({
+    password
+  });
+
+  if (error) return res.status(400).json({ error: error.message });
+  return res.json({ ok: true });
+})
 
 export default router;

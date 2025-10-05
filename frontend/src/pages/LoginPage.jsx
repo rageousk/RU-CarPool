@@ -45,10 +45,8 @@ export default function LoginPage() {
     setErr(null);
     setMsg(null);
 
-    if (mode !== "reset") {
-      const v = validate();
-      if (v) return setErr(v);
-    }
+    const v = validate();
+    if (v) return setErr(v);
 
     try {
       setLoading(true);
