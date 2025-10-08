@@ -1,156 +1,118 @@
 /* General Navbar Styling */
 .navbar {
-  display: flex;
-  justify-content: space-between; 
-  align-items: center;
-  padding: 15px 100px;
-  background-color: #57150B;
-  color: white;
-  font-family: SF Pro Display, SF Pro Icons, Helvetica Neue, Helvetica, Arial, sans-serif;
-  position: fixed; 
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    padding: 15px 100px;
+    background-color: #57150B;
+    color: white;
+    font-family: SF Pro Display, SF Pro Icons, Helvetica Neue, Helvetica, Arial, sans-serif;
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
 }
-
+  
 .navbar-logo {
-  font-size: 24px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 50px; 
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center; /* Align items vertically */
+    gap: 50px; /* Space between "RU Carpooling" and "About Us" */
 }
 
 .app-name{
-  font-size: 24px;
-  font-weight: bold;
-  color: white;
-  text-decoration: none;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
 }
 
 .main-content {
+  /* This value should be roughly the height of your navbar */
   padding-top: 70px; 
 }
 
 .app-name:hover {
-  color: #f0a500;
+    color: #f0a500;
 }
 
 .navbar-links {
-  display: flex;
-  align-items: center;
-  margin-left: auto; 
+    display: flex;
+    align-items: center; /* Align items vertically */
+    margin-left: auto; /* Push the login icon to the far right */
 }
 
 .nav-link {
-  text-decoration: none;
-  color: white;
-  font-size: 16px;
-  transition: color 0.3s ease;
-  margin: 0; 
-  padding: 0; 
-  line-height: 1;
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+    transition: color 0.3s ease;
+    margin: 0; /* Remove any default margins */
+    padding: 0; /* Remove any default paddings */
+    line-height: 1; /* Ensure consistent line height */
 }
 
 .nav-link:hover {
-  color: #f0a500;
+    color: #f0a500;
 }
-
+  
+  
 .login-icon {
-  font-size: 16px; 
-  margin-left: auto; 
-  color: white;
-  text-decoration: none;
-  transition: color 0.3s ease;
-  gap: 5px; 
+    font-size: 16px; 
+    margin-left: auto; /* Ensure it stays at the far right */
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    gap: 5px; 
 }
-
+  
 .login-icon:hover {
-  color: #f0a500;
+    color: #f0a500;
 }
-
-/* User Dropdown */
-.user-dropdown {
-  position: relative;
-  cursor: pointer;
-  margin-left: 10px;
-}
-
-.nav-user-name {
-  font-weight: 700;
-  color: white;
-  user-select: none;
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 5px 0;
-  min-width: 120px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  z-index: 1000;
-}
-
-.dropdown-item {
-  width: 100%;
-  background: none;
-  border: none;
-  padding: 8px 12px;
-  text-align: left;
-  cursor: pointer;
-  font-size: 14px;
-  color: #111827;
-}
-
-.dropdown-item:hover {
-  background-color: #f0f0f0;
-}
-
+  
+  
 /* Responsive Design */
 @media (max-width: 768px) {
-  .navbar {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 10px;
-  }
-
-  .navbar-links {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    width: 100%;
-  }
-
-  .nav-link {
-    font-size: 14px;
-  }
-
-  .nav-user-name {
-    margin-left: 0;
-  }
-
-  .dropdown-menu {
-    right: auto;
-    left: 0;
-  }
+    .navbar {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 10px;
+    }
+  
+    .navbar-links {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      width: 100%;
+    }
+  
+    .nav-link {
+      font-size: 14px;
+    }
+  
+    .nav-user-name {
+      margin-left: 0;
+    }
+  
+    .dropdown-menu {
+      right: auto;
+      left: 0;
+    }
 }
-
+  
 @media (max-width: 480px) {
-  .navbar-logo {
-    font-size: 20px;
-  }
-
-  .nav-link {
-    font-size: 12px;
-  }
-
-  .dropdown-item {
-    font-size: 12px;
-  }
+    .navbar-logo {
+      font-size: 20px;
+    }
+  
+    .nav-link {
+      font-size: 12px;
+    }
+  
+    .dropdown-item {
+      font-size: 12px;
+    }
 }

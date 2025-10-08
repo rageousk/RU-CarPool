@@ -1,7 +1,8 @@
 // frontend/src/pages/LoginPage.jsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/LoginPage.css";
+import { LuEye, LuEyeClosed } from "react-icons/lu"
 
 // Rowan-only + basic password rule
 const ROWAN_REGEX = /@(?:students\.rowan\.edu|rowan\.edu)$/i;
@@ -20,6 +21,22 @@ export default function LoginPage() {
   const [msg, setMsg] = useState(null);
   const [err, setErr] = useState(null);
 
+  // Redirect and hide page when signed in
+  const [userEmail] = useState(null);
+  const hasToken = !!localStorage.getItem('ru_token');
+  const signedIn = hasToken || !!userEmail;
+
+  useEffect(() => {
+    if (signedIn)
+      nav("/");
+  }, []);
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  function toggleShow(target) {
+    if (target === "password") setShowPassword(!showPassword);
+  }
+
   function validate() {
     if (!ROWAN_REGEX.test(email))
       return "Use your @students.rowan.edu or @rowan.edu email.";
@@ -35,10 +52,8 @@ export default function LoginPage() {
     setErr(null);
     setMsg(null);
 
-    if (mode !== "reset") {
-      const v = validate();
-      if (v) return setErr(v);
-    }
+    const v = validate();
+    if (v) return setErr(v);
 
     try {
       setLoading(true);
@@ -60,7 +75,7 @@ export default function LoginPage() {
         localStorage.setItem("ru_email", out?.user?.email || email);
 
         setMsg("✅ Logged in! Redirecting…");
-        setTimeout(() => nav("/dashboard"), 300);
+        setTimeout(() => nav("/"), 300);
       }
 
       if (mode === "signup") {
@@ -70,7 +85,14 @@ export default function LoginPage() {
           body: JSON.stringify({ email, password }),
         });
         const out = await res.json();
-        if (!res.ok) throw new Error(out.error || "Sign up failed");
+        if (!res.ok) {
+          // When signing up with a pre-existing email say the user already exists
+          const USER_EXISTS_ERR = `insert or update on table "users" violates foreign key constraint "users_id_fkey"`;
+          if (out.error == USER_EXISTS_ERR)
+            throw new Error("This user already exists. Do you want to login?");
+          else
+            throw new Error(out.error || "Sign up failed");
+        }
         setMsg("✅ Check your email to verify your account.");
       }
     } catch (e) {
@@ -129,7 +151,7 @@ export default function LoginPage() {
     }
   }
 
-  return (
+  return (!signedIn &&
     <div className="auth-page">
       <div className="auth-shell">
         <div className="auth-card">
@@ -138,13 +160,19 @@ export default function LoginPage() {
 
           <div className="auth-tabs">
             <button
-              onClick={() => setMode("login")}
+              onClick={() => {
+                if (mode !== "login") setErr(null);
+                setMode("login");
+              }}
               className={`tab ${mode === "login" ? "active" : ""}`}
             >
               Login
             </button>
             <button
-              onClick={() => setMode("signup")}
+              onClick={() => {
+                if (mode !== "signup") setErr(null);
+                setMode("signup");
+              }}
               className={`tab ${mode === "signup" ? "active" : ""}`}
             >
               Sign Up
@@ -165,13 +193,19 @@ export default function LoginPage() {
 
             <label className="field">
               <span>Password</span>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <p onClick={() => toggleShow("password")}>
+                  {showPassword && <LuEye size="1.5em"></LuEye>}
+                  {!showPassword && <LuEyeClosed size="1.5em"></LuEyeClosed>}
+                </p>
+              </div>
             </label>
 
             {mode === "signup" && (
