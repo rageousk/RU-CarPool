@@ -39,13 +39,27 @@ const Navbar = ({ userProp }) => {
             About Us
           </a>
         </div>
+
         <div className="navbar-links">
-          <a href="/login" className="login-icon">
-            Login
-          </a>
-        </div>
+        {!user ? (
+          <a href="/login" className="login-icon">Login</a>
+        ) : (
+          <div className="user-dropdown">
+            <span className="nav-user-name" onClick={toggleDropdown}>
+              {user.email.split("@")[0]} ▼
+            </span>
+            {dropdownOpen && (
+              <div className="dropdown-menu">
+                <button className="dropdown-item" onClick={handleLogout}>
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
       </div>
     );
   };
-  
-  export default Navbar;
+
+export default Navbar;

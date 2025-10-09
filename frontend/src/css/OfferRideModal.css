@@ -1,3 +1,4 @@
+/* ... Keep all your existing .modal-overlay, .modal-content, etc. styles ... */
 
 .modal-overlay {
   position: fixed;
@@ -11,16 +12,38 @@
   align-items: center;
   z-index: 2000;
 }
-
 .modal-content {
   background: white;
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   width: 90%;
-  max-width: 500px;
+  max-width: 900px;
   position: relative;
   text-align: left;
+}
+
+/* Container for both the form and the map */
+.form-map-container {
+  display: flex;
+  gap: 20px; /* spacing between form and map */
+  margin-top: 20px;
+}
+
+/* Left column containing the form */
+.form-container {
+  flex: 1; /* Take up half the space */
+  min-width: 300px; 
+}
+
+/* Right column containing the map */
+.map-container {
+  flex: 1; /* Take up the other half */
+  min-width: 300px;
+  min-height: 400px; /* CRITICAL: This makes the map visible */
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #e0e0e0; /* Placeholder color */
 }
 
 .close-button {
@@ -33,32 +56,28 @@
   cursor: pointer;
   color: #888;
 }
-
 .close-button:hover {
     color: #333;
 }
-
 .offer-ride-form {
   display: flex;
   flex-direction: column;
   gap: 15px;
   margin-top: 20px;
 }
-
 .offer-ride-form label {
   font-weight: bold;
   font-size: 14px;
 }
-
 .offer-ride-form input {
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 16px;
+  width: 100%; /* Ensure input takes full width */
 }
-
 .submit-button {
-  background-color: #DAA520; /* A gold color */
+  background-color: #DAA520;
   color: white;
   padding: 15px;
   border: none;
@@ -68,7 +87,69 @@
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-
 .submit-button:hover {
   background-color: #b8860b;
+}
+
+/* === NEW STYLES FOR CUSTOM DROPDOWN === */
+
+.autocomplete-container {
+  position: relative; /* This is the anchor for the dropdown */
+}
+
+.autocomplete-dropdown {
+  position: absolute;
+  top: 100%; /* Position it right below the input */
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 2100; /* Must be higher than modal's z-index */
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.suggestion-item, .location-item {
+  padding: 12px 15px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.suggestion-item:hover, .location-item:hover {
+  background-color: #f0f0f0;
+}
+
+.location-item {
+  font-weight: bold;
+  color: #333;
+  border-bottom: 1px solid #eee;
+}
+
+/* === ADD THESE STYLES FOR THE DISTANCE & VALUE CARD === */
+
+.distance-cost-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f7f7f7;
+  padding: 15px 20px;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  margin-top: 15px;
+  flex-wrap: wrap; 
+  gap: 10px;
+}
+
+.distance-cost-card .distance {
+  font-size: 14px;
+  color: #666;
+}
+
+.distance-cost-card .cost {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
 }
