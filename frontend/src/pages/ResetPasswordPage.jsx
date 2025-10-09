@@ -94,38 +94,34 @@ function ResetPasswordPage() {
           <p className="auth-sub">Please create a new password.</p>
 
           <form onSubmit={onSubmit} className="auth-form">
-            <label className="field">
+            <label className="field password-field">
               <span>New Password</span>
-              <div>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={inputDisabled}
-                />
-                <p onClick={() => toggleShow("password")}>
-                  {showPassword ? <LuEye size="1.5em" /> : <LuEyeClosed size="1.5em" />}
-                </p>
-              </div>
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={inputDisabled}
+              />
+              <p className="toggle-password" onClick={() => toggleShow("password")}>
+                {showPassword ? <LuEye size="1.5em" /> : <LuEyeClosed size="1.5em" />}
+              </p>
             </label>
 
-            <label className="field">
+            <label className="field password-field">
               <span>Confirm New Password</span>
-              <div>
-                <input
-                  type={showConfirmedPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={confirmedPassword}
-                  onChange={(e) => setConfirmedPassword(e.target.value)}
-                  required
-                  disabled={inputDisabled}
-                />
-                <p onClick={() => toggleShow("confirmed-password")}>
-                  {showConfirmedPassword ? <LuEye size="1.5em" /> : <LuEyeClosed size="1.5em" />}
-                </p>
-              </div>
+              <input
+                type={showConfirmedPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={confirmedPassword}
+                onChange={(e) => setConfirmedPassword(e.target.value)}
+                required
+                disabled={inputDisabled}
+              />
+              <p className="toggle-password" onClick={() => toggleShow("confirmed-password")}>
+                {showConfirmedPassword ? <LuEye size="1.5em" /> : <LuEyeClosed size="1.5em" />}
+              </p>
             </label>
 
             {err && <div className="msg error">{err}</div>}

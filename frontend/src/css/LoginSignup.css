@@ -1,0 +1,254 @@
+/* ===========================
+   AuthPage.css - Cleaned
+=========================== */
+
+/* Container */
+.auth-page {
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  background: #f8f9fa;
+  font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* Shell */
+.auth-shell {
+  width: 100%;
+  max-width: 480px;
+  padding: 0 16px;
+}
+
+/* Card */
+.auth-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 36px 28px;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Title & Subtitle */
+.auth-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  color: #111827;
+}
+
+.auth-sub {
+  margin: 0;
+  font-size: 14px;
+  text-align: center;
+  color: #6b7280;
+}
+
+/* Social login buttons */
+.social-login {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.google-btn,
+.microsoft-btn {
+  display: flex;
+  align-items: center;       /* vertical center */
+  justify-content: center;   /* center icon + text horizontally */
+  gap: 10px;                 /* space between icon and text */
+  padding: 12px 20px;        /* vertical + horizontal padding */
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  background-color: #f2f2f2;
+  color: #111;
+  transition: all 0.2s ease-in-out;
+}
+
+.google-btn:hover {
+  background-color: #e8f0fe; /* subtle Google blue */
+}
+
+.microsoft-btn:hover {
+  background-color: #f3f3f3; /* subtle Microsoft gray */
+}
+
+/* Icon styling */
+.social-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  display: inline-block;
+}
+
+/* Divider with "or" text */
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.divider::before { margin-right: 10px; }
+.divider::after { margin-left: 10px; }
+
+/* Form */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Input fields */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  position: relative;
+}
+
+.field input {
+  width: 100%;
+  padding: 14px 48px 14px 16px; /* space for password toggle */
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  outline: none;
+  font-size: 16px;
+  transition: all 0.2s ease-in-out;
+}
+
+.field input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+/* Password eye icon login*/
+.field.password-field .toggle-password-login {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #9ca3af;
+  font-size: 1.2em;
+}
+
+/* Password eye icon signup*/
+.field.password-field .toggle-password {
+  position: absolute;
+  right: 16px;
+  top: 70%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #9ca3af;
+  font-size: 1.2em;
+}
+
+/* Forgot password under password input */
+.forgot-password-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.forgot-password-container .link-btn {
+  font-size: 13px;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #57150B;
+}
+
+.forgot-password-container .link-btn:hover {
+  text-decoration: underline;
+}
+
+/* Signup link centered below login button */
+.signup-link-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+.signup-link-container span {
+  font-size: 13px;
+  color: #020202; 
+  font-weight: 400; 
+}
+
+.signup-link-container .link-btn {
+  font-size: 13px;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  margin-left: 5px;
+  color: #57150B;
+}
+
+.signup-link-container .link-btn:hover {
+  text-decoration: underline;
+}
+
+/* Buttons */
+.primary {
+  background-color: #ffcc00ad;
+  color: #020202;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 0;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out, transform 0.1s ease-in-out;
+}
+.primary:hover {
+  background-color: #57150B;
+  color: white;
+}
+.primary:active { transform: translateY(1px); }
+
+/* Messages */
+.msg {
+  font-size: 14px;
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+}
+.msg.error {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+.msg.ok {
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+/* Mobile tweaks */
+@media (max-width: 480px) {
+  .auth-card { padding: 24px 16px; }
+  .auth-title { font-size: 24px; }
+  .field input { padding: 12px 40px 12px 12px; font-size: 15px; }
+  .primary { padding: 12px 0; font-size: 15px; }
+  .social-login { gap: 10px; }
+  .forgot-password-container { justify-content: flex-end; }
+}

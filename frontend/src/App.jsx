@@ -1,9 +1,10 @@
 // src/App.jsx
 import React, { useEffect, useState } from "react";
-import { Link, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
+import SignupPage from "./pages/SignupPage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import { supabase } from "./lib/supabaseClient";
 import "./App.css";
@@ -68,6 +69,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage signedIn={signedIn} />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage/>} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route
             path="/"

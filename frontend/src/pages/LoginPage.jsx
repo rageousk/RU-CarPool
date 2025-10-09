@@ -1,50 +1,32 @@
-// frontend/src/pages/LoginPage.jsx
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../css/LoginPage.css";
-import { LuEye, LuEyeClosed } from "react-icons/lu"
+import "../css/LoginSignup.css";
+import { LuEye, LuEyeClosed } from "react-icons/lu";
+import { supabase } from "../lib/supabaseClient"; // your supabase client
 
-// Rowan-only + basic password rule
+import GoogleIcon from "../assets/google.png";
+import MicrosoftIcon from "../assets/microsoft.png";
+
+
 const ROWAN_REGEX = /@(?:students\.rowan\.edu|rowan\.edu)$/i;
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
 
-// Where the backend lives (Codespaces/Prod can override this in .env.local)
-const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5050";
-
 export default function LoginPage() {
   const nav = useNavigate();
-  const [mode, setMode] = useState("login"); // 'login' | 'signup'
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [acceptTos, setAcceptTos] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState(null);
   const [err, setErr] = useState(null);
 
-  // Redirect and hide page when signed in
-  const [userEmail] = useState(null);
-  const hasToken = !!localStorage.getItem('ru_token');
-  const signedIn = hasToken || !!userEmail;
-
   useEffect(() => {
-    if (signedIn)
-      nav("/");
+    const hasToken = !!localStorage.getItem("ru_token");
+    if (hasToken) nav("/");
   }, []);
 
-  const [showPassword, setShowPassword] = useState(false);
-
-  function toggleShow(target) {
-    if (target === "password") setShowPassword(!showPassword);
-  }
-
-  function validate() {
-    if (!ROWAN_REGEX.test(email))
-      return "Use your @students.rowan.edu or @rowan.edu email.";
-    if (mode === "signup" && !PASSWORD_REGEX.test(password))
-      return "Password must be 8+ chars with at least 1 letter and 1 number.";
-    if (mode === "signup" && !acceptTos)
-      return "Please accept the Terms to continue.";
-    return null;
+  function toggleShow() {
+    setShowPassword(!showPassword);
   }
 
   async function onSubmit(e) {
@@ -52,75 +34,28 @@ export default function LoginPage() {
     setErr(null);
     setMsg(null);
 
-    const v = validate();
-    if (v) return setErr(v);
-
-    try {
-      setLoading(true);
-
-      if (mode === "login") {
-        const res = await fetch(`${apiBase}/api/auth/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ email, password }),
-        });
-        const out = await res.json();
-        if (!res.ok) throw new Error(out.error || "Login failed");
-
-        // ✅ store a simple token + email so <RequireAuth> can allow /dashboard
-        if (out?.session?.access_token) {
-          localStorage.setItem("ru_token", out.session.access_token);
-        }
-        localStorage.setItem("ru_email", out?.user?.email || email);
-
-        setMsg("✅ Logged in! Redirecting…");
-        setTimeout(() => nav("/"), 300);
-      }
-
-      if (mode === "signup") {
-        const res = await fetch(`${apiBase}/api/auth/signup`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        });
-        const out = await res.json();
-        if (!res.ok) {
-          // When signing up with a pre-existing email say the user already exists
-          const USER_EXISTS_ERR = `insert or update on table "users" violates foreign key constraint "users_id_fkey"`;
-          if (out.error == USER_EXISTS_ERR)
-            throw new Error("This user already exists. Do you want to login?");
-          else
-            throw new Error(out.error || "Sign up failed");
-        }
-        setMsg("✅ Check your email to verify your account.");
-      }
-    } catch (e) {
-      setErr(e?.message || "Something went wrong.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function onMagicLink() {
-    setErr(null);
-    setMsg(null);
     if (!ROWAN_REGEX.test(email)) return setErr("Use your Rowan email.");
+    if (!PASSWORD_REGEX.test(password))
+      return setErr("Password must be 8+ chars with at least 1 letter and 1 number.");
+
     try {
       setLoading(true);
-      const res = await fetch(`${apiBase}/api/auth/magic-link`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5050"}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          redirectTo: window.location.origin,
-        }),
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
       });
       const out = await res.json();
-      if (!res.ok) throw new Error(out.error || "Failed to send magic link");
-      setMsg("📨 Magic link sent! Check your inbox.");
+      if (!res.ok) throw new Error(out.error || "Login failed");
+
+      localStorage.setItem("ru_token", out.session.access_token);
+      localStorage.setItem("ru_email", out.user.email || email);
+
+      setMsg("✅ Logged in! Redirecting…");
+      setTimeout(() => nav("/"), 300);
     } catch (e) {
-      setErr(e?.message || "Failed to send magic link.");
+      setErr(e.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -132,7 +67,7 @@ export default function LoginPage() {
     if (!email) return setErr("Enter your email first.");
     try {
       setLoading(true);
-      const res = await fetch(`${apiBase}/api/auth/forgot`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5050"}/api/auth/forgot`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -141,125 +76,111 @@ export default function LoginPage() {
         }),
       });
       const out = await res.json();
-      if (!res.ok)
-        throw new Error(out.error || "Failed to send reset email.");
-      setMsg("📨 Password reset email sent. Click the link in your inbox.");
+      if (!res.ok) throw new Error(out.error || "Failed to send reset email");
+      setMsg("📨 Password reset email sent! Check your inbox.");
     } catch (e) {
-      setErr(e?.message || "Failed to send reset email.");
+      setErr(e.message || "Failed to send reset email");
     } finally {
       setLoading(false);
     }
   }
 
-  return (!signedIn &&
+
+  async function socialLogin(provider) {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithOAuth({ provider });
+      if (error) throw error;
+      // Supabase redirects user automatically for OAuth
+    } catch (e) {
+      setErr(e.message || "Social login failed");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
     <div className="auth-page">
       <div className="auth-shell">
         <div className="auth-card">
-          <h1 className="auth-title">Login / Sign Up</h1>
+          <h1 className="auth-title">Welcome back</h1>
           <p className="auth-sub">Campus access only — Rowan emails required.</p>
 
-          <div className="auth-tabs">
-            <button
-              onClick={() => {
-                if (mode !== "login") setErr(null);
-                setMode("login");
-              }}
-              className={`tab ${mode === "login" ? "active" : ""}`}
-            >
-              Login
+          {/* Social login buttons */}
+          <div className="social-login">
+            <button className="google-btn" onClick={() => socialLogin("google")}>
+              <img src={GoogleIcon} alt="Google" className="social-icon" />
+              Continue with Google
             </button>
-            <button
-              onClick={() => {
-                if (mode !== "signup") setErr(null);
-                setMode("signup");
-              }}
-              className={`tab ${mode === "signup" ? "active" : ""}`}
-            >
-              Sign Up
+
+            <button className="microsoft-btn" onClick={() => socialLogin("azure")}>
+              <img src={MicrosoftIcon} alt="Microsoft" className="social-icon" />
+              Continue with Microsoft
             </button>
           </div>
 
+
+          <div className="divider">
+            <span>or</span>
+          </div>
+
+          {/* Email/password login */}
           <form onSubmit={onSubmit} className="auth-form">
             <label className="field">
               <span>Email</span>
               <input
                 type="email"
-                placeholder="you@students.rowan.edu"
+                placeholder="email@students.rowan.edu"
                 value={email}
                 onChange={(e) => setEmail(e.target.value.trim())}
                 required
               />
             </label>
 
-            <label className="field">
+            {/* Password field */}
+            <label className="field password-field">
               <span>Password</span>
-              <div>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <p onClick={() => toggleShow("password")}>
-                  {showPassword && <LuEye size="1.5em"></LuEye>}
-                  {!showPassword && <LuEyeClosed size="1.5em"></LuEyeClosed>}
-                </p>
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <p className="toggle-password-login" onClick={toggleShow}>
+                {showPassword ? <LuEye size="1.2em" /> : <LuEyeClosed size="1.2em" />}
+              </p>
+
+              {/* Forgot password right under input, right-aligned */}
+              <div className="forgot-password-container">
+                <button
+                  type="button"
+                  className="link-btn"
+                  onClick={onForgotPassword}
+                  disabled={loading}
+                >
+                  Forgot password?
+                </button>
               </div>
             </label>
 
-            {mode === "signup" && (
-              <label className="tos">
-                <input
-                  type="checkbox"
-                  checked={acceptTos}
-                  onChange={(e) => setAcceptTos(e.target.checked)}
-                />
-                I agree to the Terms of Service & Code of Conduct.
-              </label>
-            )}
+            {/* Submit button */}
+            <button type="submit" className="primary" disabled={loading}>
+              {loading ? "Please wait…" : "Login"}
+            </button>
 
-            {err && <div className="msg error">{err}</div>}
-            {msg && <div className="msg ok">{msg}</div>}
-
-            {mode === "login" && (
-              <>
-                <div className="row">
-                  <button type="submit" className="primary" disabled={loading}>
-                    {loading ? "Please wait…" : "Login"}
-                  </button>
-                  <button
-                    type="button"
-                    className="secondary"
-                    onClick={onMagicLink}
-                    disabled={loading}
-                  >
-                    Send Magic Link to Email
-                  </button>
-                </div>
-                <div style={{ marginTop: 10, textAlign: "center" }}>
-                  <button
-                    type="button"
-                    className="link-btn"
-                    onClick={onForgotPassword}
-                    disabled={loading}
-                  >
-                    Forgot password?
-                  </button>
-                </div>
-              </>
-            )}
-
-            {mode === "signup" && (
-              <button type="submit" className="primary" disabled={loading}>
-                {loading ? "Please wait…" : "Create Account"}
+            {/* Signup link centered below */}
+            <div className="signup-link-container">
+              <span>Don't have an account? </span>
+              <button
+                type="button"
+                className="link-btn"
+                onClick={() => nav("/signup")}
+              >
+              Sign up
               </button>
-            )}
+            </div>
           </form>
-
-          <p className="fineprint">
-            Rules: Rowan emails only, respectful conduct, and campus-safe rides.
-          </p>
         </div>
       </div>
     </div>

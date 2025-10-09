@@ -6,7 +6,7 @@
     padding: 15px 100px;
     background-color: #57150B;
     color: white;
-    font-family: SF Pro Display, SF Pro Icons, Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-family: SF Pro Display, Helvetica, Arial, sans-serif;
     position: fixed; 
     top: 0;
     left: 0;
@@ -14,25 +14,18 @@
     z-index: 1000;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
 }
-  
+
 .navbar-logo {
-    font-size: 24px;
-    font-weight: bold;
     display: flex;
-    align-items: center; /* Align items vertically */
-    gap: 50px; /* Space between "RU Carpooling" and "About Us" */
+    align-items: center;
+    gap: 50px;
 }
 
-.app-name{
+.app-name {
     font-size: 24px;
     font-weight: bold;
     color: white;
     text-decoration: none;
-}
-
-.main-content {
-  /* This value should be roughly the height of your navbar */
-  padding-top: 70px; 
 }
 
 .app-name:hover {
@@ -41,8 +34,9 @@
 
 .navbar-links {
     display: flex;
-    align-items: center; /* Align items vertically */
-    margin-left: auto; /* Push the login icon to the far right */
+    align-items: center;
+    margin-left: auto;
+    gap: 10px;
 }
 
 .nav-link {
@@ -50,69 +44,143 @@
     color: white;
     font-size: 16px;
     transition: color 0.3s ease;
-    margin: 0; /* Remove any default margins */
-    padding: 0; /* Remove any default paddings */
-    line-height: 1; /* Ensure consistent line height */
 }
 
 .nav-link:hover {
     color: #f0a500;
 }
-  
-  
+
+/* Start of Login / Signup Style */
+/* Base styles for both*/
+.login-icon,
+.signup-icon {
+    font-size: 16px;
+    padding: 6px 16px;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    text-decoration: none !important; /* force removal */
+}
+
+/* Login default */
 .login-icon {
-    font-size: 16px; 
-    margin-left: auto; /* Ensure it stays at the far right */
     color: white;
-    text-decoration: none;
-    transition: color 0.3s ease;
-    gap: 5px; 
+    background-color: transparent;
 }
-  
+
+/* Signup default */
+.signup-icon {
+    color: #57150B;
+    background-color: #ffffff;
+}
+
+/* Hover login */
 .login-icon:hover {
-    color: #f0a500;
+    color: #57150B;
+    background-color: #f0a500;
 }
-  
-  
+
+/* Hover login → remove signup background */
+.login-icon:hover + .signup-icon {
+    background-color: transparent;
+    color: #57150B;
+}
+
+/* Hover signup */
+.signup-icon:hover {
+    background-color: #f0a500;
+    color: #57150B;
+}
+
+/* Hover signup → remove login background */
+.signup-icon:hover ~ .login-icon {
+    background-color: transparent;
+    color: white;
+}
+/* End of Login / Signup Style */
+
+/* User dropdown */
+.user-dropdown {
+    position: relative;
+    cursor: pointer;
+    color: white;
+}
+
+.nav-user-name {
+    font-weight: 600;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    color: #57150B;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    padding: 8px 0;
+    min-width: 120px;
+}
+
+.dropdown-item {
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.dropdown-item:hover {
+    background-color: #f0f0f0;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .navbar {
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 10px;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
     }
-  
+
     .navbar-links {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
-      width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        width: 100%;
     }
-  
-    .nav-link {
-      font-size: 14px;
+
+    .login-icon,
+    .signup-icon {
+        font-size: 14px;
+        padding: 4px 12px;
     }
-  
-    .nav-user-name {
-      margin-left: 0;
-    }
-  
+
     .dropdown-menu {
-      right: auto;
-      left: 0;
+        right: auto;
+        left: 0;
     }
 }
-  
+
 @media (max-width: 480px) {
     .navbar-logo {
-      font-size: 20px;
+        font-size: 20px;
     }
-  
-    .nav-link {
-      font-size: 12px;
+
+    .login-icon,
+    .signup-icon {
+        font-size: 12px;
+        padding: 4px 10px;
     }
-  
+
     .dropdown-item {
-      font-size: 12px;
+        font-size: 12px;
     }
+}
+
+/* Padding for main content below navbar */
+.main-content {
+    padding-top: 70px;
 }
