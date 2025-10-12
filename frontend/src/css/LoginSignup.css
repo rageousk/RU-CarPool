@@ -1,8 +1,10 @@
 /* ===========================
-   AuthPage.css - Cleaned
+   AuthPage.css - Modern Login
 =========================== */
 
-/* Container */
+/* ---------------------------
+   Container & Shell
+--------------------------- */
 .auth-page {
   min-height: 100dvh;
   display: flex;
@@ -13,15 +15,17 @@
   font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-/* Shell */
 .auth-shell {
   width: 100%;
   max-width: 480px;
   padding: 0 16px;
 }
 
-/* Card */
+/* ---------------------------
+   Card
+--------------------------- */
 .auth-card {
+  position: relative; /* positioning context for modal/popups */
   background: #fff;
   border-radius: 16px;
   padding: 36px 28px;
@@ -39,7 +43,6 @@
   text-align: center;
   color: #111827;
 }
-
 .auth-sub {
   margin: 0;
   font-size: 14px;
@@ -47,20 +50,21 @@
   color: #6b7280;
 }
 
-/* Social login buttons */
+/* ---------------------------
+   Social Login Buttons
+--------------------------- */
 .social-login {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
-
 .google-btn,
 .microsoft-btn {
   display: flex;
-  align-items: center;       /* vertical center */
-  justify-content: center;   /* center icon + text horizontally */
-  gap: 10px;                 /* space between icon and text */
-  padding: 12px 20px;        /* vertical + horizontal padding */
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
   border-radius: 12px;
   font-weight: 600;
   font-size: 14px;
@@ -68,26 +72,15 @@
   border: none;
   background-color: #f2f2f2;
   color: #111;
-  transition: all 0.2s ease-in-out;
+  transition: background 0.18s ease;
 }
+.google-btn:hover { background-color: #e8f0fe; }
+.microsoft-btn:hover { background-color: #f3f3f3; }
+.social-icon { width: 20px; height: 20px; object-fit: contain; }
 
-.google-btn:hover {
-  background-color: #e8f0fe; /* subtle Google blue */
-}
-
-.microsoft-btn:hover {
-  background-color: #f3f3f3; /* subtle Microsoft gray */
-}
-
-/* Icon styling */
-.social-icon {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-  display: inline-block;
-}
-
-/* Divider with "or" text */
+/* ---------------------------
+   Divider
+--------------------------- */
 .divider {
   display: flex;
   align-items: center;
@@ -95,7 +88,6 @@
   color: #9ca3af;
   font-size: 14px;
 }
-
 .divider::before,
 .divider::after {
   content: "";
@@ -103,44 +95,41 @@
   height: 1px;
   background: #e5e7eb;
 }
-
 .divider::before { margin-right: 10px; }
 .divider::after { margin-left: 10px; }
 
-/* Form */
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* Input fields */
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  position: relative;
-}
-
+/* ---------------------------
+   Form & Input Fields
+--------------------------- */
+.auth-form { display: flex; flex-direction: column; gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; position: relative; }
 .field input {
   width: 100%;
-  padding: 14px 48px 14px 16px; /* space for password toggle */
+  padding: 14px 48px 14px 16px;
   border-radius: 12px;
   border: 1px solid #d1d5db;
   outline: none;
   font-size: 16px;
-  transition: all 0.2s ease-in-out;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
-
 .field input:focus {
   border-color: #60a5fa;
-  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.12);
 }
 
-/* Password eye icon login*/
-.field.password-field .toggle-password-login {
+/* Password wrapper for eye icon reset and signup*/
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 48px; /* space for eye icon */
+}
+
+.password-wrapper .toggle-password {
   position: absolute;
   right: 16px;
   top: 50%;
@@ -150,24 +139,28 @@
   font-size: 1.2em;
 }
 
-/* Password eye icon signup*/
-.field.password-field .toggle-password {
+/* Password eye icon for login */
+.field.password-field input {
+  padding: 14px 40px 14px 16px; /* right padding = space for eye */
+}
+
+/* Eye icon inside input */
+.field.password-field .toggle-password-login {
   position: absolute;
-  right: 16px;
-  top: 70%;
+  right: 12px; /* slightly inside the input */
+  top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
   color: #9ca3af;
-  font-size: 1.2em;
 }
 
-/* Forgot password under password input */
+
+/* Forgot password link */
 .forgot-password-container {
   display: flex;
   justify-content: flex-end;
   margin-top: 4px;
 }
-
 .forgot-password-container .link-btn {
   font-size: 13px;
   font-weight: 600;
@@ -176,23 +169,15 @@
   cursor: pointer;
   color: #57150B;
 }
+.forgot-password-container .link-btn:hover { text-decoration: underline; }
 
-.forgot-password-container .link-btn:hover {
-  text-decoration: underline;
-}
-
-/* Signup link centered below login button */
+/* Signup link */
 .signup-link-container {
   display: flex;
   justify-content: center;
   margin-top: 12px;
 }
-.signup-link-container span {
-  font-size: 13px;
-  color: #020202; 
-  font-weight: 400; 
-}
-
+.signup-link-container span { font-size: 13px; color: #020202; font-weight: 400; }
 .signup-link-container .link-btn {
   font-size: 13px;
   font-weight: 600;
@@ -202,10 +187,7 @@
   margin-left: 5px;
   color: #57150B;
 }
-
-.signup-link-container .link-btn:hover {
-  text-decoration: underline;
-}
+.signup-link-container .link-btn:hover { text-decoration: underline; }
 
 /* Buttons */
 .primary {
@@ -217,38 +199,152 @@
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s ease-in-out, transform 0.1s ease-in-out;
+  transition: background 0.18s ease, transform 0.08s ease;
 }
-.primary:hover {
-  background-color: #57150B;
-  color: white;
-}
+.primary:hover { background-color: #57150B; color: #fff; }
 .primary:active { transform: translateY(1px); }
 
-/* Messages */
+/* ---------------------------
+   Alerts
+--------------------------- */
+.auth-messages { display: flex; flex-direction: column; gap: 8px; animation: fadeIn 0.22s ease-in-out; }
 .msg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 14px;
-  padding: 12px;
-  border-radius: 10px;
+  font-weight: 500;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(6px);
+  transition: all 0.22s ease;
+  animation: slideUp 0.22s ease-out;
   text-align: center;
 }
 .msg.error {
-  background-color: #fee2e2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
+  background-color: #fff5f5;
+  border-color: #fecaca;
+  color: #b91c1c;
+  box-shadow: 0 6px 16px rgba(185, 28, 28, 0.06);
 }
 .msg.ok {
-  background-color: #dcfce7;
+  background-color: #f0fdf4;
+  border-color: #bbf7d0;
   color: #166534;
-  border: 1px solid #bbf7d0;
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.06);
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Forgot Password Modal */
+.forgot-modal {
+  position: fixed; /* cover page */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(4px); /* blur background */
+  background-color: rgba(0,0,0,0.3); /* dim overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+  animation: fadeIn 0.2s ease-in-out;
 }
 
-/* Mobile tweaks */
+.forgot-modal-content {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+  animation: slideUp 0.2s ease-out;
+}
+
+.modal-title {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.modal-sub {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  margin-bottom: 16px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modal-input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn.cancel {
+  background: transparent;
+  color: #374151;
+  border: 1px solid transparent;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 12px;
+}
+.btn.cancel:hover { 
+  background-color: #57150B;
+  color: #fff;
+ }
+
+.btn.reset-button {
+  background-color: #f0a500;
+  color: #080808;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 12px;
+  cursor: pointer; 
+  transition: background 0.2s ease; 
+  border: none;
+}
+
+.btn.reset-button:hover {
+  background-color: #3e0f05; 
+  color: #fff;
+}
+
+@keyframes modalIn { from { opacity: 0; transform: translate(-50%, -6px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+/* ---------------------------
+   Responsive / Mobile tweaks
+--------------------------- */
 @media (max-width: 480px) {
-  .auth-card { padding: 24px 16px; }
-  .auth-title { font-size: 24px; }
+  .auth-card { padding: 20px 16px; border-radius: 14px; gap: 18px; }
+  .auth-title { font-size: 22px; }
+  .auth-sub { font-size: 13px; }
   .field input { padding: 12px 40px 12px 12px; font-size: 15px; }
-  .primary { padding: 12px 0; font-size: 15px; }
+  .primary { padding: 12px 0; font-size: 15px; border-radius: 10px; }
   .social-login { gap: 10px; }
-  .forgot-password-container { justify-content: flex-end; }
+  .google-btn, .microsoft-btn { padding: 10px 14px; font-size: 13px; border-radius: 10px; gap: 8px; }
+  .forgot-modal { top: 12px; width: calc(100% - 32px); max-width: none; }
+  .forgot-modal-content { padding: 12px; border-radius: 10px; }
+  .modal-title { font-size: 15px; }
+  .modal-sub { font-size: 12px; }
+  .modal-input { padding: 10px; font-size: 14px; }
+  .msg { padding: 10px 12px; font-size: 13px; border-radius: 10px; }
 }

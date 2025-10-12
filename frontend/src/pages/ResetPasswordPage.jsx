@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { LuEye, LuEyeClosed } from "react-icons/lu";
+import "../css/LoginSignup.css";
 
 // Basic password rule
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
@@ -31,7 +32,8 @@ function ResetPasswordPage() {
 
   // get tokens from state or from URL fragment
   const stateTokens = location.state ?? null;
-  const hashTokens = typeof window !== "undefined" ? parseTokensFromHash() : null;
+  const hashTokens =
+    typeof window !== "undefined" ? parseTokensFromHash() : null;
   const tokens = stateTokens || hashTokens;
 
   // If there are no tokens anywhere, go back to the homepage
@@ -46,7 +48,8 @@ function ResetPasswordPage() {
 
   function toggleShow(target) {
     if (target === "password") setShowPassword(!showPassword);
-    else if (target === "confirmed-password") setShowConfirmedPassword(!showConfirmedPassword);
+    else if (target === "confirmed-password")
+      setShowConfirmedPassword(!showConfirmedPassword);
   }
 
   function validate() {
@@ -96,32 +99,42 @@ function ResetPasswordPage() {
           <form onSubmit={onSubmit} className="auth-form">
             <label className="field password-field">
               <span>New Password</span>
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={inputDisabled}
-              />
-              <p className="toggle-password" onClick={() => toggleShow("password")}>
-                {showPassword ? <LuEye size="1.5em" /> : <LuEyeClosed size="1.5em" />}
-              </p>
+              <div className="password-wrapper">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={inputDisabled}
+                />
+                <p
+                  className="toggle-password"
+                  onClick={() => toggleShow("password")}
+                >
+                  {showPassword ? <LuEye /> : <LuEyeClosed />}
+                </p>
+              </div>
             </label>
 
             <label className="field password-field">
               <span>Confirm New Password</span>
-              <input
-                type={showConfirmedPassword ? "text" : "password"}
-                placeholder="••••••••"
-                value={confirmedPassword}
-                onChange={(e) => setConfirmedPassword(e.target.value)}
-                required
-                disabled={inputDisabled}
-              />
-              <p className="toggle-password" onClick={() => toggleShow("confirmed-password")}>
-                {showConfirmedPassword ? <LuEye size="1.5em" /> : <LuEyeClosed size="1.5em" />}
-              </p>
+              <div className="password-wrapper">
+                <input
+                  type={showConfirmedPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={confirmedPassword}
+                  onChange={(e) => setConfirmedPassword(e.target.value)}
+                  required
+                  disabled={inputDisabled}
+                />
+                <p
+                  className="toggle-password"
+                  onClick={() => toggleShow("confirmed-password")}
+                >
+                  {showConfirmedPassword ? <LuEye /> : <LuEyeClosed />}
+                </p>
+              </div>
             </label>
 
             {err && <div className="msg error">{err}</div>}

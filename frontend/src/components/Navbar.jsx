@@ -19,7 +19,7 @@ export default function Navbar({ userProp }) {
   return (
     <div className="navbar">
       <div className="navbar-logo">
-        <Link to="/" className="app-name">RU Carpooling</Link>
+        <Link to="/" className="app-name">UniRide</Link>
         <Link to="/about-us" className="nav-link">About Us</Link>
       </div>
 

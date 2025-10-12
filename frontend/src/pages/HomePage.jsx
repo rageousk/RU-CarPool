@@ -11,21 +11,9 @@ function HomePage({ signedIn }) {
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
 
-  const handleRequestClick = () => {
-    if (!signedIn) {
-      navigate("/login");
-      return;
-    }
-    setIsRequestModalOpen(true);
-  };
-
-  const handleOfferClick = () => {
-    if (!signedIn) {
-      navigate("/login");
-      return;
-    }
-    setIsOfferModalOpen(true);
-  };
+  // Open modals
+  const handleRequestClick = () => setIsRequestModalOpen(true);
+  const handleOfferClick = () => setIsOfferModalOpen(true);
 
   return (
     <>
@@ -37,7 +25,8 @@ function HomePage({ signedIn }) {
             <div className="card-icon">📍</div>
             <h3 className="card-title">Need a Ride?</h3>
             <p className="card-description">
-              Tell us where you want to go and when, and we'll match you with drivers heading your way.
+              Tell us where you want to go and when, and we'll match you with
+              drivers heading your way.
             </p>
             <button className="request-button" onClick={handleRequestClick}>
               Request a Ride
@@ -60,19 +49,39 @@ function HomePage({ signedIn }) {
       <div className="body-section">
         <div className="body-section-right">
           <h1 className="tag-line">
-            Ride <span className="highlight">together.</span> Save <span className="highlight">together.</span>
+            Ride <span className="highlight">together.</span> Save{" "}
+            <span className="highlight">together.</span>
           </h1>
           <p className="description">
-            "Our mission is to make commuting easier, affordable, and eco-friendly by connecting students and staff through a safe, reliable carpooling network."
+            "Our mission is to make commuting easier, affordable, and
+            eco-friendly by connecting students and staff through a safe,
+            reliable carpooling network."
           </p>
         </div>
         <div className="body-section-left">
-          <img src={bodyImage} alt="Illustration of people carpooling" className="body-image" />
+          <img
+            src={bodyImage}
+            alt="Illustration of people carpooling"
+            className="body-image"
+          />
         </div>
       </div>
 
-      {isOfferModalOpen && <OfferRideModal onClose={() => setIsOfferModalOpen(false)} />}
-      {isRequestModalOpen && <RequestRideModal onClose={() => setIsRequestModalOpen(false)} />}
+      {/* Modals */}
+      {isOfferModalOpen && (
+        <OfferRideModal
+          onClose={() => setIsOfferModalOpen(false)}
+          signedIn={signedIn}
+          navigate={navigate}
+        />
+      )}
+      {isRequestModalOpen && (
+        <RequestRideModal
+          onClose={() => setIsRequestModalOpen(false)}
+          signedIn={signedIn}
+          navigate={navigate}
+        />
+      )}
     </>
   );
 }

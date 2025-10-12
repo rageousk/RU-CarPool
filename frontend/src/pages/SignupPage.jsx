@@ -81,19 +81,37 @@ export default function SignupPage() {
       <div className="auth-shell">
         <div className="auth-card">
           <h1 className="auth-title">Create Account</h1>
-          <p className="auth-sub">Sign up using your Rowan email or social login.</p>
+          <p className="auth-sub">
+            Sign up using your Rowan email or social login.
+          </p>
 
           {/* Social login */}
           <div className="social-login">
-            <button className="google-btn" onClick={() => socialLogin("google")} disabled={loading}>
-              <img src={GoogleIcon} alt="Google" className="social-icon" /> Continue with Google
+            <button
+              className="google-btn"
+              onClick={() => socialLogin("google")}
+              disabled={loading}
+            >
+              <img src={GoogleIcon} alt="Google" className="social-icon" />{" "}
+              Continue with Google
             </button>
-            <button className="microsoft-btn" onClick={() => socialLogin("azure")} disabled={loading}>
-              <img src={MicrosoftIcon} alt="Microsoft" className="social-icon" /> Continue with Microsoft
+            <button
+              className="microsoft-btn"
+              onClick={() => socialLogin("azure")}
+              disabled={loading}
+            >
+              <img
+                src={MicrosoftIcon}
+                alt="Microsoft"
+                className="social-icon"
+              />{" "}
+              Continue with Microsoft
             </button>
           </div>
 
-          <div className="divider"><span>or</span></div>
+          <div className="divider">
+            <span>or</span>
+          </div>
 
           {/* Form fields */}
           <form onSubmit={onSubmit} className="auth-form">
@@ -132,30 +150,40 @@ export default function SignupPage() {
 
             <label className="field password-field">
               <span>Password</span>
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <p className="toggle-password" onClick={() => toggleShow("password")}>
-                {showPassword ? <LuEye size="1.2em" /> : <LuEyeClosed size="1.2em" />}
-              </p>
+              <div className="password-wrapper">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <p
+                  className="toggle-password"
+                  onClick={() => toggleShow("password")}
+                >
+                  {showPassword ? <LuEye /> : <LuEyeClosed />}
+                </p>
+              </div>
             </label>
 
             <label className="field password-field">
               <span>Confirm Password</span>
-              <input
-                type={showConfirm ? "text" : "password"}
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-              <p className="toggle-password" onClick={() => toggleShow("confirm")}>
-                {showConfirm ? <LuEye size="1.2em" /> : <LuEyeClosed size="1.2em" />}
-              </p>
+              <div className="password-wrapper">
+                <input
+                  type={showConfirm ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+                <p
+                  className="toggle-password"
+                  onClick={() => toggleShow("confirm")}
+                >
+                  {showConfirm ? <LuEye /> : <LuEyeClosed />}
+                </p>
+              </div>
             </label>
 
             {err && <div className="msg error">{err}</div>}
@@ -166,9 +194,18 @@ export default function SignupPage() {
             </button>
 
             {/* Signup login link */}
-            <div className="signup-link-container" style={{ justifyContent: "center", marginTop: "12px" }}>
+            <div
+              className="signup-link-container"
+              style={{ justifyContent: "center", marginTop: "12px" }}
+            >
               <span>Already have an account? </span>
-              <button type="button" className="link-btn" onClick={() => nav("/login")}>Login</button>
+              <button
+                type="button"
+                className="link-btn"
+                onClick={() => nav("/login")}
+              >
+                Login
+              </button>
             </div>
           </form>
         </div>

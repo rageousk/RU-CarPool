@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage.jsx";
+import UserDashboard from "./pages/UserDashboard.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import SignupPage from "./pages/SignupPage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
@@ -69,12 +70,18 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage signedIn={signedIn} />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage/>} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/signup" element={<SignupPage />} />
           <Route
-            path="/"
-            element={signedIn ? <HomePage signedIn={signedIn} /> : <Navigate to="/login" replace />}
+            path="/dashboard"
+            element={
+              signedIn ? (
+                <UserDashboard user={{ name: displayEmail }} />
+              ) : (
+                <Navigate to="/login?redirect=/dashboard" replace />
+              )
+            }
           />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

@@ -25,7 +25,7 @@ const useGoogleMapsLoaded = () => {
   return loaded;
 };
 
-const RequestRideModal = ({ onClose }) => {
+const RequestRideModal = ({ onClose, signedIn, navigate }) => {
   const mapInstance = useRef(null);
   const [mapCenter, setMapCenter] = useState(defaultCenter);
   const [pickup, setPickup] = useState("");
@@ -48,18 +48,6 @@ const RequestRideModal = ({ onClose }) => {
     debounce: 300,
     enabled: isMapsLoaded,
   });
-
-  // --- REMOVED ---
-  // This useEffect block was removed because it referenced the 'isOpen'
-  // prop, which no longer exists. This was causing the crash.
-  // The component now unmounts, so its state is automatically reset.
-  //
-  // useEffect(() => {
-  //   if (!isOpen) {
-  //     setPickup("");
-  //     // ... etc
-  //   }
-  // }, [isOpen]);
 
   // Initialize map
   useEffect(() => {
@@ -155,11 +143,6 @@ const RequestRideModal = ({ onClose }) => {
     );
   }, [pickup, destination]);
 
-  // --- REMOVED ---
-  // This line was also removed because it referenced the 'isOpen' prop.
-  //
-  // if (!isOpen) return null;
-
   return (
     <div className="modal-overlay">
       <div className="modal-content">
@@ -167,11 +150,17 @@ const RequestRideModal = ({ onClose }) => {
           &times;
         </button>
         <h2>Request a Ride</h2>
-        <p>Fill out your trip details and we'll match you with drivers going your way.</p>
+        <p>
+          Fill out your trip details and we'll match you with drivers going your
+          way.
+        </p>
 
         <div className="form-map-container">
           <div className="form-container">
-            <form className="request-ride-form" onSubmit={(e) => e.preventDefault()}>
+            <form
+              className="request-ride-form"
+              onSubmit={(e) => e.preventDefault()}
+            >
               {isMapsLoaded && (
                 <>
                   <label htmlFor="pickup-location">Pickup Location *</label>
@@ -215,7 +204,9 @@ const RequestRideModal = ({ onClose }) => {
                           <div
                             key={place_id}
                             className="suggestion-item"
-                            onClick={() => handleSelect(description, "destination")}
+                            onClick={() =>
+                              handleSelect(description, "destination")
+                            }
                           >
                             {description}
                           </div>
@@ -236,7 +227,19 @@ const RequestRideModal = ({ onClose }) => {
                 </div>
               )}
 
-              <button type="submit" className="submit-button">
+              <button
+                type="submit"
+                className="submit-button"
+                onClick={(e) => {
+                  e.preventDefault();
+
+                  // <-- Check if user is signed in here
+                  if (!signedIn) {
+                    navigate("/login?redirect=/dashboard"); // redirect to login and then dashboard
+                    return;
+                  }
+                }}
+              >
                 Request Ride
               </button>
             </form>
