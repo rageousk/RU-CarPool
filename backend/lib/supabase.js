@@ -1,3 +1,4 @@
+// backend/lib/supabase.js
 import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
 
@@ -9,26 +10,27 @@ if (!url || !anon) {
   throw new Error('Missing SUPABASE_URL or SUPABASE_ANON_KEY in .env');
 }
 if (!serviceRole) {
-  console.warn('⚠️ SUPABASE_SERVICE_ROLE_KEY not set — admin writes will fail behind RLS.');
+  console.warn('⚠️ SUPABASE_SERVICE_ROLE_KEY not set — admin writes/reads behind RLS will fail.');
 }
 
-// Public (anon) client — for normal auth calls
+// Public client (for normal auth calls)
 export const supabaseAnon = createClient(url, anon, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-// Admin (service role) client — bypasses RLS; **server-only**
+// Admin client (server-only; bypasses RLS)
 export const supabaseAdmin = createClient(url, serviceRole, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-// User authenticated client
-export const createSupabaseUser = async (access_token, refresh_token) => {
+// Make a user-scoped client from tokens (used for password reset flow)
+export async function createSupabaseUser(access_token, refresh_token) {
   const supabaseUser = createClient(url, anon, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
   const { data, error } = await supabaseUser.auth.setSession({
-    access_token, refresh_token
+    access_token,
+    refresh_token,
   });
   return { supabaseUser, data, error };
 }

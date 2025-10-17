@@ -8,6 +8,7 @@ import LoginPage from "./pages/LoginPage.jsx";
 import SignupPage from "./pages/SignupPage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import { supabase } from "./lib/supabaseClient";
+import AdminPage from "./pages/Adminpage.jsx";
 import "./App.css";
 
 export default function App() {
@@ -71,6 +72,7 @@ export default function App() {
           <Route path="/" element={<HomePage signedIn={signedIn} />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/admin" element={<AdminPage />} />
           <Route
             path="/dashboard"
             element={

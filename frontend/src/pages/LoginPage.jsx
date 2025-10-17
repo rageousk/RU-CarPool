@@ -29,7 +29,7 @@ export default function LoginPage() {
   useEffect(() => {
     const hasToken = !!localStorage.getItem("ru_token");
     const params = new URLSearchParams(location.search);
-    const redirect = params.get("redirect") || "/dashboard"; // default dashboard
+    const redirect = params.get("redirect") || "/dashboard";
     if (hasToken) navigate(redirect);
   }, []);
 
@@ -64,11 +64,18 @@ export default function LoginPage() {
       const out = await res.json();
       if (!res.ok) throw new Error(out.error || "Login failed");
 
-      if (out?.session?.access_token) {
+      // ✅ Set Supabase session in the browser so supabase.auth.getSession() works
+      if (out?.session?.access_token && out?.session?.refresh_token) {
+        await supabase.auth.setSession({
+          access_token: out.session.access_token,
+          refresh_token: out.session.refresh_token,
+        });
+
+        // Optional: still store your own copy for legacy fetch logic
         localStorage.setItem("ru_token", out.session.access_token);
       }
-      localStorage.setItem("ru_email", out?.user?.email || cleanEmail);
 
+      localStorage.setItem("ru_email", out?.user?.email || cleanEmail);
       setMsg("Logged in! Redirecting…");
 
       // Respect redirect query parameter
@@ -106,7 +113,6 @@ export default function LoginPage() {
 
       setMsg("Password reset email sent! Check your inbox.");
 
-      // Close modal after brief delay
       setTimeout(() => {
         setShowModal(false);
         setResetEmail("");
@@ -205,7 +211,6 @@ export default function LoginPage() {
                 </div>
               </label>
 
-              {/* Display login errors / success */}
               {(err || msg) && (
                 <div className="auth-messages" aria-live="polite">
                   {err && <div className="msg error">{err}</div>}
@@ -232,7 +237,6 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Forgot Password Modal */}
       {showModal && (
         <div
           className="forgot-modal"
