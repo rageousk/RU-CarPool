@@ -13,13 +13,13 @@ export default function Navbar({ userProp }) {
     localStorage.removeItem("ru_token");
     localStorage.removeItem("ru_email");
     setUser(null);
-    navigate("/login");
+    navigate("/");
   };
 
   return (
     <div className="navbar">
       <div className="navbar-logo">
-        <Link to="/" className="app-name">UniRide</Link>
+        <Link to={user ? "/dashboard" : "/"} className="app-name">UniRide</Link>
         <Link to="/about-us" className="nav-link">About Us</Link>
       </div>
 

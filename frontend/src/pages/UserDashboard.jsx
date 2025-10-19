@@ -1,10 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../css/UserDashboard.css";
 import RiderDashboard from "../components/RiderDashboard";
 import DriverDashboard from "../components/DriverDashboard";
 
 function UserDashboard({ user }) {
-  const [role, setRole] = useState("rider");
+  // Preserve the role state in localStorage
+  const [role, setRole] = useState(() => {
+    return localStorage.getItem("dashboard_view") || "rider";
+  });
+
+  // Update localStorage when role changes
+  useEffect(() => {
+    localStorage.setItem("dashboard_view", role);
+  }, [role]);
 
   return (
     <div className="dashboard">
