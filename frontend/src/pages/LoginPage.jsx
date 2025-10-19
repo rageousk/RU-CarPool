@@ -188,9 +188,16 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  autoComplete="current-password"
+                  data-ms-reveal="false"
+                  style={{ WebkitTextSecurity: showPassword ? 'none' : 'disc' }}
                 />
                 <p className="toggle-password-login" onClick={toggleShow}>
-                  {showPassword ? <LuEye size="1.2em" /> : <LuEyeClosed size="1.2em" />}
+                  {showPassword ? (
+                    <LuEye size="1.2em" />
+                  ) : (
+                    <LuEyeClosed size="1.2em" />
+                  )}
                 </p>
 
                 <div className="forgot-password-container">
