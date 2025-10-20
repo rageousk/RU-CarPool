@@ -6,7 +6,7 @@
     padding: 15px 100px;
     background-color: #57150B;
     color: white;
-    font-family: SF Pro Display, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     position: fixed; 
     top: 0;
     left: 0;
@@ -114,28 +114,44 @@
 
 .dropdown-menu {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 6px);
     right: 0;
     background: white;
     color: #57150B;
     border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    padding: 8px 0;
-    min-width: 120px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    padding: 6px 0;
+    min-width: 130px;
+    z-index: 1100;
 }
 
+/* Button inside dropdown */
 .dropdown-item {
     width: 100%;
     background: none;
     border: none;
-    text-align: left;
-    padding: 8px 16px;
+    outline: none;
+    padding: 8px 12px;
+    font-weight: 600;
+    font-family: inherit;
+    color: #57150B;
+    display: flex;
+    justify-content: center; /* centers icon + text */
+    align-items: center;
+    gap: 6px;
     cursor: pointer;
-    font-weight: 500;
+    transition: background-color 0.3s ease;
 }
 
 .dropdown-item:hover {
-    background-color: #f0f0f0;
+    background-color: #f0a500;
+    color: #57150B;
+}
+
+/* Icon matches text color */
+.logout-icon {
+    font-size: 14px;
+    color: inherit;
 }
 
 /* Responsive Design */
@@ -183,5 +199,5 @@
 
 /* Padding for main content below navbar */
 .main-content {
-    padding-top: 70px;
+    padding-top: 65px;
 }

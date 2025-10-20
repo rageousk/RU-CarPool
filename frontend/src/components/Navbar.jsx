@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../css/Navbar.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 
 export default function Navbar({ userProp }) {
   const [user, setUser] = useState(userProp || null);
@@ -36,7 +38,10 @@ export default function Navbar({ userProp }) {
             </span>
             {dropdownOpen && (
               <div className="dropdown-menu">
-                <button onClick={handleLogout}>Logout</button>
+                <button onClick={handleLogout} className="dropdown-item">
+                  <FontAwesomeIcon icon={faRightFromBracket} className="logout-icon" />
+                  Logout
+                </button>
               </div>
             )}
           </div>
