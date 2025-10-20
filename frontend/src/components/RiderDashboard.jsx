@@ -13,8 +13,10 @@ import {
   faLocationArrow as fasLocationArrow,
 } from "@fortawesome/free-solid-svg-icons";
 
-const containerStyle = { width: "100%", height: "400px" };
-const defaultCenter = { lat: 39.7107, lng: -75.121 }; // Rowan University
+import { useRides } from "../context/RideContext.jsx";
+
+const containerStyle = { width: "100%", height: "100%" };
+const defaultCenter = { lat: 39.7107, lng: -75.121 };
 
 const useGoogleMapsLoaded = () => {
   const [loaded, setLoaded] = useState(false);
@@ -37,18 +39,23 @@ const useGoogleMapsLoaded = () => {
 
 function RiderDashboard({ user, signedIn, navigate, setRole }) {
   const mapInstance = useRef(null);
+  const mapRef = useRef(null);
+  const directionsRenderer = useRef(null);
+  const currentLocationMarker = useRef(null);
+
   const [pickup, setPickup] = useState("");
   const [pickupInfo, setPickupInfo] = useState("");
   const [dropoff, setDropoff] = useState("");
   const [activeInput, setActiveInput] = useState(null);
   const [distanceInfo, setDistanceInfo] = useState("");
   const [totalCost, setTotalCost] = useState(null);
-  const mapRef = useRef(null);
-  const directionsRenderer = useRef(null);
+  const [passengers, setPassengers] = useState(1);
+  const [datetime, setDatetime] = useState("");
+
+  const { addRideRequest, rideRequests } = useRides();
 
   const isMapsLoaded = useGoogleMapsLoaded();
 
-  // USA-only autocomplete
   const {
     ready,
     suggestions: { status, data },
@@ -61,7 +68,6 @@ function RiderDashboard({ user, signedIn, navigate, setRole }) {
     types: ["cities"],
   });
 
-  // Initialize Google Map
   useEffect(() => {
     if (!isMapsLoaded || !mapRef.current) return;
 
@@ -86,9 +92,12 @@ function RiderDashboard({ user, signedIn, navigate, setRole }) {
     directionsRenderer.current = directionsDisplay;
   }, [isMapsLoaded]);
 
-  // Handle input changes
   const handleInput = (e, field) => {
     const val = e.target.value;
+    if (field === "pickup" && currentLocationMarker.current) {
+      currentLocationMarker.current.setMap(null);
+      currentLocationMarker.current = null;
+    }
     if (field === "pickup") setPickup(val);
     if (field === "dropoff") setDropoff(val);
     setValue(val);
@@ -98,6 +107,10 @@ function RiderDashboard({ user, signedIn, navigate, setRole }) {
   const handleSelect = (desc, field) => {
     setValue(desc, false);
     clearSuggestions();
+    if (field === "pickup" && currentLocationMarker.current) {
+      currentLocationMarker.current.setMap(null);
+      currentLocationMarker.current = null;
+    }
     if (field === "pickup") setPickup(desc);
     if (field === "dropoff") setDropoff(desc);
     setActiveInput(null);
@@ -105,13 +118,16 @@ function RiderDashboard({ user, signedIn, navigate, setRole }) {
 
   const handleBlur = () => setTimeout(() => setActiveInput(null), 150);
 
-  // Calculate route and cost
   useEffect(() => {
     if (!pickup || !dropoff || !mapInstance.current) return;
 
     const directionsService = new window.google.maps.DirectionsService();
     directionsService.route(
-      { origin: pickup, destination: dropoff, travelMode: window.google.maps.TravelMode.DRIVING },
+      {
+        origin: pickup,
+        destination: dropoff,
+        travelMode: window.google.maps.TravelMode.DRIVING,
+      },
       (result, status) => {
         if (status === "OK") directionsRenderer.current.setDirections(result);
       }
@@ -131,18 +147,28 @@ function RiderDashboard({ user, signedIn, navigate, setRole }) {
           if (element.status === "OK") {
             const miles = parseFloat(element.distance.text.replace(" mi", ""));
             setDistanceInfo(`${element.distance.text} (${element.duration.text})`);
-            setTotalCost(miles * 1); // $1 per mile
+            setTotalCost(miles * 1);
           }
         }
       }
     );
   }, [pickup, dropoff]);
 
-  const availableDrivers = [
-    { id: 1, name: "John Doe", rating: 4.5, totalTrips: 10, price: 25, seats: 2, img: "https://i.pravatar.cc/100?img=12" },
-    { id: 2, name: "Jane Smith", rating: 4.8, totalTrips: 15, price: 26, seats: 4, img: "https://i.pravatar.cc/100?img=30" },
-    { id: 3, name: "Bryan Cooper", rating: 5.0, totalTrips: 8, price: 26.5, seats: 1, img: "https://i.pravatar.cc/100?img=52" },
-  ];
+  const handleRequestRide = () => {
+    if (!pickup || !dropoff) return alert("Please fill in pick-up and drop-off locations");
+    const newRide = {
+      id: Date.now(),
+      pickup,
+      dropoff,
+      pickupInfo,
+      passengers,
+      datetime,
+      status: "pending", // driver status: pending, accepted, declined
+      driverOffer: null,
+    };
+    addRideRequest(newRide);
+    setPickup(""); setDropoff(""); setPickupInfo(""); setPassengers(1); setDatetime(""); setDistanceInfo(""); setTotalCost(null);
+  };
 
   const iconStyle = { color: "#050505" };
 
@@ -151,13 +177,11 @@ function RiderDashboard({ user, signedIn, navigate, setRole }) {
       <aside className="sidebar">
         <nav className="nav-menu">
           <ul>
-            <li className="active">
-              <FontAwesomeIcon icon={farHouse} style={iconStyle} /> Home
-            </li>
+            <li className="active"><FontAwesomeIcon icon={farHouse} style={iconStyle} /> Home</li>
             <li><FontAwesomeIcon icon={fasHistory} style={iconStyle} /> History</li>
-            <li><FontAwesomeIcon icon={farCalendarDays} style={{ color: "#000000" }} /> Schedule</li>
-            <li><FontAwesomeIcon icon={farMessage} style={{ color: "#0f0f0f" }} /> Message</li>
-            <li><FontAwesomeIcon icon={fasCircleQuestion} style={{ color: "#0a0a0a" }} /> Help</li>
+            <li><FontAwesomeIcon icon={farCalendarDays} style={iconStyle} /> Schedule</li>
+            <li><FontAwesomeIcon icon={farMessage} style={iconStyle} /> Message</li>
+            <li><FontAwesomeIcon icon={fasCircleQuestion} style={iconStyle} /> Help</li>
           </ul>
         </nav>
       </aside>
@@ -188,37 +212,29 @@ function RiderDashboard({ user, signedIn, navigate, setRole }) {
                           navigator.geolocation.getCurrentPosition((position) => {
                             const { latitude, longitude } = position.coords;
                             const latLng = { lat: latitude, lng: longitude };
-
                             const geocoder = new window.google.maps.Geocoder();
                             geocoder.geocode({ location: latLng }, (results) => {
                               if (results[0]) {
                                 setPickup(results[0].formatted_address);
-
-                                // Add marker
-                                new window.google.maps.Marker({
+                                if (currentLocationMarker.current) currentLocationMarker.current.setMap(null);
+                                currentLocationMarker.current = new window.google.maps.Marker({
                                   position: latLng,
                                   map: mapInstance.current,
                                   title: "Your Location",
                                 });
-
                                 mapInstance.current.setCenter(latLng);
                                 mapInstance.current.setZoom(15);
                               }
                             });
                           });
-                        } else {
-                          alert("Geolocation not supported by your browser.");
-                        }
+                        } else alert("Geolocation not supported by your browser.");
                       }}
                     />
                   </div>
-
                   {activeInput === "pickup" && status === "OK" && (
                     <div className="autocomplete-dropdown">
                       {data.map(({ place_id, description }) => (
-                        <div key={place_id} onClick={() => handleSelect(description, "pickup")}>
-                          {description}
-                        </div>
+                        <div key={place_id} onClick={() => handleSelect(description, "pickup")}>{description}</div>
                       ))}
                     </div>
                   )}
@@ -231,7 +247,7 @@ function RiderDashboard({ user, signedIn, navigate, setRole }) {
                     value={pickupInfo}
                     onChange={(e) => setPickupInfo(e.target.value)}
                     className="pickup-info-input"
-                    placeholder="Ex: Left side of Business Hall, in front of parking lot"
+                    placeholder="Ex: Left side of Business Hall"
                   />
                 </div>
 
@@ -246,23 +262,32 @@ function RiderDashboard({ user, signedIn, navigate, setRole }) {
                   {activeInput === "dropoff" && status === "OK" && (
                     <div className="autocomplete-dropdown">
                       {data.map(({ place_id, description }) => (
-                        <div key={place_id} onClick={() => handleSelect(description, "dropoff")}>
-                          {description}
-                        </div>
+                        <div key={place_id} onClick={() => handleSelect(description, "dropoff")}>{description}</div>
                       ))}
                     </div>
                   )}
                 </div>
+
+                <div className="passenger-date-row">
+                  <div className="passenger-selector">
+                    <label>No. of passengers</label>
+                    <div className="passenger-controls">
+                      <button onClick={() => setPassengers((p) => Math.max(1, p - 1))} disabled={passengers <= 1}>−</button>
+                      <span>{passengers}</span>
+                      <button onClick={() => setPassengers((p) => Math.min(3, p + 1))} disabled={passengers >= 3}>+</button>
+                    </div>
+                  </div>
+                  <div className="datetime-input-wrapper">
+                    <label>Departure Date & Time</label>
+                    <input type="datetime-local" value={datetime} onChange={(e) => setDatetime(e.target.value)} />
+                  </div>
+                </div>
+
+                <button className="request-ride-btn" onClick={handleRequestRide}>Request Ride</button>
               </>
             )}
 
-            <label>Departure: Date & Time</label>
-            <div className="datetime-input-wrapper">
-              <input type="date" placeholder="mm/dd/yyyy" />
-              <input type="time" />
-            </div>
-
-            {pickup && dropoff && (
+            {pickup && dropoff && distanceInfo && (
               <div className="ride-estimate">
                 <p>Trip miles: {distanceInfo.split("(")[0] || "25 miles"}</p>
                 <p className="cost">Cost: ${totalCost?.toFixed(2) || "25"}</p>

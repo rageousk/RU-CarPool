@@ -7,6 +7,7 @@ import UserDashboard from "./pages/UserDashboard.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import SignupPage from "./pages/SignupPage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
+import { RideProvider } from "./context/RideContext.jsx";
 import { supabase } from "./lib/supabaseClient";
 import "./App.css";
 
@@ -64,7 +65,7 @@ export default function App() {
   const displayEmail = userEmail || localStorage.getItem("ru_email") || "";
 
   return (
-    <>
+    <RideProvider>
       <Navbar userProp={signedIn ? { email: displayEmail } : null} />
       <div className="main-content">
         {loadingAuth ? (
@@ -89,6 +90,6 @@ export default function App() {
           </Routes>
         )}
       </div>
-    </>
+    </RideProvider>
   );
 }
