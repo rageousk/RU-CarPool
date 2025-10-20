@@ -1,12 +1,23 @@
 /* ============ GLOBAL & BASE LAYOUT ============ */
 body, html {
-    margin: 0;
-    padding: 0;
-    overflow: hidden; /* no page scroll */
-    height: 100%;
-    font-family: "Inter", sans-serif;
-    color: #2c2c2c;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: "Inter", sans-serif;
+  color: #2c2c2c;
+  overflow-y: auto; 
+  overflow-x: hidden;
+  
+  /* hide scrollbar visuals but keep scrolling functional */
+  -ms-overflow-style: none;  
+  scrollbar-width: none;      
 }
+
+body::-webkit-scrollbar,
+html::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
 
 .dashboard-app-layout {
     display: flex;
