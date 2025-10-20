@@ -48,12 +48,18 @@ function RiderDashboard({ user, signedIn, navigate, setRole }) {
 
   const isMapsLoaded = useGoogleMapsLoaded();
 
+  // USA-only autocomplete
   const {
     ready,
     suggestions: { status, data },
     setValue,
     clearSuggestions,
-  } = usePlacesAutocomplete({ debounce: 300, enabled: isMapsLoaded });
+  } = usePlacesAutocomplete({
+    debounce: 300,
+    enabled: isMapsLoaded,
+    requestOptions: { componentRestrictions: { country: "us" } },
+    types: ["cities"],
+  });
 
   // Initialize Google Map
   useEffect(() => {
@@ -62,7 +68,17 @@ function RiderDashboard({ user, signedIn, navigate, setRole }) {
     const map = new window.google.maps.Map(mapRef.current, {
       center: defaultCenter,
       zoom: 14,
+      restriction: {
+        latLngBounds: {
+          north: 49.384358,
+          south: 24.396308,
+          west: -125.0,
+          east: -66.93457,
+        },
+        strictBounds: false,
+      },
     });
+
     mapInstance.current = map;
 
     const directionsDisplay = new window.google.maps.DirectionsRenderer();
@@ -173,20 +189,18 @@ function RiderDashboard({ user, signedIn, navigate, setRole }) {
                             const { latitude, longitude } = position.coords;
                             const latLng = { lat: latitude, lng: longitude };
 
-                            // Geocode to get the address
                             const geocoder = new window.google.maps.Geocoder();
                             geocoder.geocode({ location: latLng }, (results) => {
                               if (results[0]) {
                                 setPickup(results[0].formatted_address);
 
-                                // Add marker on the map
+                                // Add marker
                                 new window.google.maps.Marker({
                                   position: latLng,
                                   map: mapInstance.current,
                                   title: "Your Location",
                                 });
 
-                                // Center map to current location
                                 mapInstance.current.setCenter(latLng);
                                 mapInstance.current.setZoom(15);
                               }
