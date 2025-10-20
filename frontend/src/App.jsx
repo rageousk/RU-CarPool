@@ -67,23 +67,27 @@ export default function App() {
     <>
       <Navbar userProp={signedIn ? { email: displayEmail } : null} />
       <div className="main-content">
-        <Routes>
-          <Route path="/" element={<HomePage signedIn={signedIn} />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route
-            path="/dashboard"
-            element={
-              signedIn ? (
-                <UserDashboard user={{ name: displayEmail }} />
-              ) : (
-                <Navigate to="/login?redirect=/dashboard" replace />
-              )
-            }
-          />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        {loadingAuth ? (
+          <div className="loading-screen">Loading...</div>
+        ) : (
+          <Routes>
+            <Route path="/" element={<HomePage signedIn={signedIn} />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route
+              path="/dashboard"
+              element={
+                signedIn ? (
+                  <UserDashboard user={{ name: displayEmail }} />
+                ) : (
+                  <Navigate to="/login?redirect=/dashboard" replace />
+                )
+              }
+            />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        )}
       </div>
     </>
   );
