@@ -68,42 +68,50 @@ export default function App() {
     <>
       <Navbar userProp={signedIn ? { email: displayEmail } : null} />
       <div className="main-content">
-        <Routes>
-          <Route path="/" element={<HomePage signedIn={signedIn} />} />
-          <Route 
-            path="/login" 
-            element={
-              signedIn ? (
-                <Navigate to="/dashboard" replace />
-              ) : (
-                <LoginPage />
-              )
-            } 
-          />
-          <Route 
-            path="/signup" 
-            element={
-              signedIn ? (
-                <Navigate to="/dashboard" replace />
-              ) : (
-                <SignupPage />
-              )
-            } 
-          />
-          <Route
-            path="/dashboard"
-            element={
-              signedIn ? (
-                <UserDashboard user={{ name: displayEmail }} />
-              ) : (
-                <Navigate to="/login?redirect=/dashboard" replace />
-              )
-            }
-          />
-          <Route path="/about-us" element={<AboutPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        {loadingAuth ? (
+          <div className="loading-screen">Loading...</div>
+        ) : (
+          <Routes>
+            <Route path="/" element={<HomePage signedIn={signedIn} />} />
+            <Route 
+              path="/login" 
+              element={
+                signedIn ? (
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  <LoginPage />
+                )
+              } 
+            />
+            <Route 
+              path="/signup" 
+              element={
+                signedIn ? (
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  <SignupPage />
+                )
+              } 
+            />
+            <Route
+              path="/dashboard"
+              element={
+                signedIn ? (
+                  <UserDashboard 
+                    user={{ name: displayEmail }} 
+                    signedIn={signedIn} 
+                    navigate={navigate} 
+                  />
+                ) : (
+                  <Navigate to="/login?redirect=/dashboard" replace />
+                )
+              }
+            />
+            <Route path="/about-us" element={<AboutPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        )}
       </div>
     </>
   );

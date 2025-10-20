@@ -274,27 +274,6 @@ function RiderDashboard({ user, signedIn, navigate, setRole }) {
             {isMapsLoaded && <div ref={mapRef} style={containerStyle}></div>}
           </div>
         </div>
-
-        <section className="drivers-section">
-          <h3>Available Drivers</h3>
-          <div className="driver-cards">
-            {availableDrivers.map((driver) => (
-              <div key={driver.id} className="driver-card">
-                <img src={driver.img} alt={driver.name} />
-                <div className="driver-info">
-                  <h4>{driver.name}</h4>
-                  <span className="rating">⭐ {driver.rating}</span>
-                </div>
-                <p className="total-trips">Total Trips: {driver.totalTrips}</p>
-                <div className="offer-details">
-                  <p className="offer-price">Offer price: ${driver.price.toFixed(2)}</p>
-                  <p className="remaining-seats">Remaining Seats: {driver.seats}</p>
-                </div>
-                <button className="request-button">Request Ride</button>
-              </div>
-            ))}
-          </div>
-        </section>
       </main>
     </div>
   );
