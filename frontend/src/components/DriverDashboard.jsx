@@ -14,6 +14,7 @@ import {
   faLocationArrow as fasLocationArrow,
   faPlus as fasPlus,
 } from "@fortawesome/free-solid-svg-icons";
+import { useRides } from "../context/RideContext.jsx";
 
 const containerStyle = { width: "100%", height: "400px" };
 const defaultCenter = { lat: 39.7107, lng: -75.121 }; // Rowan University
@@ -53,9 +54,10 @@ function DriverDashboard({ user, signedIn, navigate, setRole }) {
   const [distanceInfo, setDistanceInfo] = useState("");
   const [totalCost, setTotalCost] = useState(null);
 
+  const { rideRequests, updateRideRequest } = useRides();
   const isMapsLoaded = useGoogleMapsLoaded();
 
-  // Setup Google Places Autocomplete
+  // Google Places Autocomplete
   const {
     ready,
     suggestions: { status, data },
@@ -68,7 +70,7 @@ function DriverDashboard({ user, signedIn, navigate, setRole }) {
     types: ["cities"],
   });
 
-  // Initialize map
+  // Initialize Google Map
   useEffect(() => {
     if (!isMapsLoaded || !mapRef.current) return;
 
@@ -83,7 +85,7 @@ function DriverDashboard({ user, signedIn, navigate, setRole }) {
     directionsRenderer.current = directionsDisplay;
   }, [isMapsLoaded]);
 
-  // Handle input and suggestion selection
+  // Handle input and selection
   const handleInput = (e, field) => {
     const val = e.target.value;
     if (field === "pickup") setPickup(val);
@@ -102,7 +104,7 @@ function DriverDashboard({ user, signedIn, navigate, setRole }) {
 
   const handleBlur = () => setTimeout(() => setActiveInput(null), 150);
 
-  // Calculate route and estimated cost
+  // Calculate route and distance/cost
   useEffect(() => {
     if (!pickup || !dropoff || !mapInstance.current) return;
 
@@ -132,14 +134,14 @@ function DriverDashboard({ user, signedIn, navigate, setRole }) {
           if (element.status === "OK") {
             const miles = parseFloat(element.distance.text.replace(" mi", ""));
             setDistanceInfo(`${element.distance.text} (${element.duration.text})`);
-            setTotalCost(miles * 1); // $1 per mile base cost
+            setTotalCost(miles * 1); // $1 per mile
           }
         }
       }
     );
   }, [pickup, dropoff]);
 
-  // Add a new ride offer
+  // Offer a ride
   const handleOfferRide = () => {
     if (!pickup || !dropoff || !date || !time) {
       alert("Please complete all fields before offering a ride.");
@@ -238,9 +240,7 @@ function DriverDashboard({ user, signedIn, navigate, setRole }) {
                               }
                             });
                           });
-                        } else {
-                          alert("Geolocation not supported.");
-                        }
+                        } else alert("Geolocation not supported.");
                       }}
                     />
                   </div>
@@ -334,6 +334,56 @@ function DriverDashboard({ user, signedIn, navigate, setRole }) {
                     <td>{ride.time}</td>
                     <td>{ride.status}</td>
                     <td>{ride.seatsAvailable}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Incoming Ride Requests */}
+        {rideRequests.length > 0 && (
+          <div className="rides-list">
+            <h3>Incoming Ride Requests</h3>
+            <table className="rides-requested-table">
+              <thead>
+                <tr>
+                  <th>Pickup</th>
+                  <th>Drop-off</th>
+                  <th>Passengers</th>
+                  <th>Departure</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rideRequests.map((ride) => (
+                  <tr key={ride.id}>
+                    <td>{ride.pickup}</td>
+                    <td>{ride.dropoff}</td>
+                    <td>{ride.passengers}</td>
+                    <td>{ride.datetime}</td>
+                    <td>{ride.status}</td>
+                    <td>
+                      {ride.status === "pending" && (
+                        <>
+                          <button
+                            onClick={() =>
+                              updateRideRequest(ride.id, { status: "accepted" })
+                            }
+                          >
+                            Accept
+                          </button>
+                          <button
+                            onClick={() =>
+                              updateRideRequest(ride.id, { status: "declined" })
+                            }
+                          >
+                            Decline
+                          </button>
+                        </>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
