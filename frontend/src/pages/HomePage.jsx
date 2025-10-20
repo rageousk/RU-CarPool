@@ -11,9 +11,23 @@ function HomePage({ signedIn }) {
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
 
-  // Open modals
-  const handleRequestClick = () => setIsRequestModalOpen(true);
-  const handleOfferClick = () => setIsOfferModalOpen(true);
+  // --- Handle Request Button ---
+  const handleRequestClick = () => {
+    if (!signedIn) {
+      navigate("/login?redirect=/dashboard");
+    } else {
+      navigate("/dashboard?rider=true");
+    }
+  };
+
+  // --- Handle Offer Button ---
+  const handleOfferClick = () => {
+    if (!signedIn) {
+      navigate("/login?redirect=/dashboard");
+    } else {
+      navigate("/dashboard?driver=true");
+    }
+  };
 
   return (
     <>
@@ -67,7 +81,7 @@ function HomePage({ signedIn }) {
         </div>
       </div>
 
-      {/* Modals */}
+      {/* Optionally still include modals */}
       {isOfferModalOpen && (
         <OfferRideModal
           onClose={() => setIsOfferModalOpen(false)}
