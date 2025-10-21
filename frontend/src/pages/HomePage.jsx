@@ -14,7 +14,7 @@ function HomePage({ signedIn }) {
   // --- Handle Request Button ---
   const handleRequestClick = () => {
     if (!signedIn) {
-      navigate("/login?redirect=/dashboard");
+      setIsRequestModalOpen(true);
     } else {
       navigate("/dashboard?rider=true");
     }
@@ -23,7 +23,7 @@ function HomePage({ signedIn }) {
   // --- Handle Offer Button ---
   const handleOfferClick = () => {
     if (!signedIn) {
-      navigate("/login?redirect=/dashboard");
+      setIsOfferModalOpen(true);
     } else {
       navigate("/dashboard?driver=true");
     }

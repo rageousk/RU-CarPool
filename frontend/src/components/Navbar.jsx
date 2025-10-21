@@ -22,6 +22,7 @@ export default function Navbar({ userProp }) {
     <div className="navbar">
       <div className="navbar-logo">
         <Link to={user ? "/dashboard" : "/"} className="app-name">UniRide</Link>
+        <Link to="/" className="nav-link">Home</Link>
         <Link to="/about-us" className="nav-link">About Us</Link>
       </div>
 

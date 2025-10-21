@@ -25,7 +25,7 @@ const useGoogleMapsLoaded = () => {
   return loaded;
 };
 
-const OfferRideModal = ({ onClose }) => {
+const OfferRideModal = ({ onClose, signedIn, navigate }) => {
   const mapInstance = useRef(null);
   const directionsRenderer = useRef(null);
   const mapRef = useRef(null);
@@ -98,6 +98,16 @@ const OfferRideModal = ({ onClose }) => {
 
   const handleBlur = () => {
     setTimeout(() => setActiveInput(null), 150);
+  };
+
+  const handleSubmit = () => {
+    if (!signedIn) {
+      navigate('/login?redirect=/dashboard');
+      return;
+    }
+    // Handle the ride offer submission logic here
+    console.log('Submitting ride offer...');
+    onClose();
   };
 
   // Draw route and calculate distance/price
@@ -193,7 +203,7 @@ const OfferRideModal = ({ onClose }) => {
                 </div>
               )}
 
-              <button type="submit" className="submit-button">Submit Offer</button>
+              <button type="button" onClick={handleSubmit} className="submit-button">Submit Offer</button>
             </form>
           </div>
           <div className="map-container">

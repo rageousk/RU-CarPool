@@ -177,7 +177,7 @@ function RiderDashboard({ user, signedIn, navigate, setRole }) {
       <aside className="sidebar">
         <nav className="nav-menu">
           <ul>
-            <li className="active"><FontAwesomeIcon icon={farHouse} style={iconStyle} /> Home</li>
+            <li className="active"><FontAwesomeIcon icon={farHouse} style={iconStyle} /> Dashboard</li>
             <li><FontAwesomeIcon icon={fasHistory} style={iconStyle} /> History</li>
             <li><FontAwesomeIcon icon={farCalendarDays} style={iconStyle} /> Schedule</li>
             <li><FontAwesomeIcon icon={farMessage} style={iconStyle} /> Message</li>
