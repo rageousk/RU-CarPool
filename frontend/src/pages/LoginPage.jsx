@@ -1,4 +1,4 @@
-// frontend/src/pages/LoginPage.jsx
+// src/pages/LoginPage.jsx
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../css/LoginSignup.css";
@@ -25,16 +25,38 @@ export default function LoginPage() {
   const [showModal, setShowModal] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
 
-  // Check if already logged in
+  // ✅ On mount: verify real Supabase session; if none, clear stale local token
   useEffect(() => {
-    const hasToken = !!localStorage.getItem("ru_token");
-    const params = new URLSearchParams(location.search);
-    const redirect = params.get("redirect") || "/dashboard";
-    if (hasToken) navigate(redirect);
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase.auth.getSession();
+      const session = data?.session || null;
+
+      if (error) {
+        console.warn("getSession error:", error.message);
+      }
+
+      if (!cancelled) {
+        const params = new URLSearchParams(location.search);
+        const redirect = params.get("redirect") || "/dashboard";
+
+        if (session?.user?.email) {
+          // Real session — go where they intended
+          navigate(redirect);
+        } else {
+          // No real session — avoid phantom redirects from stale token
+          localStorage.removeItem("ru_token");
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function toggleShow() {
-    setShowPassword(!showPassword);
+    setShowPassword((s) => !s);
   }
 
   async function onSubmit(e) {
@@ -43,12 +65,9 @@ export default function LoginPage() {
     setMsg(null);
 
     const cleanEmail = email.trim();
-
     if (!ROWAN_REGEX.test(cleanEmail)) return setErr("Use your Rowan email.");
     if (!PASSWORD_REGEX.test(password))
-      return setErr(
-        "Password must be 8+ chars with at least 1 letter and 1 number."
-      );
+      return setErr("Password must be 8+ chars with at least 1 letter and 1 number.");
 
     try {
       setLoading(true);
@@ -64,21 +83,19 @@ export default function LoginPage() {
       const out = await res.json();
       if (!res.ok) throw new Error(out.error || "Login failed");
 
-      // ✅ Set Supabase session in the browser so supabase.auth.getSession() works
+      // ✅ Set Supabase session so the rest of the app sees it
       if (out?.session?.access_token && out?.session?.refresh_token) {
         await supabase.auth.setSession({
           access_token: out.session.access_token,
           refresh_token: out.session.refresh_token,
         });
-
-        // Optional: still store your own copy for legacy fetch logic
+        // Optional: keep your own copy for legacy fetch logic
         localStorage.setItem("ru_token", out.session.access_token);
       }
 
       localStorage.setItem("ru_email", out?.user?.email || cleanEmail);
       setMsg("Logged in! Redirecting…");
 
-      // Respect redirect query parameter
       const params = new URLSearchParams(location.search);
       const redirect = params.get("redirect") || "/dashboard";
       setTimeout(() => navigate(redirect), 500);
@@ -104,7 +121,8 @@ export default function LoginPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             email: cleanEmail,
-            redirectTo: `${window.location.origin}/login`,
+            // ✅ land on the real reset page in your app
+            redirectTo: `${window.location.origin}/reset-password`,
           }),
         }
       );
@@ -112,7 +130,6 @@ export default function LoginPage() {
       if (!res.ok) throw new Error(out.error || "Failed to send reset email");
 
       setMsg("Password reset email sent! Check your inbox.");
-
       setTimeout(() => {
         setShowModal(false);
         setResetEmail("");
@@ -148,32 +165,20 @@ export default function LoginPage() {
             <h1 className="auth-title">Welcome back</h1>
             <p className="auth-sub">Campus access only — Rowan emails required.</p>
 
-            {/* Social login buttons */}
             <div className="social-login">
-              <button
-                className="google-btn"
-                onClick={() => socialLogin("google")}
-                disabled={loading}
-              >
+              <button className="google-btn" onClick={() => socialLogin("google")} disabled={loading}>
                 <img src={GoogleIcon} alt="Google" className="social-icon" />
                 Continue with Google
               </button>
 
-              <button
-                className="microsoft-btn"
-                onClick={() => socialLogin("azure")}
-                disabled={loading}
-              >
+              <button className="microsoft-btn" onClick={() => socialLogin("azure")} disabled={loading}>
                 <img src={MicrosoftIcon} alt="Microsoft" className="social-icon" />
                 Continue with Microsoft
               </button>
             </div>
 
-            <div className="divider">
-              <span>or</span>
-            </div>
+            <div className="divider"><span>or</span></div>
 
-            {/* Email/password login */}
             <form onSubmit={onSubmit} className="auth-form">
               <label className="field">
                 <span>Email</span>
@@ -224,11 +229,7 @@ export default function LoginPage() {
 
               <div className="signup-link-container">
                 <span>Don't have an account? </span>
-                <button
-                  type="button"
-                  className="link-btn"
-                  onClick={() => navigate("/signup")}
-                >
+                <button type="button" className="link-btn" onClick={() => navigate("/signup")}>
                   Sign up
                 </button>
               </div>
@@ -247,14 +248,9 @@ export default function LoginPage() {
             setResetEmail("");
           }}
         >
-          <div
-            className="forgot-modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="forgot-modal-content" onClick={(e) => e.stopPropagation()}>
             <h2 className="modal-title">Reset your password</h2>
-            <p className="modal-sub">
-              Enter your Rowan email to receive a password reset link.
-            </p>
+            <p className="modal-sub">Enter your Rowan email to receive a password reset link.</p>
 
             <input
               type="email"
@@ -266,11 +262,7 @@ export default function LoginPage() {
             />
 
             {(err || msg) && (
-              <div
-                className="auth-messages"
-                aria-live="polite"
-                style={{ marginBottom: 12 }}
-              >
+              <div className="auth-messages" aria-live="polite" style={{ marginBottom: 12 }}>
                 {err && <div className="msg error">{err}</div>}
                 {msg && <div className="msg ok">{msg}</div>}
               </div>
