@@ -7,8 +7,9 @@ import UserDashboard from "./pages/UserDashboard.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import SignupPage from "./pages/SignupPage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
+import AboutPage from "./pages/AboutPage.jsx";
+import { RideProvider } from "./context/RideContext.jsx";
 import { supabase } from "./lib/supabaseClient";
-import AdminPage from "./pages/Adminpage.jsx";
 import "./App.css";
 
 export default function App() {
@@ -65,28 +66,54 @@ export default function App() {
   const displayEmail = userEmail || localStorage.getItem("ru_email") || "";
 
   return (
-    <>
+    <RideProvider>
       <Navbar userProp={signedIn ? { email: displayEmail } : null} />
       <div className="main-content">
-        <Routes>
-          <Route path="/" element={<HomePage signedIn={signedIn} />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route
-            path="/dashboard"
-            element={
-              signedIn ? (
-                <UserDashboard user={{ name: displayEmail }} />
-              ) : (
-                <Navigate to="/login?redirect=/dashboard" replace />
-              )
-            }
-          />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        {loadingAuth ? (
+          <div className="loading-screen">Loading...</div>
+        ) : (
+          <Routes>
+            <Route path="/" element={<HomePage signedIn={signedIn} />} />
+            <Route 
+              path="/login" 
+              element={
+                signedIn ? (
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  <LoginPage />
+                )
+              } 
+            />
+            <Route 
+              path="/signup" 
+              element={
+                signedIn ? (
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  <SignupPage />
+                )
+              } 
+            />
+            <Route
+              path="/dashboard"
+              element={
+                signedIn ? (
+                  <UserDashboard 
+                    user={{ name: displayEmail }} 
+                    signedIn={signedIn} 
+                    navigate={navigate} 
+                  />
+                ) : (
+                  <Navigate to="/login?redirect=/dashboard" replace />
+                )
+              }
+            />
+            <Route path="/about-us" element={<AboutPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        )}
       </div>
-    </>
+    </RideProvider>
   );
 }

@@ -1,106 +1,442 @@
-/* Dashboard.css */
+/* ============ GLOBAL & BASE LAYOUT ============ */
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: "Inter", sans-serif;
+  color: #2c2c2c;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
-.dashboard {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: "SF Pro Display", Helvetica, Arial, sans-serif;
-    color: #333;
+body::-webkit-scrollbar,
+html::-webkit-scrollbar {
+  display: none;
+}
+
+.dashboard-app-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  background-color: #f7f9fc;
+  overflow: hidden;
+}
+
+/* ============ HEADER ============ */
+.app-header-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 40px;
+  padding: 0 30px;
+  color: white;
+  width: 100%;
+  z-index: 100;
+}
+
+.logo-container {
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: #f6c90e;
+}
+
+.driver-rider-switch {
+  display: flex;
+  background-color: #fff;
+  border-radius: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.driver-rider-switch button {
+  padding: 8px 20px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #5d2524;
+  background: transparent;
+  transition: all 0.2s ease;
+  border-radius: 20px;
+  margin: 2px;
+}
+
+.driver-rider-switch .active {
+  background-color: #f6c90e;
+  color: #2c2c2c;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ============ MAIN CONTENT AREA ============ */
+.app-main-content {
+  flex: 1;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ============ RIDER DASHBOARD ============ */
+.rider-dashboard-content {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  background-color: #ffffff;
+  border-right: 1px solid #e0ddd8;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.nav-menu {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-bottom: 20px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.nav-menu::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-menu li {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 30px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #555;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.nav-menu li.active {
+  background-color: #fcefb4;
+  font-weight: 600;
+  color: #2c2c2c;
+  border-left: 5px solid #f6c90e;
+}
+
+.nav-menu li:hover:not(.active) {
+  background-color: #f9f9f9;
+}
+
+/* Main Content Right Side */
+.dashboard-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: #f7f9fc;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.dashboard-main::-webkit-scrollbar {
+  display: none;
+}
+
+/* Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-shrink: 0;
+}
+
+.dashboard-header .title-area h2 {
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: #2c2c2c;
+  margin: 0;
+}
+
+/* Request Section */
+.request-section {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+  flex-shrink: 0;
+}
+
+.form-area {
+  flex: 1;
+  min-width: 320px;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: visible;
+}
+
+.form-area label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-top: 8px;
+  color: #2c2c2c;
+}
+
+.autocomplete-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Input fields */
+.form-area input {
+  padding: 12px 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-area input:focus {
+  border-color: #f6c90e;
+  box-shadow: 0 0 0 2px rgba(246, 201, 14, 0.3);
+}
+
+/* Pickup Info Inline */
+.pickup-info-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.pickup-info-wrapper .pickup-info-text {
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  color: #6c757d;
+  white-space: nowrap;
+}
+
+.pickup-info-wrapper .pickup-info-input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.pickup-info-wrapper .pickup-info-input:focus {
+  border-color: #f6c90e;
+  box-shadow: 0 0 0 2px rgba(246, 201, 14, 0.3);
+}
+
+/* Passenger + Date/Time row */
+.passenger-date-row {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  /* prevent wrapping on desktop */
+}
+
+.passenger-date-row .passenger-selector {
+  flex: 0 0 40%; /* fixed 40% of the row */
+  display: flex;
+  flex-direction: column;
+}
+
+.passenger-date-row .datetime-input-wrapper {
+  flex: 0 0 56%; /* fixed 60% of the row */
+  display: flex;
+  flex-direction: column;
+}
+
+
+.passenger-selector .passenger-controls {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.passenger-controls button {
+  background-color: #f2f2f2;
+  border: none;
+  font-size: 1rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.passenger-controls button:hover:not(:disabled) {
+  background-color: #ddd;
+}
+
+.passenger-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.passenger-controls span {
+  font-weight: 600;
+  font-size: 0.95rem;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* Autocomplete Dropdown */
+.autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  border: 1px solid #ccc;
+  width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
+  border-radius: 8px;
+  z-index: 10;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 4px;
+}
+
+.autocomplete-dropdown::-webkit-scrollbar {
+  display: none;
+}
+
+.autocomplete-dropdown div {
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.autocomplete-dropdown div:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-dropdown div:hover {
+  background-color: #fcefb4;
+}
+
+/* Input with Icon */
+.input-with-icon {
+  position: relative;
+}
+
+.input-with-icon input {
+  width: 100%;
+  padding: 12px 40px 12px 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.input-with-icon .location-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #f6c90e;
+  font-size: 1.2rem;
+}
+
+/* Ride estimate */
+.ride-estimate {
+  margin-top: 15px;
+  background: #fcf8e3;
+  border: 1px dashed #f6c90e;
+  border-radius: 8px;
+  padding: 12px 15px;
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #402019;
+}
+
+.ride-estimate .cost {
+  font-weight: 700;
+  color: #f6c90e;
+}
+
+/* Map area */
+.map-area {
+  flex: 1.5;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #eaeaea;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  min-width: 340px;
+  min-height: 400px;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
   }
-  
-  .dashboard header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-  }
-  
-  .dashboard h1 {
-    font-size: 28px;
-    font-weight: 600;
-  }
-  
-  .role-toggle button {
-    background-color: #57150b;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    margin-left: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  
-  .role-toggle button:hover {
-    background-color: #811a11;
-  }
-  
-  .role-toggle .active {
-    background-color: #a71f17;
-  }
-  
-  .rider-dashboard,
-  .driver-dashboard {
-    background-color: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-  }
-  
-  .rider-dashboard h2 {
-    margin-bottom: 15px;
-    color: #57150b;
-  }
-  
-  .new-request-button {
-    background-color: #57150b;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-bottom: 20px;
-    transition: background-color 0.2s ease;
-  }
-  
-  .new-request-button:hover {
-    background-color: #811a11;
-  }
-  
-  .ride-requests-table {
+
+  .rider-dashboard-content {
     width: 100%;
-    border-collapse: collapse;
   }
-  
-  .ride-requests-table th,
-  .ride-requests-table td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #e0e0e0;
-    text-align: left;
+
+  .dashboard-main {
+    padding: 20px;
   }
-  
-  .ride-requests-table th {
-    background-color: #f5f5f5;
-    color: #57150b;
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
-  
-  .ride-requests-table tr:hover {
-    background-color: #f9f9f9;
+
+  .request-section {
+    flex-direction: column;
   }
-  
-  @media (max-width: 768px) {
-    .dashboard header {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  
-    .role-toggle button {
-      margin: 5px 5px 0 0;
-    }
-  
-    .ride-requests-table th,
-    .ride-requests-table td {
-      padding: 10px 8px;
-    }
+
+  .map-area {
+    height: 300px;
+    min-width: unset;
   }
-  
+
+  .passenger-date-row {
+    flex-direction: column;
+  }
+
+  .passenger-date-row .passenger-selector,
+  .passenger-date-row .datetime-input-wrapper {
+    flex: 1 1 100%;
+  }
+}

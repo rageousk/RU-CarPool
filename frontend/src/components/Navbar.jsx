@@ -1,8 +1,8 @@
-// src/components/Navbar.jsx
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { supabase } from "../lib/supabaseClient"; // ✅ import supabase client
 import "../css/Navbar.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 
 export default function Navbar({ userProp }) {
   const [user, setUser] = useState(userProp || null);
@@ -11,26 +11,18 @@ export default function Navbar({ userProp }) {
 
   useEffect(() => setUser(userProp), [userProp]);
 
-  const handleLogout = async () => {
-    try {
-      // ✅ Sign out from Supabase (ends auth session)
-      await supabase.auth.signOut();
-    } catch (error) {
-      console.error("Error signing out:", error.message);
-    } finally {
-      // ✅ Clear any custom tokens/local data
-      localStorage.removeItem("ru_token");
-      localStorage.removeItem("ru_email");
-      setUser(null);
-      // ✅ Navigate to login page
-      navigate("/login");
-    }
+  const handleLogout = () => {
+    localStorage.removeItem("ru_token");
+    localStorage.removeItem("ru_email");
+    setUser(null);
+    navigate("/");
   };
 
   return (
     <div className="navbar">
       <div className="navbar-logo">
-        <Link to="/" className="app-name">UniRide</Link>
+        <Link to={user ? "/dashboard" : "/"} className="app-name">UniRide</Link>
+        <Link to="/" className="nav-link">Home</Link>
         <Link to="/about-us" className="nav-link">About Us</Link>
       </div>
 
@@ -47,7 +39,10 @@ export default function Navbar({ userProp }) {
             </span>
             {dropdownOpen && (
               <div className="dropdown-menu">
-                <button onClick={handleLogout}>Logout</button>
+                <button onClick={handleLogout} className="dropdown-item">
+                  <FontAwesomeIcon icon={faRightFromBracket} className="logout-icon" />
+                  Logout
+                </button>
               </div>
             )}
           </div>

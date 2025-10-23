@@ -1,5 +1,5 @@
 // src/pages/SignupPage.jsx
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/LoginSignup.css";
 import { LuEye, LuEyeClosed } from "react-icons/lu";
@@ -13,37 +13,20 @@ const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
 
 export default function SignupPage() {
   const nav = useNavigate();
-
   const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName]   = useState("");
-  const [email, setEmail]         = useState("");
-  const [password, setPassword]   = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm]   = useState(false);
-
+  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [err, setErr]         = useState(null);
-  const [msg, setMsg]         = useState(null);
-
-  // Only trust Supabase session to decide if already signed in
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const { data } = await supabase.auth.getSession();
-      const alreadyIn = !!data.session?.user?.email;
-      if (!cancelled && alreadyIn) {
-        setErr("You’re already signed in. You don’t need to create another account.");
-        setTimeout(() => nav("/dashboard"), 1200);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [nav]);
+  const [err, setErr] = useState(null);
+  const [msg, setMsg] = useState(null);
 
   function toggleShow(field) {
-    if (field === "password") setShowPassword((s) => !s);
-    else if (field === "confirm") setShowConfirm((s) => !s);
+    if (field === "password") setShowPassword(!showPassword);
+    else if (field === "confirm") setShowConfirm(!showConfirm);
   }
 
   function validate() {
@@ -64,29 +47,15 @@ export default function SignupPage() {
 
     try {
       setLoading(true);
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5050"}/api/auth/signup`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            first_name: firstName,
-            last_name: lastName,
-            email: email.trim(),
-            password,
-          }),
-        }
-      );
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5050"}/api/auth/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ first_name: firstName, last_name: lastName, email, password }),
+      });
+      const out = await res.json();
+      if (!res.ok) throw new Error(out.error || "Signup failed");
 
-      const out = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        if (res.status === 409) {
-          throw new Error("This email is already registered. Please log in or reset your password.");
-        }
-        throw new Error(out.error || "Signup failed");
-      }
-
-      setMsg("✅ Account created! Check your email to verify, then log in.");
+      setMsg("✅ Account created! Redirecting to login...");
       setTimeout(() => nav("/login"), 1500);
     } catch (e) {
       setErr(e.message || "Something went wrong.");
@@ -112,19 +81,39 @@ export default function SignupPage() {
       <div className="auth-shell">
         <div className="auth-card">
           <h1 className="auth-title">Create Account</h1>
-          <p className="auth-sub">Sign up using your Rowan email or social login.</p>
+          <p className="auth-sub">
+            Sign up using your Rowan email or social login.
+          </p>
 
+          {/* Social login */}
           <div className="social-login">
-            <button className="google-btn" onClick={() => socialLogin("google")} disabled={loading}>
-              <img src={GoogleIcon} alt="Google" className="social-icon" /> Continue with Google
+            <button
+              className="google-btn"
+              onClick={() => socialLogin("google")}
+              disabled={loading}
+            >
+              <img src={GoogleIcon} alt="Google" className="social-icon" />{" "}
+              Continue with Google
             </button>
-            <button className="microsoft-btn" onClick={() => socialLogin("azure")} disabled={loading}>
-              <img src={MicrosoftIcon} alt="Microsoft" className="social-icon" /> Continue with Microsoft
+            <button
+              className="microsoft-btn"
+              onClick={() => socialLogin("azure")}
+              disabled={loading}
+            >
+              <img
+                src={MicrosoftIcon}
+                alt="Microsoft"
+                className="social-icon"
+              />{" "}
+              Continue with Microsoft
             </button>
           </div>
 
-          <div className="divider"><span>or</span></div>
+          <div className="divider">
+            <span>or</span>
+          </div>
 
+          {/* Form fields */}
           <form onSubmit={onSubmit} className="auth-form">
             <label className="field">
               <span>First Name</span>
@@ -169,7 +158,10 @@ export default function SignupPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
-                <p className="toggle-password" onClick={() => toggleShow("password")}>
+                <p
+                  className="toggle-password"
+                  onClick={() => toggleShow("password")}
+                >
                   {showPassword ? <LuEye /> : <LuEyeClosed />}
                 </p>
               </div>
@@ -185,7 +177,10 @@ export default function SignupPage() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                 />
-                <p className="toggle-password" onClick={() => toggleShow("confirm")}>
+                <p
+                  className="toggle-password"
+                  onClick={() => toggleShow("confirm")}
+                >
                   {showConfirm ? <LuEye /> : <LuEyeClosed />}
                 </p>
               </div>
@@ -198,9 +193,17 @@ export default function SignupPage() {
               {loading ? "Please wait…" : "Sign up"}
             </button>
 
-            <div className="signup-link-container" style={{ justifyContent: "center", marginTop: 12 }}>
+            {/* Signup login link */}
+            <div
+              className="signup-link-container"
+              style={{ justifyContent: "center", marginTop: "12px" }}
+            >
               <span>Already have an account? </span>
-              <button type="button" className="link-btn" onClick={() => nav("/login")}>
+              <button
+                type="button"
+                className="link-btn"
+                onClick={() => nav("/login")}
+              >
                 Login
               </button>
             </div>
