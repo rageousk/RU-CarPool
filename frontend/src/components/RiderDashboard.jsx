@@ -141,6 +141,32 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
     );
   }, [pickup, dropoff, passengers]); // Re-run effect when pickup, dropoff, OR passengers change
 
+  // --- Automatically get user's current location when Google Maps loads ---
+  useEffect(() => {
+    if (!isMapsLoaded || !navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const userLocation = { lat: latitude, lng: longitude };
+        
+        // Set the user marker position to show current location
+        setUserMarkerPosition(userLocation);
+        // Center the map on user's current location
+        setMapCenter(userLocation);
+      },
+      (error) => {
+        console.warn("Could not get user's current location:", error);
+        // If geolocation fails, keep the default center (Rowan University)
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 300000 // 5 minutes
+      }
+    );
+  }, [isMapsLoaded]); // Run when Google Maps API loads
+
   // --- Function to get current GPS location and update pickup field ---
   const handleGetCurrentLocation = async () => {
     if (!navigator.geolocation || !isMapsLoaded) {
