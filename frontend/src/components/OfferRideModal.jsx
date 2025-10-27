@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import usePlacesAutocomplete from "use-places-autocomplete";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLocationArrow } from "@fortawesome/free-solid-svg-icons";
 import "../css/OfferRideModal.css";
 
 const containerStyle = { width: "100%", height: "100%" };
@@ -34,11 +36,12 @@ const OfferRideModal = ({ onClose, signedIn, navigate }) => {
   const [destination, setDestination] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [seats, setSeats] = useState("");
+  const [seats, setSeats] = useState(1); // Start with 1 seat, not empty string
   const [activeInput, setActiveInput] = useState(null);
   const [markers, setMarkers] = useState([]);
   const [distanceInfo, setDistanceInfo] = useState("");
   const [tripValue, setTripValue] = useState(null);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
 
   const isMapsLoaded = useGoogleMapsLoaded();
 
@@ -100,6 +103,54 @@ const OfferRideModal = ({ onClose, signedIn, navigate }) => {
     setTimeout(() => setActiveInput(null), 150);
   };
 
+  // Function to get current GPS location and update departure field
+  const handleGetCurrentLocation = async () => {
+    if (!navigator.geolocation || !isMapsLoaded) {
+      alert("Geolocation is not available or the Maps API hasn't loaded yet.");
+      return;
+    }
+    setIsGettingLocation(true); // Show loading state
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        const latLng = { lat: latitude, lng: longitude };
+        try {
+          // Use Geocoder to convert lat/lng to address
+          const geocoder = new window.google.maps.Geocoder();
+          const { results } = await geocoder.geocode({ location: latLng });
+
+          if (results && results[0]) {
+            const bestAddress = results[0].formatted_address;
+            setDeparture(bestAddress); // Update the departure input state
+            setValue(bestAddress, false); // Update the Places Autocomplete hook's value
+            
+            // Center the map on the new location
+            if (mapInstance.current) {
+              mapInstance.current.setCenter(latLng);
+            }
+            
+            clearSuggestions(); // Clear any existing address suggestions
+          } else {
+            alert("Could not find a valid address for your current location.");
+          }
+        } catch (error) {
+          console.error("Error during reverse geocoding:", error);
+          alert("An error occurred while trying to fetch your address.");
+        } finally {
+          setIsGettingLocation(false); // Hide loading state
+        }
+      },
+      (error) => {
+        console.error("Error getting geolocation:", error);
+        let errorMsg = "Unable to retrieve your location.";
+        if (error.code === 1) errorMsg += " Please ensure location permissions are enabled for this site.";
+        alert(errorMsg);
+        setIsGettingLocation(false); // Hide loading state
+      }
+    );
+  };
+
   const handleSubmit = () => {
     if (!signedIn) {
       navigate('/login?redirect=/dashboard');
@@ -110,7 +161,7 @@ const OfferRideModal = ({ onClose, signedIn, navigate }) => {
     onClose();
   };
 
-  // Draw route and calculate distance/price
+  // Draw route and calculate distance (only when departure/destination change)
   useEffect(() => {
     setDistanceInfo("");
     setTripValue(null);
@@ -139,22 +190,32 @@ const OfferRideModal = ({ onClose, signedIn, navigate }) => {
         if (status === "OK" && response.rows[0].elements[0].status === "OK") {
             const element = response.rows[0].elements[0];
             setDistanceInfo(`${element.distance.text} (${element.duration.text})`);
-            const miles = parseFloat(element.distance.text.replace(" mi", ""));
-            
-            const numSeats = parseInt(seats, 10);
-            if (!isNaN(numSeats) && numSeats > 0) {
-              let rate = 1.0; // Base rate for 1 seat
-              if (numSeats > 1) {
-                rate += (numSeats - 1) * 0.5; // Add $0.50 for each extra seat
-              }
-              setTripValue(miles * rate);
-            } else {
-              setTripValue(null); // Clear the price if seats is not a valid number
-            }
         }
       }
     );
-  }, [departure, destination, seats]);
+  }, [departure, destination]); // Remove seats from dependency
+
+  // Calculate price based on distance and seats (separate effect)
+  useEffect(() => {
+    if (!distanceInfo || !seats) return;
+
+    const distanceText = distanceInfo.split('(')[0].trim(); // Extract distance part
+    const miles = parseFloat(distanceText.replace(' mi', ''));
+    
+    if (!isNaN(miles) && seats > 0) {
+      // New pricing structure: $1.00 for 1 person, $1.50 for 2, $2.00 for 3+
+      let pricePerMile;
+      switch (seats) {
+        case 1: pricePerMile = 1.00; break;
+        case 2: pricePerMile = 1.50; break;
+        case 3: 
+        default: pricePerMile = 2.00; break; // 3 or more passengers
+      }
+      setTripValue(miles * pricePerMile);
+    } else {
+      setTripValue(null);
+    }
+  }, [distanceInfo, seats]); // This will only recalculate price, not distance
 
   return (
     <div className="modal-overlay">
@@ -168,8 +229,14 @@ const OfferRideModal = ({ onClose, signedIn, navigate }) => {
               {isMapsLoaded && (
                 <>
                   <label htmlFor="departure-location">Departure Location *</label>
-                  <div className="autocomplete-container" onBlur={handleBlur}>
+                  <div className="autocomplete-container input-with-icon" onBlur={handleBlur}>
                     <input id="departure-location" value={departure} onChange={(e) => handleInput(e, "departure")} onFocus={(e) => handleInput(e, "departure")} placeholder="e.g., Rowan University" autoComplete="off"/>
+                    <FontAwesomeIcon 
+                      icon={faLocationArrow} 
+                      className={`location-icon ${isGettingLocation ? 'getting-location' : ''}`}
+                      onClick={handleGetCurrentLocation}
+                      title={isGettingLocation ? "Getting location..." : "Use current location"}
+                    />
                     {activeInput === "departure" && status === "OK" && (
                       <div className="autocomplete-dropdown">
                         {data.map(({ place_id, description }) => (<div key={place_id} className="suggestion-item" onClick={() => handleSelect(description, "departure")}>{description}</div>))}
@@ -193,8 +260,25 @@ const OfferRideModal = ({ onClose, signedIn, navigate }) => {
               <label htmlFor="time">Time of Departure *</label>
               <input type="time" id="time" value={time} onChange={(e) => setTime(e.target.value)} />
               <label htmlFor="seats">Available Seats *</label>
-              {/* --- THIS IS THE ONLY CHANGE --- */}
-              <input type="number" id="seats" min="1" max="5" placeholder="e.g., 3" value={seats} onChange={(e) => setSeats(e.target.value)} />
+              <div className="seats-selector">
+                <div className="seats-controls">
+                  <button 
+                    type="button" 
+                    onClick={() => setSeats(s => Math.max(1, s - 1))} 
+                    disabled={seats <= 1}
+                  >
+                    −
+                  </button>
+                  <span>{seats}</span>
+                  <button 
+                    type="button" 
+                    onClick={() => setSeats(s => Math.min(3, s + 1))} 
+                    disabled={seats >= 3}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
 
               {distanceInfo && tripValue && (
                 <div className="distance-cost-card">
