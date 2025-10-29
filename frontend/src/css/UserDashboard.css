@@ -419,7 +419,6 @@ body::-webkit-scrollbar, html::-webkit-scrollbar {
 /* Container for a label + input(s) or controls */
 .form-group {
   flex: 1; /* Allow group to grow and take space */
-  display: flex;
   flex-direction: column;
   gap: 5px; /* Space between label and the input/control below it */
 }
