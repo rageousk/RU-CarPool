@@ -30,7 +30,6 @@ body::-webkit-scrollbar, html::-webkit-scrollbar {
   align-items: center;
   height: 60px; /* Adjusted height */
   padding: 0 30px;
-  background-color: #57150B; /* Match navbar color */
   width: 100%;
   box-sizing: border-box; /* Include padding in width */
   z-index: 100;
@@ -84,8 +83,6 @@ body::-webkit-scrollbar, html::-webkit-scrollbar {
 /* ============ SIDEBAR ============ */
 .sidebar {
   width: 260px; /* Slightly wider */
-  background-color: #ffffff;
-  border-right: 1px solid #e0ddd8;
   display: flex;
   flex-direction: column;
   padding: 25px 0; /* More top/bottom padding */
@@ -425,13 +422,26 @@ body::-webkit-scrollbar, html::-webkit-scrollbar {
   display: flex;
   flex-direction: column;
   gap: 5px; /* Space between label and the input/control below it */
-  min-width: 150px; /* Prevent groups from becoming too narrow */
 }
 
 /* Specific styling for the passenger counter section */
 .passenger-selector label {
     margin-bottom: 5px; /* Ensure space below label */
 }
+
+/* Keep passenger-selector horizontal instead of column */
+.passenger-selector.form-group {
+  flex-direction: row; /* Override column */
+  align-items: center; /* Vertically center label and controls */
+  gap: 10px; /* Space between label and controls */
+}
+
+/* Adjust label to take fixed width if needed */
+.passenger-selector.form-group label {
+  margin-bottom: 0; /* Remove bottom margin */
+  min-width: 140px; /* Ensure label doesn't shrink too much */
+}
+
 .passenger-controls {
   margin-top: 0; /* Align with inputs */
   display: flex;
@@ -470,12 +480,12 @@ body::-webkit-scrollbar, html::-webkit-scrollbar {
 
 /* Consistent styling for inline Date and Time inputs */
 /* Use ONE class name consistently in both JSX files */
-.datetime-input-wrapper-driver { /* Let's keep this name for now */
+.datetime-input-wrapper{ /* Let's keep this name for now */
   display: flex;
   gap: 10px; /* Space between Date and Time input */
   align-items: center; /* Align inputs vertically */
 }
-.datetime-input-wrapper-driver input {
+.datetime-input-wrapper input {
   flex: 1; /* Each input takes half the space */
   /* Ensure padding and border match other inputs */
   padding: 12px 15px;

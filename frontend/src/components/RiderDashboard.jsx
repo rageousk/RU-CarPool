@@ -351,22 +351,22 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
 
                   {/* --- Use form-row and form-group for layout --- */}
                   <div className="form-row">
+                    {/* DateTime Input */}
+                    <div className="form-group">
+                          <label htmlFor="datetime-rider-date">Departure Date & Time</label>
+                          {/* Use wrapper with specific class */}
+                          <div className="datetime-input-wrapper">
+                             <input id="datetime-rider-date" type="date" value={datetime.split('T')[0] || ''} onChange={(e) => setDatetime(`${e.target.value}T${datetime.split('T')[1] || '00:00'}`)} required/>
+                             <input id="datetime-rider-time" type="time" value={datetime.split('T')[1] || ''} onChange={(e) => setDatetime(`${datetime.split('T')[0] || new Date().toISOString().split('T')[0]}T${e.target.value}`)} required/>
+                          </div>
+                      </div>
                       {/* Passenger Selector */}
                       <div className="passenger-selector form-group">
-                          <label htmlFor="passengers-rider">No. of passengers</label>
+                          <label htmlFor="passengers-rider">No. of passengers: </label>
                           <div className="passenger-controls">
                               <button type="button" onClick={() => setPassengers(p => Math.max(1, p - 1))} disabled={passengers <= 1}>−</button>
                               <span>{passengers}</span>
                               <button type="button" onClick={() => setPassengers(p => Math.min(3, p + 1))} disabled={passengers >= 3}>+</button>
-                          </div>
-                      </div>
-                      {/* DateTime Input */}
-                      <div className="form-group">
-                          <label htmlFor="datetime-rider-date">Departure Date & Time</label>
-                          {/* Use wrapper with specific class */}
-                          <div className="datetime-input-wrapper-driver">
-                             <input id="datetime-rider-date" type="date" value={datetime.split('T')[0] || ''} onChange={(e) => setDatetime(`${e.target.value}T${datetime.split('T')[1] || '00:00'}`)} required/>
-                             <input id="datetime-rider-time" type="time" value={datetime.split('T')[1] || ''} onChange={(e) => setDatetime(`${datetime.split('T')[0] || new Date().toISOString().split('T')[0]}T${e.target.value}`)} required/>
                           </div>
                       </div>
                   </div>

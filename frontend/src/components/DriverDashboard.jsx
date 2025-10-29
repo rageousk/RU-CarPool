@@ -420,7 +420,7 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
                    <div className="form-row"> {/* Wrapper for inline elements */}
                        <div className="form-group">
                           <label htmlFor="date">Departure Date & Time</label>
-                           <div className="datetime-input-wrapper-driver"> {/* Specific class */}
+                           <div className="datetime-input-wrapper"> {/* Specific class */}
                               <input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} required/>
                               <input id="time" type="time" value={time} onChange={(e) => setTime(e.target.value)} required/>
                            </div>
