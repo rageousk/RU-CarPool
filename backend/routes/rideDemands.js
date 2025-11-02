@@ -27,12 +27,13 @@ router.post("/demands", async (req, res) => {
 
   const {
     origin,
-    origin_coords = null,      // { x: lng, y: lat } from Supabase "point"
+    origin_coords = null,      // (lng, lat) from Supabase "point"
     destination,
-    destination_coords = null, // { x: lng, y: lat }
+    destination_coords = null, // (lng, lat)
     departure_time,            // ISO string
     seats_needed,
     notes = null,
+    estimated_cost = null,
   } = req.body || {};
 
   if (!origin || !destination || !departure_time || !seats_needed) {
@@ -50,6 +51,7 @@ router.post("/demands", async (req, res) => {
     departure_time,
     seats_needed,
     notes,
+    estimated_cost,
     status: "open",
   };
 

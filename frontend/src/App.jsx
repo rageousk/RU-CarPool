@@ -99,7 +99,7 @@ export default function App() {
               element={
                 signedIn ? (
                   <UserDashboard 
-                    user={{ name: displayEmail }} 
+                    user={{ id: displayEmail }} 
                     signedIn={signedIn} 
                     navigate={navigate} 
                   />
