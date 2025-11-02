@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "../lib/supabaseClient";
 import "../css/Navbar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
@@ -11,10 +12,11 @@ export default function Navbar({ userProp }) {
 
   useEffect(() => setUser(userProp), [userProp]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     localStorage.removeItem("ru_token");
     localStorage.removeItem("ru_email");
     setUser(null);
+    await supabase.auth.signOut();
     navigate("/");
   };
 
