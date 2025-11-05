@@ -54,8 +54,13 @@ export default function App() {
       // 2) Load current session
       const { data } = await supabase.auth.getSession();
       if (!mounted) return;
-      const email = data?.session?.user?.email ?? null;
+
+      const user = data?.session?.user ?? null;
+      const email = user?.email ?? null;
+      const id = user?.id ?? null;
+
       setUserEmail(email);
+      setUserId(id); // ✅ set userId so ProfileSettings can render
 
       // Mirror into your existing keys (so your current logic continues to work)
       if (email) {
@@ -71,8 +76,12 @@ export default function App() {
 
     // 3) Keep localStorage + state in sync on any change (sign in/out/refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      const email = session?.user?.email ?? null;
+      const user = session?.user ?? null;
+      const email = user?.email ?? null;
+      const id = user?.id ?? null;
+
       setUserEmail(email);
+      setUserId(id);
 
       if (email) {
         localStorage.setItem("ru_email", email);
