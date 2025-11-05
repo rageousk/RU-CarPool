@@ -222,15 +222,38 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
       alert("Please fill in Pickup, Dropoff, Date, and Time."); return;
     }
 
+    // Returns {x,y} coordinates from an address or null if it failed
+    async function getAddressCoords(address) {
+      try {
+        const geocoder = new window.google.maps.Geocoder();
+        const { results } = await geocoder.geocode({ address });
+        if (results && results[0]) {
+          const coords = {
+            x: results[0].geometry.location.lng(), y: results[0].geometry.location.lat()
+          };
+          return coords;
+        } else { alert("Could not find the coordinates for your address."); }
+      } catch (error) {
+        console.error("Error geocoding:", error); alert("Error fetching coordinates.");
+      }
+      return null;
+    }
+
+    // Convert {x,y} coordinates to point notation
+    function convertCoordsToPoint(coords) {
+      return coords ? `(${coords.x}, ${coords.y})` : null;
+    }
+
     const rideRequestData = {
       rider_id: user?.id, // Get rider ID from user prop
-      pickup_location: pickup,
-      pickup_info: pickupInfo, // Include specific pickup details
-      dropoff_location: dropoff,
-      departure_datetime: datetime, // Use combined datetime state
-      num_passengers: parseInt(passengers, 10),
+      origin: pickup,
+      origin_coords: convertCoordsToPoint(await getAddressCoords(pickup)), // 
+      notes: pickupInfo, // Include specific pickup details
+      destination: dropoff,
+      destination_coords: convertCoordsToPoint(await getAddressCoords(dropoff)), // 
+      departure_time: datetime, // Use combined datetime state
+      seats_needed: parseInt(passengers, 10),
       estimated_cost: totalCost ? parseFloat(totalCost.toFixed(2)) : null,
-      status: 'pending', // Initial status for a new request
     };
 
     if (!rideRequestData.rider_id) { alert("Authentication Error: User ID not found."); return; }
@@ -238,12 +261,12 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
 
     try {
       // --- IMPORTANT: Verify '/api/ride-requests' is your correct backend endpoint for CREATING requests ---
-      const response = await fetch(`${apiBase}/api/ride-requests`, { // <<< VERIFY THIS URL
+      const response = await fetch(`${apiBase}/api/demands`, { // <<< VERIFY THIS URL
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             // Add Authorization header if needed
-            // 'Authorization': `Bearer ${localStorage.getItem('ru_token')}`
+            'Authorization': `Bearer ${localStorage.getItem('ru_token')}`
         },
         body: JSON.stringify(rideRequestData),
       });
