@@ -1,20 +1,16 @@
 /* ============ GLOBAL & BASE LAYOUT ============ */
-body,
-html {
+body, html {
   margin: 0;
   padding: 0;
   height: 100%;
   font-family: "Inter", sans-serif;
   color: #2c2c2c;
+  overflow-x: hidden;  
   overflow-y: auto;
-  overflow-x: hidden;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }
 
-body::-webkit-scrollbar,
-html::-webkit-scrollbar {
-  display: none;
+body::-webkit-scrollbar, html::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .dashboard-app-layout {
@@ -26,48 +22,43 @@ html::-webkit-scrollbar {
   overflow: hidden;
 }
 
-/* ============ HEADER ============ */
+/* ============ HEADER (Top Rider/Driver Switch) ============ */
 .app-header-nav {
   display: flex;
-  justify-content: space-between;
+  justify-content: center; /* Center the switch */
   align-items: center;
-  height: 40px;
+  height: 60px; /* Adjusted height */
   padding: 0 30px;
-  color: white;
   width: 100%;
+  box-sizing: border-box; /* Include padding in width */
   z-index: 100;
-}
-
-.logo-container {
-  font-weight: 800;
-  font-size: 1.6rem;
-  color: #f6c90e;
+  flex-shrink: 0; /* Prevent header from shrinking */
 }
 
 .driver-rider-switch {
   display: flex;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.9); /* White with slight transparency */
   border-radius: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
 .driver-rider-switch button {
-  padding: 8px 20px;
+  padding: 8px 25px; /* Increased padding */
   border: none;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.9rem;
-  color: #5d2524;
+  color: #5d2524; /* Dark red text */
   background: transparent;
   transition: all 0.2s ease;
-  border-radius: 20px;
-  margin: 2px;
+  border-radius: 20px; /* Match container */
+  margin: 3px; /* Add small margin inside */
 }
 
 .driver-rider-switch .active {
-  background-color: #f6c90e;
-  color: #2c2c2c;
+  background-color: #FFCC00; /* Yellow accent */
+  color: #333; /* Darker text for yellow */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -76,141 +67,165 @@ html::-webkit-scrollbar {
   flex: 1;
   display: flex;
   width: 100%;
-  height: 100%;
-  overflow: hidden;
+  height: calc(100vh - 60px);
+  overflow-y: auto; 
+  overflow-x: hidden;
 }
 
-/* ============ RIDER DASHBOARD ============ */
+/* Shared Content Layout (Sidebar + Main) */
 .rider-dashboard-content {
   display: flex;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow: visible; 
 }
 
-/* Sidebar */
+/* ============ SIDEBAR ============ */
 .sidebar {
-  width: 250px;
-  background-color: #ffffff;
-  border-right: 1px solid #e0ddd8;
+  width: 260px; /* Slightly wider */
   display: flex;
   flex-direction: column;
-  padding: 20px 0;
-  flex-shrink: 0;
-  overflow: hidden;
+  padding: 25px 0; /* More top/bottom padding */
+  flex-shrink: 0; /* Prevent sidebar from shrinking */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+  overflow: hidden; /* Prevent scrollbar on sidebar itself */
 }
 
 .nav-menu {
-  flex-grow: 1;
-  overflow-y: auto;
+  flex-grow: 1; /* Allow menu to take space */
+  overflow-y: auto; /* Allow scrolling *within* the menu */
   padding-bottom: 20px;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
+.nav-menu::-webkit-scrollbar { display: none; } /* Chrome, Safari, Opera */
 
-.nav-menu::-webkit-scrollbar {
-  display: none;
-}
-
-.nav-menu ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
+.nav-menu ul { list-style: none; padding: 0; margin: 0; }
 .nav-menu li {
   display: flex;
   align-items: center;
   gap: 15px;
-  padding: 12px 30px;
+  padding: 14px 30px; /* Increased padding */
   margin-bottom: 8px;
   cursor: pointer;
   font-size: 0.95rem;
   color: #555;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease, border-left 0.2s ease;
+  border-left: 5px solid transparent; /* Placeholder for active border */
 }
-
 .nav-menu li.active {
-  background-color: #fcefb4;
+  background-color: #fdf6e3; /* Lighter yellow */
   font-weight: 600;
-  color: #2c2c2c;
-  border-left: 5px solid #f6c90e;
+  color: #333; /* Darker text when active */
+  border-left: 5px solid #FFCC00; /* Yellow active border */
 }
+.nav-menu li:hover:not(.active) { background-color: #f9f9f9; }
 
-.nav-menu li:hover:not(.active) {
-  background-color: #f9f9f9;
-}
-
-/* Main Content Right Side */
+/* ============ DASHBOARD MAIN CONTENT (Right Side) ============ */
 .dashboard-main {
-  flex: 1;
+  flex: 1; /* Take remaining horizontal space */
   display: flex;
   flex-direction: column;
   padding: 30px;
   box-sizing: border-box;
-  overflow-y: auto;
+  overflow-y: auto; /* Allow this main area to scroll if content overflows */
   overflow-x: hidden;
   background-color: #f7f9fc;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
+.dashboard-main::-webkit-scrollbar { display: none; } /* Chrome, Safari, Opera */
 
-.dashboard-main::-webkit-scrollbar {
-  display: none;
-}
-
-/* Header */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-  flex-shrink: 0;
+  flex-shrink: 0; /* Prevent header from shrinking */
 }
+.dashboard-header .title-area h2 { font-weight: 700; font-size: 1.8rem; color: #2c2c2c; margin: 0; }
 
-.dashboard-header .title-area h2 {
-  font-weight: 700;
-  font-size: 1.8rem;
-  color: #2c2c2c;
-  margin: 0;
-}
-
-/* Request Section */
+/* Request/Offer Section Layout (Form + Map) */
 .request-section {
   display: flex;
   gap: 30px;
-  flex-wrap: wrap;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens if needed */
   margin-bottom: 30px;
-  flex-shrink: 0;
+  flex-shrink: 0; /* Prevent section from shrinking */
 }
 
 .form-area {
-  flex: 1;
-  min-width: 320px;
+  flex: 1; /* Takes up space, minimum width enforced below */
+  min-width: 340px; /* Minimum width before wrapping */
   background: #ffffff;
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  overflow: visible;
+  gap: 12px; /* Consistent gap between form elements */
+  overflow: visible; /* Important for autocomplete dropdown */
 }
-
 .form-area label {
   font-weight: 600;
   font-size: 0.9rem;
-  margin-top: 8px;
   color: #2c2c2c;
+  margin-bottom: -5px; /* Pull labels slightly closer to their inputs */
 }
 
-.autocomplete-wrapper {
-  position: relative;
+/* Autocomplete Styles */
+.autocomplete-wrapper { position: relative; width: 100%; }
+.input-with-icon { position: relative; }
+.input-with-icon input {
   width: 100%;
+  padding: 12px 40px 12px 15px; /* Make space on the right for icon */
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  box-sizing: border-box; /* Include padding in width */
 }
+.input-with-icon .location-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #FFCC00; /* Yellow icon */
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.input-with-icon .location-icon:hover { color: #e6b800; /* Darker yellow on hover */ }
+.input-with-icon .location-icon[disabled] { color: #ccc; cursor: not-allowed; } /* Style when disabled */
 
-/* Input fields */
-.form-area input {
+.autocomplete-dropdown {
+  position: absolute;
+  top: 100%; /* Position directly below the wrapper */
+  left: 0;
+  right: 0; /* Stretch full width */
+  background: white;
+  border: 1px solid #ccc;
+  border-top: none; /* Avoid double border */
+  max-height: 200px; /* Limit dropdown height */
+  overflow-y: auto; /* Enable scrolling if needed */
+  border-radius: 0 0 8px 8px; /* Rounded bottom corners */
+  z-index: 10; /* Ensure dropdown appears above other content */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 1px; /* Small gap */
+}
+.autocomplete-dropdown::-webkit-scrollbar { display: none; } /* Hide scrollbar */
+.autocomplete-dropdown div { /* Style for individual suggestion items */
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+.autocomplete-dropdown div:last-child { border-bottom: none; } /* Remove border on last item */
+.autocomplete-dropdown div:hover { background-color: #fdf6e3; /* Light yellow hover */ }
+
+/* Standard Input fields (Date, Time, Number) */
+.form-area input[type="date"],
+.form-area input[type="time"],
+.form-area input[type="number"] {
   padding: 12px 15px;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
@@ -220,94 +235,241 @@ html::-webkit-scrollbar {
   width: 100%;
   box-sizing: border-box;
 }
-
+/* Focus style for inputs */
 .form-area input:focus {
-  border-color: #f6c90e;
-  box-shadow: 0 0 0 2px rgba(246, 201, 14, 0.3);
+  border-color: #FFCC00; /* Yellow border on focus */
+  box-shadow: 0 0 0 2px rgba(255, 204, 0, 0.3); /* Yellow glow on focus */
+}
+.seats-input {
+  width: 100px !important; /* Make seats input smaller */
+  text-align: center;
 }
 
-/* Pickup Info Inline */
-.pickup-info-wrapper {
+
+
+/* Ride estimate */
+.ride-estimate {
+  margin-top: 10px; /* Space above estimate */
+  background: #fffbeb; /* Very light yellow background */
+  border: 1px solid #FFECB3; /* Light yellow border */
+  border-radius: 8px;
+  padding: 12px 15px;
   display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 6px;
-}
-
-.pickup-info-wrapper .pickup-info-text {
-  flex-shrink: 0;
+  justify-content: space-between;
+  align-items: center; /* Vertically align text */
+  font-weight: 500;
   font-size: 0.9rem;
-  color: #6c757d;
-  white-space: nowrap;
+  color: #555; /* Dark grey text */
+}
+.ride-estimate p { /* Remove default margins from paragraphs inside */
+  margin: 0;
+}
+.ride-estimate .cost {
+  font-weight: 700;
+  color: #b8860b; /* Darker gold/brown color for cost */
 }
 
-.pickup-info-wrapper .pickup-info-input {
-  flex: 1;
+/* Manual Price Input */
+.manual-price-input {
+  margin-top: 10px; /* Space above manual price */
+}
+.manual-price-input label { /* Ensure label itself doesn't cause extra space */
+    display: block; /* Make label take full width */
+    margin-bottom: 4px; /* Space between label text and input */
+}
+.manual-price-input label span { /* Style for the label text */
+  font-weight: bold;
+  color: #555;
+  font-size: 0.9rem; /* Match other labels */
+}
+.manual-price-input input {
   padding: 12px 15px;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   outline: none;
   font-size: 0.9rem;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: right; /* Align price value to the right */
+  /* Remove margin-top from input if label provides spacing */
+}
+.manual-price-input input::placeholder {
+  text-align: left; /* Keep placeholder aligned left */
+  font-style: italic;
+  color: #999;
 }
 
-.pickup-info-wrapper .pickup-info-input:focus {
-  border-color: #f6c90e;
-  box-shadow: 0 0 0 2px rgba(246, 201, 14, 0.3);
+/* Offer Ride Button */
+.new-offer-button { /* This class name IS used in the latest JS */
+  width: 100%; /* Make button full width */
+  padding: 15px;
+  font-size: 16px; /* Adjusted font size */
+  font-weight: bold;
+  color: #333; /* Dark text on yellow */
+  background-color: #FFCC00; /* Yellow background */
+  border: none;
+  border-radius: 8px; /* Rounded corners */
+  cursor: pointer;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+  margin-top: 15px; /* Space above */
+  display: flex; /* Allow icon and text */
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* Space between icon and text */
+}
+.new-offer-button:hover {
+  background-color: #e6b800; /* Darker yellow on hover */
+}
+.new-offer-button:disabled {
+  background-color: #ccc; /* Grey background when disabled */
+  cursor: not-allowed;
+  opacity: 0.7; /* Make it look faded */
 }
 
-/* Passenger + Date/Time row */
-.passenger-date-row {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
-  flex-wrap: nowrap;
-  /* prevent wrapping on desktop */
+/* Map area */
+.map-area {
+  flex: 1.5; /* Map takes slightly more space than form */
+  border-radius: 12px;
+  overflow: hidden; /* Important for map bounds */
+  background-color: #eaeaea; /* Placeholder background */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  min-width: 340px; /* Minimum width before wrapping */
+  min-height: 450px; /* Ensure map has good height */
 }
 
-.passenger-date-row .passenger-selector {
-  flex: 0 0 40%; /* fixed 40% of the row */
+/* Placeholder for other views */
+.content-placeholder {
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin: 0 auto; /* Center placeholder content */
+  max-width: 800px;
+}
+.content-placeholder h2 { margin-top: 0; color: #333; }
+.content-placeholder p { color: #555; }
+
+/* Requested Rides Table */
+.rides-list { margin-top: 30px; width: 100%; box-sizing: border-box;} /* Ensure table takes width */
+.rides-list h3 { margin-bottom: 15px; font-size: 1.2rem; color: #333; }
+.rides-requested-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  overflow: hidden; /* Ensures radius applies to table */
+  font-size: 0.9rem; /* Base font size for table */
+}
+.rides-requested-table th, .rides-requested-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle; /* Align cell content vertically */
+  white-space: nowrap; /* Prevent text wrapping initially */
+}
+/* Allow wrapping for specific columns if needed */
+.rides-requested-table td:nth-child(1), /* Pickup */
+.rides-requested-table td:nth-child(2) { /* Dropoff */
+  white-space: normal;
+}
+
+.rides-requested-table th {
+  background-color: #f8f9fa; /* Light grey header */
+  font-weight: 600;
+  color: #555;
+  white-space: nowrap;
+}
+/* Style table action buttons */
+.rides-requested-table td button {
+  padding: 6px 12px; /* Adjusted padding */
+  margin-right: 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: opacity 0.2s ease;
+}
+.rides-requested-table td button:last-child { margin-right: 0; }
+.rides-requested-table .action-button.accept { background-color: #28a745; color: white; }
+.rides-requested-table .action-button.decline { background-color: #dc3545; color: white; }
+.rides-requested-table .action-button:hover { opacity: 0.85; }
+
+/* Add these NEW styles to UserDashboard.css */
+
+/* Specific class for the driver's offer form if needed */
+.offer-ride-form-driver {
   display: flex;
   flex-direction: column;
+  gap: 15px; /* Adjust gap between elements */
 }
 
-.passenger-date-row .datetime-input-wrapper {
-  flex: 0 0 56%; /* fixed 60% of the row */
+/* --- REPLACE existing rules with this block --- */
+
+/* --- REPLACE existing definitions for these classes with this block --- */
+
+/* Wrapper for elements meant to be side-by-side (like Passengers + Date/Time) */
+.form-row {
   display: flex;
-  flex-direction: column;
+  gap: 20px; /* Space between groups in the row */
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  align-items: flex-start; /* Align items at the top */
 }
 
+/* Container for a label + input(s) or controls */
+.form-group {
+  flex: 1; /* Allow group to grow and take space */
+  flex-direction: column;
+  gap: 5px; /* Space between label and the input/control below it */
+}
 
-.passenger-selector .passenger-controls {
-  margin-top: 6px;
+/* Specific styling for the passenger counter section */
+.passenger-selector label {
+    margin-bottom: 5px; /* Ensure space below label */
+}
+
+/* Keep passenger-selector horizontal instead of column */
+.passenger-selector.form-group {
+  flex-direction: row; /* Override column */
+  align-items: center; /* Vertically center label and controls */
+  gap: 10px; /* Space between label and controls */
+}
+
+/* Adjust label to take fixed width if needed */
+.passenger-selector.form-group label {
+  margin-bottom: 0; /* Remove bottom margin */
+  min-width: 140px; /* Ensure label doesn't shrink too much */
+}
+
+.passenger-controls {
+  margin-top: 0; /* Align with inputs */
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-between; /* Space out buttons and number */
   gap: 10px;
+  /* Match input styling */
+   padding: 8px 12px;
+   border: 1px solid #e0e0e0;
+   border-radius: 8px;
+   height: 42px; /* Match input height (adjust if needed) */
+   box-sizing: border-box;
 }
-
 .passenger-controls button {
   background-color: #f2f2f2;
   border: none;
   font-size: 1rem;
-  width: 28px;
-  height: 28px;
+  width: 24px; /* Slightly smaller button */
+  height: 24px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background 0.2s;
+  flex-shrink: 0;
 }
-
-.passenger-controls button:hover:not(:disabled) {
-  background-color: #ddd;
-}
-
-.passenger-controls button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
+.passenger-controls button:hover:not(:disabled) { background-color: #ddd; }
+.passenger-controls button:disabled { opacity: 0.5; cursor: not-allowed; }
 .passenger-controls span {
   font-weight: 600;
   font-size: 0.95rem;
@@ -315,128 +477,88 @@ html::-webkit-scrollbar {
   text-align: center;
 }
 
-/* Autocomplete Dropdown */
-.autocomplete-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: white;
-  border: 1px solid #ccc;
-  width: 100%;
-  max-height: 150px;
-  overflow-y: auto;
-  border-radius: 8px;
-  z-index: 10;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-top: 4px;
+/* Consistent styling for inline Date and Time inputs */
+/* Use ONE class name consistently in both JSX files */
+.datetime-input-wrapper{ /* Let's keep this name for now */
+  display: flex;
+  gap: 10px; /* Space between Date and Time input */
+  align-items: center; /* Align inputs vertically */
 }
-
-.autocomplete-dropdown::-webkit-scrollbar {
-  display: none;
-}
-
-.autocomplete-dropdown div {
-  padding: 10px 15px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.autocomplete-dropdown div:last-child {
-  border-bottom: none;
-}
-
-.autocomplete-dropdown div:hover {
-  background-color: #fcefb4;
-}
-
-/* Input with Icon */
-.input-with-icon {
-  position: relative;
-}
-
-.input-with-icon input {
-  width: 100%;
-  padding: 12px 40px 12px 15px;
+.datetime-input-wrapper input {
+  flex: 1; /* Each input takes half the space */
+  /* Ensure padding and border match other inputs */
+  padding: 12px 15px;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-}
-
-.input-with-icon .location-icon {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
-  color: #f6c90e;
-  font-size: 1.2rem;
-}
-
-/* Ride estimate */
-.ride-estimate {
-  margin-top: 15px;
-  background: #fcf8e3;
-  border: 1px dashed #f6c90e;
-  border-radius: 8px;
-  padding: 12px 15px;
-  display: flex;
-  justify-content: space-between;
-  font-weight: 600;
   font-size: 0.9rem;
-  color: #402019;
+  box-sizing: border-box;
 }
 
-.ride-estimate .cost {
-  font-weight: 700;
-  color: #f6c90e;
+
+/* --- END of corrected block --- */
+
+
+/* --- Remove any OTHER definitions for .datetime-input-wrapper --- */
+/* The stacking behavior should be handled by .form-row's flex-wrap or within media queries */
+
+/* --- END of corrected block --- */
+
+/* --- Make sure your RESPONSIVE section (@media) correctly handles stacking --- */
+/* Example within your @media (max-width: 768px) block */
+@media (max-width: 768px) {
+  /* ... other responsive rules ... */
+
+  .form-row {
+     flex-direction: column; /* Stack elements vertically on small screens */
+     gap: 15px; /* Adjust gap for vertical stacking */
+  }
+
+  /* Remove fixed flex basis if set elsewhere for these elements on mobile */
+  .passenger-selector,
+  .datetime-input-wrapper-driver { /* Or whatever holds date/time */
+     flex-basis: auto;
+  }
 }
 
-/* Map area */
-.map-area {
-  flex: 1.5;
-  border-radius: 12px;
-  overflow: hidden;
-  background-color: #eaeaea;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  min-width: 340px;
-  min-height: 400px;
+/* Optional styling for pickup info input */
+.pickup-info-input-driver {
+   /* Add specific styles if needed, otherwise it uses general input styles */
+   padding: 12px 15px;
+   border: 1px solid #e0e0e0;
+   border-radius: 8px;
+   font-size: 0.9rem;
+}
+
+/* Ensure seats input aligns correctly */
+.seats-input-driver {
+  width: 100px !important; /* Keep it small */
+  text-align: center;
+  padding: 12px 10px !important; /* Adjust padding if needed */
+}
+
+/* Ensure labels align correctly */
+.offer-ride-form-driver label {
+  margin-bottom: 0; /* Override default label margin if needed */
 }
 
 /* ============ RESPONSIVE ============ */
+@media (max-width: 992px) { /* Adjust breakpoint if needed */
+  .request-section { flex-direction: column; } /* Stack form and map */
+  .map-area { min-height: 350px; flex-basis: 350px; /* Fixed height */ }
+}
+
 @media (max-width: 768px) {
-  .sidebar {
-    display: none;
-  }
-
-  .rider-dashboard-content {
-    width: 100%;
-  }
-
-  .dashboard-main {
-    padding: 20px;
-  }
-
-  .dashboard-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .request-section {
-    flex-direction: column;
-  }
-
-  .map-area {
-    height: 300px;
-    min-width: unset;
-  }
-
-  .passenger-date-row {
-    flex-direction: column;
-  }
-
-  .passenger-date-row .passenger-selector,
-  .passenger-date-row .datetime-input-wrapper {
-    flex: 1 1 100%;
-  }
+  .sidebar { display: none; } /* Hide sidebar on small screens */
+  .rider-dashboard-content { width: 100%; }
+  .dashboard-main { padding: 15px; } /* Reduced padding */
+  .app-header-nav { padding: 0 15px; height: 50px; } /* Adjust header for mobile */
+  .driver-rider-switch button { padding: 6px 15px; font-size: 0.85rem; margin: 2px; }
+  .dashboard-header { flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 15px; }
+  .dashboard-header .title-area h2 { font-size: 1.5rem; }
+  .map-area { height: 300px; min-height: 300px; flex-basis: 300px; }
+ 
+  /* Adjust table for smaller screens */
+  .rides-requested-table { display: block; overflow-x: auto; /* Allow horizontal scroll */ }
+  .rides-requested-table th, .rides-requested-table td { padding: 8px 10px; font-size: 0.8rem; white-space: nowrap; /* Prevent wrapping in scrollable table */ }
+  .rides-requested-table td button { padding: 4px 8px; font-size: 0.8rem; }
 }
