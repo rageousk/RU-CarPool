@@ -7,8 +7,6 @@ import authRouter from "./routes/auth.js";
 import usersRouter from "./routes/users.js";
 import healthRouter from "./routes/health.js";
 import adminRouter from "./routes/admin.js";
-
-// NEW (Uber-style flow)
 import rideDemandsRouter from "./routes/rideDemands.js";
 import rideClaimsRouter from "./routes/rideClaims.js";
 
