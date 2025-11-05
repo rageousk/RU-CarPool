@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import usePlacesAutocomplete from "use-places-autocomplete";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLocationArrow } from "@fortawesome/free-solid-svg-icons";
 import "../css/RequestRideModal.css";
 
-const containerStyle = { width: "100%", height: "400px" };
+const containerStyle = { width: "100%", height: "100%" }; // Use 100% to fill the container
 const defaultCenter = { lat: 39.7107, lng: -75.121 }; // Rowan University
 
 // Hook to detect if Google Maps is loaded
@@ -30,14 +32,26 @@ const RequestRideModal = ({ onClose, signedIn, navigate }) => {
   const [mapCenter, setMapCenter] = useState(defaultCenter);
   const [pickup, setPickup] = useState("");
   const [destination, setDestination] = useState("");
+  const [passengers, setPassengers] = useState(1); // Add passenger count state
   const [activeInput, setActiveInput] = useState(null);
   const [markers, setMarkers] = useState([]);
   const directionsRenderer = useRef(null);
   const [distanceInfo, setDistanceInfo] = useState("");
   const [totalCost, setTotalCost] = useState(null);
+  const [isGettingLocation, setIsGettingLocation] = useState(false); // Loading state for location button
   const mapRef = useRef(null); // Ref for the map container DIV
 
   const isMapsLoaded = useGoogleMapsLoaded();
+
+  // Pricing function based on number of passengers
+  const calculatePricePerMile = (passengerCount) => {
+    switch (passengerCount) {
+      case 1: return 1.00;
+      case 2: return 1.50;
+      case 3: return 2.00;
+      default: return 1.00; // Default to 1 passenger rate
+    }
+  };
 
   const {
     ready,
@@ -102,6 +116,55 @@ const RequestRideModal = ({ onClose, signedIn, navigate }) => {
     setTimeout(() => setActiveInput(null), 150);
   };
 
+  // Function to get current GPS location and update pickup field
+  const handleGetCurrentLocation = async () => {
+    if (!navigator.geolocation || !isMapsLoaded) {
+      alert("Geolocation is not available or the Maps API hasn't loaded yet.");
+      return;
+    }
+    setIsGettingLocation(true); // Show loading state
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        const latLng = { lat: latitude, lng: longitude };
+        try {
+          // Use Geocoder to convert lat/lng to address
+          const geocoder = new window.google.maps.Geocoder();
+          const { results } = await geocoder.geocode({ location: latLng });
+
+          if (results && results[0]) {
+            const bestAddress = results[0].formatted_address;
+            setPickup(bestAddress); // Update the pickup input state
+            setValue(bestAddress, false); // Update the Places Autocomplete hook's value
+            setMapCenter(latLng); // Center the map on this location
+            
+            // Center the map on the new location
+            if (mapInstance.current) {
+              mapInstance.current.setCenter(latLng);
+            }
+            
+            clearSuggestions(); // Clear any existing address suggestions
+          } else {
+            alert("Could not find a valid address for your current location.");
+          }
+        } catch (error) {
+          console.error("Error during reverse geocoding:", error);
+          alert("An error occurred while trying to fetch your address.");
+        } finally {
+          setIsGettingLocation(false); // Hide loading state
+        }
+      },
+      (error) => {
+        console.error("Error getting geolocation:", error);
+        let errorMsg = "Unable to retrieve your location.";
+        if (error.code === 1) errorMsg += " Please ensure location permissions are enabled for this site.";
+        alert(errorMsg);
+        setIsGettingLocation(false); // Hide loading state
+      }
+    );
+  };
+
   // Route + distance calculation
   useEffect(() => {
     if (!pickup || !destination || !mapInstance.current || !directionsRenderer.current) return;
@@ -134,14 +197,15 @@ const RequestRideModal = ({ onClose, signedIn, navigate }) => {
           if (element.status === "OK") {
             setDistanceInfo(`${element.distance.text} (${element.duration.text})`);
             const miles = parseFloat(element.distance.text.replace(" mi", ""));
-            setTotalCost(miles * 1); // Assuming $1 per mile
+            const pricePerMile = calculatePricePerMile(passengers);
+            setTotalCost(miles * pricePerMile); // Use new pricing structure
           } else {
             setDistanceInfo("Distance not available");
           }
         }
       }
     );
-  }, [pickup, destination]);
+  }, [pickup, destination, passengers]); // Re-run when pickup, destination, or passengers change
 
   return (
     <div className="modal-overlay">
@@ -164,7 +228,7 @@ const RequestRideModal = ({ onClose, signedIn, navigate }) => {
               {isMapsLoaded && (
                 <>
                   <label htmlFor="pickup-location">Pickup Location *</label>
-                  <div className="autocomplete-container" onBlur={handleBlur}>
+                  <div className="autocomplete-container input-with-icon" onBlur={handleBlur}>
                     <input
                       id="pickup-location"
                       value={pickup}
@@ -172,6 +236,12 @@ const RequestRideModal = ({ onClose, signedIn, navigate }) => {
                       onFocus={(e) => handleInput(e, "pickup")}
                       placeholder="e.g., Holly Pointe Commons"
                       autoComplete="off"
+                    />
+                    <FontAwesomeIcon 
+                      icon={faLocationArrow} 
+                      className={`location-icon ${isGettingLocation ? 'getting-location' : ''}`}
+                      onClick={handleGetCurrentLocation}
+                      title={isGettingLocation ? "Getting location..." : "Use current location"}
                     />
                     {activeInput === "pickup" && status === "OK" && (
                       <div className="autocomplete-dropdown">
@@ -219,6 +289,27 @@ const RequestRideModal = ({ onClose, signedIn, navigate }) => {
 
               <label htmlFor="departure-time">Preferred Departure Time *</label>
               <input type="datetime-local" id="departure-time" />
+
+              <label htmlFor="passengers">Number of Passengers *</label>
+              <div className="passenger-selector">
+                <div className="passenger-controls">
+                  <button 
+                    type="button" 
+                    onClick={() => setPassengers(p => Math.max(1, p - 1))} 
+                    disabled={passengers <= 1}
+                  >
+                    −
+                  </button>
+                  <span>{passengers}</span>
+                  <button 
+                    type="button" 
+                    onClick={() => setPassengers(p => Math.min(3, p + 1))} 
+                    disabled={passengers >= 3}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
 
               {pickup && destination && distanceInfo && (
                 <div className="distance-cost-card">

@@ -5,14 +5,13 @@ import "dotenv/config";
 
 import authRouter from "./routes/auth.js";
 import usersRouter from "./routes/users.js";
-import ridesRouter from "./routes/rides.js";
 import healthRouter from "./routes/health.js";
 import adminRouter from "./routes/admin.js";
-import rideRequestsRouter from "./routes/rideRequests.js";
+import rideDemandsRouter from "./routes/rideDemands.js";
+import rideClaimsRouter from "./routes/rideClaims.js";
 
 const app = express();
 
-// CORS — allow your Vite dev server (override with FRONTEND_ORIGIN in .env if needed)
 app.use(
   cors({
     origin: [process.env.FRONTEND_ORIGIN || "http://localhost:5173"],
@@ -24,27 +23,21 @@ app.use(
 
 app.use(express.json());
 
-// Root ping
 app.get("/", (_req, res) =>
-  res.send("RU-Carpool API is running. Try GET /api/health or /api/users")
+  res.send("RU-Carpool API running. Try GET /api/health")
 );
 
-// Routers
+// core routers
 app.use("/api/health", healthRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
-app.use("/api/rides", ridesRouter);
 app.use("/api/admin", adminRouter);
 
-// Mount ride-requests endpoints under /api
-// Exposes:
-//  - POST   /api/rides/:rideId/requests
-//  - GET    /api/ride-requests/mine
-//  - GET    /api/rides/:rideId/requests
-//  - PATCH  /api/ride-requests/:id
-app.use("/api", rideRequestsRouter);
+// new flow
+app.use("/api", rideDemandsRouter); // /api/demands, /api/demands/mine, /api/demands/open, /api/demands/:id/cancel
+app.use("/api", rideClaimsRouter);  // /api/demands/:id/claims, /api/claims/mine, /api/claims/:id/withdraw
 
-// Optional: 404 + error handlers
+// fallbacks
 app.use((req, res) => res.status(404).json({ error: "Not found" }));
 app.use((err, _req, res, _next) => {
   console.error(err);
