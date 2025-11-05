@@ -5,9 +5,8 @@ body, html {
   height: 100%;
   font-family: "Inter", sans-serif;
   color: #2c2c2c;
-  overflow: hidden; /* Prevent body scroll */
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  overflow-x: hidden;  
+  overflow-y: auto;
 }
 
 body::-webkit-scrollbar, html::-webkit-scrollbar {
@@ -68,16 +67,16 @@ body::-webkit-scrollbar, html::-webkit-scrollbar {
   flex: 1; /* Take remaining vertical space */
   display: flex;
   width: 100%;
-  height: calc(100vh - 60px); /* Full height minus header */
-  overflow: hidden; /* Prevent scrolling here, allow in sub-components */
+  height: 100%;
+  overflow: hidden;
 }
 
-/* Shared Content Layout (Sidebar + Main) */
-.rider-dashboard-content { /* Used by both Rider and Driver dashboards */
+/* ============ RIDER DASHBOARD ============ */
+.rider-dashboard-content {
   display: flex;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow: visible; 
 }
 
 /* ============ SIDEBAR ============ */
