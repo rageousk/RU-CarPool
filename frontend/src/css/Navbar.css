@@ -102,6 +102,10 @@
 /* End of Login / Signup Style */
 
 /* User dropdown */
+.user-icon{
+    margin-right: 6px;
+    color: white;
+}
 .user-dropdown {
     position: relative;
     cursor: pointer;

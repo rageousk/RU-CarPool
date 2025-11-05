@@ -2,7 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../css/Navbar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
+import {
+  faRightFromBracket,
+  faUser,
+  faChevronDown,
+  faGear,
+} from "@fortawesome/free-solid-svg-icons";
 
 export default function Navbar({ userProp }) {
   const [user, setUser] = useState(userProp || null);
@@ -11,6 +16,7 @@ export default function Navbar({ userProp }) {
 
   useEffect(() => setUser(userProp), [userProp]);
 
+  // Logout logic
   const handleLogout = () => {
     localStorage.removeItem("ru_token");
     localStorage.removeItem("ru_email");
@@ -18,29 +24,66 @@ export default function Navbar({ userProp }) {
     navigate("/");
   };
 
+  // Navigate to settings/profile page
+  const handleSettings = () => {
+    navigate("/settings"); 
+  };
+
   return (
     <div className="navbar">
+      {/* Left side links */}
       <div className="navbar-logo">
-        <Link to={user ? "/dashboard" : "/"} className="app-name">UniRide</Link>
-        <Link to="/" className="nav-link">Home</Link>
-        <Link to="/about-us" className="nav-link">About Us</Link>
+        <Link to={user ? "/dashboard" : "/"} className="app-name">
+          UniRide
+        </Link>
+        <Link to="/" className="nav-link">
+          Home
+        </Link>
+        <Link to="/about-us" className="nav-link">
+          About Us
+        </Link>
       </div>
 
+      {/* Right side links */}
       <div className="navbar-links">
         {!user ? (
           <>
-            <Link to="/login" className="login-icon">Login</Link>
-            <Link to="/signup" className="signup-icon">Signup</Link>
+            <Link to="/login" className="login-icon">
+              Login
+            </Link>
+            <Link to="/signup" className="signup-icon">
+              Signup
+            </Link>
           </>
         ) : (
           <div className="user-dropdown">
-            <span onClick={() => setDropdownOpen(!dropdownOpen)}>
-              {user.email.split("@")[0]} ▼
-            </span>
+            <div
+              className="user-info"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+            >
+              <FontAwesomeIcon icon={faUser} className="user-icon" />
+              <span className="user-email">
+                {user.email.split("@")[0]}
+              </span>
+              <FontAwesomeIcon
+                icon={faChevronDown}
+                className={`dropdown-icon ${
+                  dropdownOpen ? "open" : ""
+                }`}
+              />
+            </div>
+
             {dropdownOpen && (
               <div className="dropdown-menu">
+                <button onClick={handleSettings} className="dropdown-item">
+                  <FontAwesomeIcon icon={faGear} className="settings-icon" />
+                  Settings
+                </button>
                 <button onClick={handleLogout} className="dropdown-item">
-                  <FontAwesomeIcon icon={faRightFromBracket} className="logout-icon" />
+                  <FontAwesomeIcon
+                    icon={faRightFromBracket}
+                    className="logout-icon"
+                  />
                   Logout
                 </button>
               </div>

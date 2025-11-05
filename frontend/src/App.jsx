@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
@@ -8,12 +7,14 @@ import LoginPage from "./pages/LoginPage.jsx";
 import SignupPage from "./pages/SignupPage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
+import ProfileSettings from "./components/ProfileSettings.jsx";
 import { RideProvider } from "./context/RideContext.jsx";
 import { supabase } from "./lib/supabaseClient";
 import "./App.css";
 
 export default function App() {
   const [userEmail, setUserEmail] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const navigate = useNavigate();
 
@@ -23,26 +24,29 @@ export default function App() {
     (async () => {
       const { data } = await supabase.auth.getSession();
       if (!mounted) return;
-      setUserEmail(data.session?.user?.email ?? null);
+
+      const user = data.session?.user ?? null;
+      setUserEmail(user?.email ?? null);
+      setUserId(user?.id ?? null);
       setLoadingAuth(false);
     })();
 
-    // Single subscription for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUserEmail(session?.user?.email ?? null);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      const currentUser = session?.user ?? null;
+      setUserEmail(currentUser?.email ?? null);
+      setUserId(currentUser?.id ?? null);
 
       if (event === "PASSWORD_RECOVERY") {
-        // Try to get tokens from session object first
         const access_token = session?.access_token ?? session?.provider_token ?? null;
         const refresh_token = session?.refresh_token ?? null;
 
         if (access_token) {
-          // navigate and pass tokens in state
           navigate("/reset-password", { state: { access_token, refresh_token } });
           return;
         }
 
-        // Fallback: tokens might be in URL fragment (e.g. #access_token=...&type=recovery)
         const hash = window.location.hash || "";
         if (hash.includes("access_token")) {
           const params = new URLSearchParams(hash.replace(/^#/, "?"));
@@ -50,7 +54,6 @@ export default function App() {
           const rt = params.get("refresh_token");
           navigate("/reset-password", { state: { access_token: at, refresh_token: rt } });
         } else {
-          // If no tokens found, still attempt to navigate so the reset page can parse the URL
           navigate("/reset-password");
         }
       }
@@ -62,7 +65,7 @@ export default function App() {
     };
   }, [navigate]);
 
-  const signedIn = !loadingAuth && (!!localStorage.getItem("ru_token") || !!userEmail);
+  const signedIn = !loadingAuth && (!!userEmail || !!localStorage.getItem("ru_token"));
   const displayEmail = userEmail || localStorage.getItem("ru_email") || "";
 
   return (
@@ -74,37 +77,29 @@ export default function App() {
         ) : (
           <Routes>
             <Route path="/" element={<HomePage signedIn={signedIn} />} />
-            <Route 
-              path="/login" 
-              element={
-                signedIn ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <LoginPage />
-                )
-              } 
-            />
-            <Route 
-              path="/signup" 
-              element={
-                signedIn ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <SignupPage />
-                )
-              } 
-            />
+            <Route path="/login" element={signedIn ? <Navigate to="/dashboard" replace /> : <LoginPage />} />
+            <Route path="/signup" element={signedIn ? <Navigate to="/dashboard" replace /> : <SignupPage />} />
             <Route
               path="/dashboard"
               element={
                 signedIn ? (
-                  <UserDashboard 
-                    user={{ name: displayEmail }} 
-                    signedIn={signedIn} 
-                    navigate={navigate} 
-                  />
+                  <UserDashboard user={{ name: displayEmail }} signedIn={signedIn} navigate={navigate} />
                 ) : (
                   <Navigate to="/login?redirect=/dashboard" replace />
+                )
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                signedIn ? (
+                  userId ? (
+                    <ProfileSettings userId={userId} />
+                  ) : (
+                    <div className="loading-screen">Loading user data...</div>
+                  )
+                ) : (
+                  <Navigate to="/login?redirect=/settings" replace />
                 )
               }
             />
