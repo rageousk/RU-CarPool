@@ -19,9 +19,7 @@
   border-radius: 12px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   width: 90%;
-  max-width: 1000px; /* Increased from 900px to give more space */
-  max-height: 90vh; /* Prevent modal from being too tall */
-  overflow-y: auto; /* Allow scrolling if needed */
+  max-width: 900px; 
   position: relative;
   text-align: left;
 }
@@ -100,32 +98,18 @@
   display: flex;
   gap: 20px; /* spacing between form and map */
   flex-wrap: wrap; /* stack vertically on small screens */
-  min-height: 450px; /* Ensure enough height for the layout */
 }
 
 .form-container {
   flex: 1;
   min-width: 300px; /* keep form readable */
-  max-width: 400px; /* Prevent form from taking too much space */
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start; /* Align form content to top */
 }
 
 .map-container {
-  flex: 1.5; /* Give map more space */
-  min-width: 350px;
-  margin-top: 0; /* Remove excessive top margin */
-  height: 450px; /* Fixed height instead of min-height */
-  background-color: #eaeaea; /* Placeholder background while map loads */
-  border-radius: 8px;
-  overflow: hidden; /* Ensure map fits within container */
-}
-
-/* Ensure Google Maps fills the container completely */
-.map-container > div {
-  width: 100% !important;
-  height: 100% !important;
+  flex: 1;
+  min-width: 300px;
+  margin-top: 50px;
+  min-height: 400px;
 }
 
 /* Inputs outside autocomplete */
@@ -137,54 +121,6 @@
   border-radius: 6px;
   font-size: 16px;
   box-sizing: border-box;
-}
-
-/* Passenger Selector Styles */
-.passenger-selector {
-  margin-bottom: 15px;
-}
-
-.passenger-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: #fff;
-  max-width: 150px;
-}
-
-.passenger-controls button {
-  background-color: #f2f2f2;
-  border: none;
-  font-size: 1rem;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-  flex-shrink: 0;
-}
-
-.passenger-controls button:hover:not(:disabled) {
-  background-color: #ddd;
-}
-
-.passenger-controls button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.passenger-controls span {
-  font-weight: 600;
-  font-size: 0.95rem;
-  min-width: 20px;
-  text-align: center;
 }
 
 /* Submit Button */
@@ -228,34 +164,4 @@
   font-size: 20px;
   font-weight: bold;
   color: #FFCC00;
-}
-
-/* Input with icon styles */
-.input-with-icon {
-  position: relative;
-}
-
-.input-with-icon .location-icon {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #FFCC00; /* Golden yellow */
-  cursor: pointer;
-  font-size: 16px;
-  z-index: 1;
-}
-
-.input-with-icon .location-icon:hover { 
-  color: #e6b800; /* Darker yellow on hover */ 
-}
-
-.input-with-icon .location-icon.getting-location {
-  animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
 }

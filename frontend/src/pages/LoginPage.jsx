@@ -31,7 +31,6 @@ export default function LoginPage() {
     const params = new URLSearchParams(location.search);
     const redirect = params.get("redirect") || "/dashboard"; // default dashboard
     if (hasToken) navigate(redirect);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function toggleShow() {
@@ -62,22 +61,9 @@ export default function LoginPage() {
           body: JSON.stringify({ email: cleanEmail, password }),
         }
       );
-
       const out = await res.json();
       if (!res.ok) throw new Error(out.error || "Login failed");
 
-      // **** IMPORTANT: Persist session inside Supabase so it auto-refreshes and survives reloads ****
-      if (out?.session?.access_token && out?.session?.refresh_token) {
-        const { error: setErr } = await supabase.auth.setSession({
-          access_token: out.session.access_token,
-          refresh_token: out.session.refresh_token,
-        });
-        if (setErr) {
-          console.error("supabase.auth.setSession error:", setErr);
-        }
-      }
-
-      // Keep your existing localStorage mirrors so the rest of the app keeps working
       if (out?.session?.access_token) {
         localStorage.setItem("ru_token", out.session.access_token);
       }
