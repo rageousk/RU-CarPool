@@ -1,4 +1,4 @@
-// src/App.jsx
+// frontend/src/App.jsx
 import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
@@ -17,42 +17,67 @@ export default function App() {
   const [loadingAuth, setLoadingAuth] = useState(true);
   const navigate = useNavigate();
 
+  // --- Helper: parse hash tokens (#access_token=...&refresh_token=...) ---
+  const extractHashTokens = () => {
+    const hash = window.location.hash || "";
+    if (!hash.includes("access_token")) return null;
+    const params = new URLSearchParams(hash.replace(/^#/, "?"));
+    const access_token = params.get("access_token");
+    const refresh_token = params.get("refresh_token");
+    if (!access_token || !refresh_token) return null;
+    return { access_token, refresh_token };
+  };
+
   useEffect(() => {
     let mounted = true;
 
     (async () => {
+      // 1) If we just returned from a magic link / recovery, consume tokens once.
+      const hashTokens = extractHashTokens();
+      if (hashTokens) {
+        try {
+          const { data, error } = await supabase.auth.setSession(hashTokens);
+          if (error) console.error("setSession error:", error);
+          // Clean the hash so it doesn't linger in history
+          window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+          if (data?.session?.user?.email) {
+            localStorage.setItem("ru_email", data.session.user.email);
+            localStorage.setItem("ru_token", data.session.access_token);
+          }
+        } catch (e) {
+          console.error("setSession threw:", e);
+        }
+      }
+
+      // 2) Load current session
       const { data } = await supabase.auth.getSession();
       if (!mounted) return;
-      setUserEmail(data.session?.user?.email ?? null);
+      const email = data?.session?.user?.email ?? null;
+      setUserEmail(email);
+
+      // Mirror into your existing keys (so your current logic continues to work)
+      if (email) {
+        localStorage.setItem("ru_email", email);
+        localStorage.setItem("ru_token", data.session.access_token);
+      } else {
+        localStorage.removeItem("ru_email");
+        localStorage.removeItem("ru_token");
+      }
+
       setLoadingAuth(false);
     })();
 
-    // Single subscription for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUserEmail(session?.user?.email ?? null);
+    // 3) Keep localStorage + state in sync on any change (sign in/out/refresh)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const email = session?.user?.email ?? null;
+      setUserEmail(email);
 
-      if (event === "PASSWORD_RECOVERY") {
-        // Try to get tokens from session object first
-        const access_token = session?.access_token ?? session?.provider_token ?? null;
-        const refresh_token = session?.refresh_token ?? null;
-
-        if (access_token) {
-          // navigate and pass tokens in state
-          navigate("/reset-password", { state: { access_token, refresh_token } });
-          return;
-        }
-
-        // Fallback: tokens might be in URL fragment (e.g. #access_token=...&type=recovery)
-        const hash = window.location.hash || "";
-        if (hash.includes("access_token")) {
-          const params = new URLSearchParams(hash.replace(/^#/, "?"));
-          const at = params.get("access_token");
-          const rt = params.get("refresh_token");
-          navigate("/reset-password", { state: { access_token: at, refresh_token: rt } });
-        } else {
-          // If no tokens found, still attempt to navigate so the reset page can parse the URL
-          navigate("/reset-password");
-        }
+      if (email) {
+        localStorage.setItem("ru_email", email);
+        localStorage.setItem("ru_token", session.access_token);
+      } else {
+        localStorage.removeItem("ru_email");
+        localStorage.removeItem("ru_token");
       }
     });
 
@@ -76,23 +101,11 @@ export default function App() {
             <Route path="/" element={<HomePage signedIn={signedIn} />} />
             <Route 
               path="/login" 
-              element={
-                signedIn ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <LoginPage />
-                )
-              } 
+              element={signedIn ? <Navigate to="/dashboard" replace /> : <LoginPage />}
             />
             <Route 
               path="/signup" 
-              element={
-                signedIn ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <SignupPage />
-                )
-              } 
+              element={signedIn ? <Navigate to="/dashboard" replace /> : <SignupPage />}
             />
             <Route
               path="/dashboard"
