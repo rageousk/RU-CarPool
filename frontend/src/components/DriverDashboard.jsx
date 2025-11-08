@@ -81,9 +81,28 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
 
   // Get ride requests data and update function from context
   // Provide default empty array/function if context is unavailable
-  const { rideRequests, updateRideRequest } = useRides() || {
+  const { 
+    rideRequests, 
+    currentRides, 
+    rideHistory, 
+    declinedRides,
+    updateRideRequest, 
+    completeRide, 
+    loading, 
+    error, 
+    fetchRideRequests, 
+    fetchCurrentRides 
+  } = useRides() || {
     rideRequests: [],
+    currentRides: [],
+    rideHistory: [],
+    declinedRides: [],
     updateRideRequest: (id, data) => console.warn("updateRideRequest called without RideProvider:", id, data),
+    completeRide: (id, data) => console.warn("completeRide called without RideProvider:", id, data),
+    loading: false,
+    error: null,
+    fetchRideRequests: () => console.warn("fetchRideRequests called without RideProvider"),
+    fetchCurrentRides: () => console.warn("fetchCurrentRides called without RideProvider"),
   };
   const isMapsLoaded = useGoogleMapsLoaded(); // Check if Google Maps script is ready
 
@@ -209,8 +228,6 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
           const { results } = await geocoder.geocode({ location: latLng });
 
           if (results && results[0]) {
-            // Log all results to console for potential accuracy debugging
-            console.log("Geocoding results:", results);
             const bestAddress = results[0].formatted_address; // Use the first result
 
             setPickup(bestAddress); // Update the pickup input state
@@ -264,6 +281,7 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
 
   // --- Form Submission Handler ---
   // Called when clicking the "Offer Ride" button
+  /* COMMENTED OUT - OFFER RIDE FUNCTIONALITY REMOVED
   const handleOfferRide = async (e) => {
     e.preventDefault(); // Prevent default browser form submission
     // Basic validation
@@ -317,7 +335,6 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
       }
       // Handle successful response
       const result = await response.json();
-      console.log("Ride offered successfully:", result);
       alert("Ride offered successfully!");
 
       // Reset the form fields after successful submission
@@ -333,6 +350,7 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
       alert(`Failed to offer ride: ${error.message}`);
     }
   };
+  */
 
   // --- Icon Style for Sidebar ---
   const iconStyle = { color: "#555", width: "20px", textAlign: "center", marginRight: "10px" };
@@ -344,12 +362,11 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
       case 'home':
         return (
           <>
+            {/* COMMENTED OUT - OFFER RIDE SECTION REMOVED 
             <header className="dashboard-header"><div className="title-area"><h2>Offer a Ride</h2></div></header>
-            <div className="request-section"> {/* Main container for form + map */}
-              <div className="form-area"> {/* Left side form container */}
-                <form onSubmit={handleOfferRide} className="offer-ride-form-driver"> {/* Added specific class */}
-
-                  {/* Pick-up Location */}
+            <div className="request-section">
+              <div className="form-area">
+                <form onSubmit={handleOfferRide} className="offer-ride-form-driver">
                   <label htmlFor="pickup-location">Pick-up Location</label>
                   <div className="autocomplete-wrapper" onBlur={handleBlur}>
                     <div className="input-with-icon">
@@ -379,22 +396,16 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
                       </div>
                     )}
                   </div>
-
-                  {/* Pick-up Info (Optional - matches Figma) */}
                   <label htmlFor="pickup-info">Pick-up info :</label>
                   <input
                       id="pickup-info"
                       type="text"
                       placeholder="Ex: infront of Business Hall"
-                      className="pickup-info-input-driver" // Specific class if needed
+                      className="pickup-info-input-driver"
                   />
-
-
-               {/* Drop-off Location */}
                   <label htmlFor="dropoff-location">Drop-off Location</label>
-                  {/* --- CORRECTED: Use BOTH autocomplete-wrapper AND input-with-icon --- */}
                   <div className="autocomplete-wrapper" onBlur={handleBlur}>
-                    <div className="input-with-icon"> {/* <<< THIS DIV WAS MISSING */}
+                    <div className="input-with-icon">
                       <input
                         id="dropoff-location"
                         value={dropoff}
@@ -404,9 +415,7 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
                         disabled={!ready}
                         autoComplete="off"
                       />
-                      {/* Dropoff doesn't need the location arrow icon */}
-                    </div> {/* <<< THIS DIV WAS MISSING */}
-                    {/* --- Ensure dropdown renders correctly --- */}
+                    </div>
                     {activeInput === "dropoff" && status === "OK" && (
                       <div className="autocomplete-dropdown">
                         {data.map(({ place_id, description }) => (
@@ -415,20 +424,15 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
                       </div>
                     )}
                   </div>
-
-                  {/* Departure Date & Time - In a Row */}
-                   <div className="form-row"> {/* Wrapper for inline elements */}
+                  <div className="form-row">
                        <div className="form-group">
                           <label htmlFor="date">Departure Date & Time</label>
-                           <div className="datetime-input-wrapper"> {/* Specific class */}
+                           <div className="datetime-input-wrapper">
                               <input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} required/>
                               <input id="time" type="time" value={time} onChange={(e) => setTime(e.target.value)} required/>
                            </div>
                        </div>
                    </div>
-
-
-                   {/* Seats Available */}
                    <div className="form-row">
                       <div className="form-group">
                         <label htmlFor="seats">Seats Available (1-3)</label>
@@ -439,22 +443,17 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
                           max="3"
                           value={seats}
                           onChange={(e) => setSeats(Math.max(1, Math.min(3, parseInt(e.target.value) || 1)))}
-                          className="seats-input-driver" // Specific class
+                          className="seats-input-driver"
                           required
                         />
                       </div>
                    </div>
-
-
-                  {/* Ride Estimate */}
                   {pickup && dropoff && distanceInfo && (
                     <div className="ride-estimate">
                       <p>Trip: {distanceInfo || "—"}</p>
                       <p className="cost">Suggest: ${suggestedCost?.toFixed(2) || "—"}</p>
                     </div>
                   )}
-
-                  {/* Manual Price Input */}
                   <div className="form-row">
                        <div className="form-group manual-price-input">
                          <label htmlFor="manual-price">Offer Price (Optional)</label>
@@ -469,16 +468,11 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
                          />
                        </div>
                   </div>
-
-
-                  {/* Submit Button */}
                   <button type="submit" className="new-offer-button" disabled={isGettingLocation || !isMapsLoaded}>
                     <FontAwesomeIcon icon={fasPlus} /> Offer Ride
                   </button>
                 </form>
-              </div> {/* End of form-area */}
-
-              {/* Map Area */}
+              </div>
               <div className="map-area">
                 {isMapsLoaded && (
                   <GoogleMap mapContainerStyle={containerStyle} center={mapCenter} zoom={12} options={{ disableDefaultUI: true, zoomControl: true }}>
@@ -487,52 +481,766 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
                   </GoogleMap>
                 )}
                  {!isMapsLoaded && <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%'}}>Loading Map...</div>}
-              </div> {/* End of map-area */}
-            </div> {/* End of request-section */}
+              </div>
+            </div>
+            END COMMENTED OUT SECTION */}
+            
+            {/* PLACEHOLDER CONTENT FOR HOME VIEW */}
+            <div className="content-placeholder">
+              <h2>Driver Dashboard</h2>
+              <p>Home view content will be implemented here.</p>
+            </div>
           </>
         ); // End of case 'home' return
       case "currentRide":
-        // Placeholder for Current Ride view
-        // --- TODO: Fetch and display current/accepted rides for the driver ---
-        return <div className="content-placeholder"><h2>Current Ride</h2><p>Display rides the driver has accepted or confirmed here...</p></div>;
+        // Display Current/Accepted Rides
+        return (
+          <div className="rides-list" style={{ 
+            padding: '20px', 
+            backgroundColor: '#f8f9fa', 
+            minHeight: '100vh',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              marginBottom: '20px',
+              backgroundColor: 'white',
+              padding: '15px 20px',
+              borderRadius: '8px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}>
+              <h3 style={{ 
+                margin: 0, 
+                color: '#343a40', 
+                fontSize: '24px', 
+                fontWeight: '600' 
+              }}>
+                Current Rides
+              </h3>
+              <button 
+                onClick={fetchCurrentRides}
+                disabled={loading}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: loading ? '#6c757d' : '#28a745',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 2px 4px rgba(40,167,69,0.2)'
+                }}
+              >
+                {loading ? 'Refreshing...' : 'Refresh'}
+              </button>
+            </div>
+            
+            {error && (
+              <div style={{
+                backgroundColor: '#f8d7da',
+                color: '#721c24',
+                padding: '15px 20px',
+                borderRadius: '8px',
+                marginBottom: '20px',
+                border: '1px solid #f5c6cb',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}>
+                <strong>Error:</strong> {error}
+              </div>
+            )}
+            
+            {loading ? (
+              <div style={{
+                textAlign: 'center', 
+                padding: '40px 20px',
+                backgroundColor: 'white',
+                borderRadius: '8px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}>
+                <div style={{ 
+                  fontSize: '16px', 
+                  color: '#6c757d', 
+                  marginBottom: '10px' 
+                }}>
+                  Loading current rides...
+                </div>
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  border: '4px solid #e9ecef',
+                  borderTop: '4px solid #28a745',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite',
+                  margin: '0 auto'
+                }}></div>
+              </div>
+            ) : currentRides && currentRides.length > 0 ? (
+              <div>
+
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{
+                  width: '100%',
+                  borderCollapse: 'collapse',
+                  backgroundColor: 'white',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+                }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
+                      <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', color: '#495057', width: '25%' }}>Pickup</th>
+                      <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', color: '#495057', width: '25%' }}>Drop-off</th>
+                      <th style={{ padding: '12px 8px', textAlign: 'center', fontWeight: '600', color: '#495057', width: '10%' }}>Passengers</th>
+                      <th style={{ padding: '12px 8px', textAlign: 'center', fontWeight: '600', color: '#495057', width: '15%' }}>Departure</th>
+                      <th style={{ padding: '12px 8px', textAlign: 'center', fontWeight: '600', color: '#495057', width: '10%' }}>Status</th>
+                      <th style={{ padding: '12px 8px', textAlign: 'center', fontWeight: '600', color: '#495057', width: '15%' }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentRides.map((ride, index) => (
+                      <tr key={ride.id} style={{ 
+                        borderBottom: '1px solid #e9ecef',
+                        backgroundColor: index % 2 === 0 ? '#ffffff' : '#f8f9fa',
+                        transition: 'background-color 0.2s ease'
+                      }}>
+                        <td style={{ 
+                          padding: '12px 8px', 
+                          verticalAlign: 'top',
+                          fontSize: '14px',
+                          color: '#212529',
+                          wordWrap: 'break-word',
+                          maxWidth: '200px'
+                        }}>
+                          <div style={{ fontWeight: '500', marginBottom: '2px' }}>
+                            {ride.pickup || 'N/A'}
+                          </div>
+                        </td>
+                        <td style={{ 
+                          padding: '12px 8px', 
+                          verticalAlign: 'top',
+                          fontSize: '14px',
+                          color: '#212529',
+                          wordWrap: 'break-word',
+                          maxWidth: '200px'
+                        }}>
+                          <div style={{ fontWeight: '500', marginBottom: '2px' }}>
+                            {ride.dropoff || 'N/A'}
+                          </div>
+                        </td>
+                        <td style={{ 
+                          padding: '12px 8px', 
+                          textAlign: 'center',
+                          verticalAlign: 'middle',
+                          fontSize: '16px',
+                          fontWeight: '600',
+                          color: '#28a745'
+                        }}>
+                          {ride.passengers || 'N/A'}
+                        </td>
+                        <td style={{ 
+                          padding: '12px 8px', 
+                          textAlign: 'center',
+                          verticalAlign: 'middle',
+                          fontSize: '13px',
+                          color: '#6c757d'
+                        }}>
+                          {ride.datetime ? (
+                            <div>
+                              <div style={{ fontWeight: '500', color: '#495057' }}>
+                                {new Date(ride.datetime).toLocaleDateString()}
+                              </div>
+                              <div style={{ fontSize: '12px' }}>
+                                {new Date(ride.datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </div>
+                            </div>
+                          ) : 'N/A'}
+                        </td>
+                        <td style={{ 
+                          padding: '12px 8px', 
+                          textAlign: 'center',
+                          verticalAlign: 'middle'
+                        }}>
+                          <span style={{
+                            padding: '4px 8px',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: '500',
+                            backgroundColor: '#d4edda',
+                            color: '#155724',
+                            border: '1px solid #c3e6cb'
+                          }}>
+                            {ride.status || 'accepted'}
+                          </span>
+                        </td>
+                        <td style={{ 
+                          padding: '12px 8px', 
+                          textAlign: 'center',
+                          verticalAlign: 'middle'
+                        }}>
+                          <button 
+                            onClick={() => completeRide(ride.claimId, ride)}
+                            style={{
+                              padding: '8px 16px',
+                              fontSize: '13px',
+                              fontWeight: '500',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              backgroundColor: '#007bff',
+                              color: 'white',
+                              transition: 'background-color 0.2s ease'
+                            }}
+                            onMouseOver={(e) => e.target.style.backgroundColor = '#0056b3'}
+                            onMouseOut={(e) => e.target.style.backgroundColor = '#007bff'}
+                          >
+                            Complete Ride
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                </div>
+              </div>
+            ) : ( 
+              <div style={{
+                textAlign: 'center', 
+                padding: '40px 20px',
+                backgroundColor: 'white',
+                borderRadius: '8px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                color: '#6c757d'
+              }}>
+                <div style={{ fontSize: '48px', marginBottom: '15px' }}>🚙</div>
+                <h4 style={{ margin: '0 0 10px 0', color: '#495057' }}>No Current Rides</h4>
+                <p style={{ margin: 0, fontSize: '14px' }}>You don't have any accepted rides at the moment.</p>
+              </div>
+            )}
+          </div>
+        );
       case "requestedRides":
         // Display Incoming Ride Requests Table
         return (
-             <div className="rides-list content-placeholder">
-               <h3>Incoming Ride Requests</h3>
-               {rideRequests && rideRequests.length > 0 ? (
-                 <table className="rides-requested-table">
-                   <thead><tr><th>Pickup</th><th>Drop-off</th><th>Passengers</th><th>Departure</th><th>Status</th><th>Action</th></tr></thead>
-                   <tbody>
-                     {/* Filter to show only pending requests */}
-                     {rideRequests.filter(ride => ride.status === 'pending').map((ride) => (
-                       <tr key={ride.id}>
-                         <td>{ride.pickup || 'N/A'}</td>
-                         <td>{ride.dropoff || 'N/A'}</td>
-                         <td>{ride.passengers || 'N/A'}</td>
-                         {/* Format date/time nicely if available */}
-                         <td>{ride.datetime ? new Date(ride.datetime).toLocaleString() : 'N/A'}</td>
-                         <td>{ride.status || 'N/A'}</td>
-                         <td>
-                            {/* Actions only available for pending requests */}
-                           <button className="action-button accept" onClick={() => updateRideRequest(ride.id, { status: "accepted" })}>Accept</button>
-                           <button className="action-button decline" onClick={() => updateRideRequest(ride.id, { status: "declined" })}>Decline</button>
-                         </td>
+             <div className="rides-list" style={{ 
+               padding: '20px', 
+               backgroundColor: '#f8f9fa', 
+               minHeight: '100vh',
+               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+             }}>
+               <div style={{ 
+                 display: 'flex', 
+                 justifyContent: 'space-between', 
+                 alignItems: 'center', 
+                 marginBottom: '20px',
+                 backgroundColor: 'white',
+                 padding: '15px 20px',
+                 borderRadius: '8px',
+                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+               }}>
+                 <h3 style={{ 
+                   margin: 0, 
+                   color: '#343a40', 
+                   fontSize: '24px', 
+                   fontWeight: '600' 
+                 }}>
+                   Incoming Ride Requests
+                 </h3>
+                 <button 
+                   onClick={fetchRideRequests}
+                   disabled={loading}
+                   style={{
+                     padding: '10px 20px',
+                     backgroundColor: loading ? '#6c757d' : '#007bff',
+                     color: 'white',
+                     border: 'none',
+                     borderRadius: '6px',
+                     cursor: loading ? 'not-allowed' : 'pointer',
+                     fontSize: '14px',
+                     fontWeight: '500',
+                     transition: 'all 0.2s ease',
+                     boxShadow: '0 2px 4px rgba(0,123,255,0.2)'
+                   }}
+                 >
+                   {loading ? 'Refreshing...' : 'Refresh'}
+                 </button>
+               </div>
+               
+               {error && (
+                 <div style={{
+                   backgroundColor: '#f8d7da',
+                   color: '#721c24',
+                   padding: '15px 20px',
+                   borderRadius: '8px',
+                   marginBottom: '20px',
+                   border: '1px solid #f5c6cb',
+                   fontSize: '14px',
+                   fontWeight: '500'
+                 }}>
+                   <strong>Error:</strong> {error}
+                 </div>
+               )}
+               
+               {loading ? (
+                 <div style={{
+                   textAlign: 'center', 
+                   padding: '40px 20px',
+                   backgroundColor: 'white',
+                   borderRadius: '8px',
+                   boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                 }}>
+                   <div style={{ 
+                     fontSize: '16px', 
+                     color: '#6c757d', 
+                     marginBottom: '10px' 
+                   }}>
+                     Loading ride requests...
+                   </div>
+                   <div style={{
+                     width: '40px',
+                     height: '40px',
+                     border: '4px solid #e9ecef',
+                     borderTop: '4px solid #007bff',
+                     borderRadius: '50%',
+                     animation: 'spin 1s linear infinite',
+                     margin: '0 auto'
+                   }}></div>
+                 </div>
+               ) : rideRequests && rideRequests.length > 0 ? (
+                 <div style={{ overflowX: 'auto' }}>
+                   {/* Debug info */}
+                   <div style={{ fontSize: '12px', color: '#666', marginBottom: '10px', padding: '8px', backgroundColor: '#f1f1f1', borderRadius: '4px' }}>
+
+                   </div>
+                   <table className="rides-requested-table" style={{
+                     width: '100%',
+                     borderCollapse: 'collapse',
+                     backgroundColor: 'white',
+                     borderRadius: '8px',
+                     overflow: 'hidden',
+                     boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+                   }}>
+                     <thead>
+                       <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
+                         <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', color: '#495057', width: '25%' }}>Pickup</th>
+                         <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', color: '#495057', width: '25%' }}>Drop-off</th>
+                         <th style={{ padding: '12px 8px', textAlign: 'center', fontWeight: '600', color: '#495057', width: '10%' }}>Passengers</th>
+                         <th style={{ padding: '12px 8px', textAlign: 'center', fontWeight: '600', color: '#495057', width: '15%' }}>Departure</th>
+                         <th style={{ padding: '12px 8px', textAlign: 'center', fontWeight: '600', color: '#495057', width: '10%' }}>Status</th>
+                         <th style={{ padding: '12px 8px', textAlign: 'center', fontWeight: '600', color: '#495057', width: '15%' }}>Action</th>
                        </tr>
-                     ))}
-                     {/* Show message if there are requests but none are pending */}
-                     {rideRequests.filter(ride => ride.status === 'pending').length === 0 && (
-                         <tr><td colSpan="6" style={{textAlign: 'center', padding: '10px'}}>No pending requests found.</td></tr>
-                     )}
-                   </tbody>
-                 </table>
-               ) : ( <p style={{textAlign: 'center', padding: '10px'}}>No incoming ride requests right now.</p> )}
+                     </thead>
+                     <tbody>
+                       {/* Filter to show only pending requests */}
+                       {rideRequests.filter(ride => ride.status === 'pending').map((ride, index) => (
+                         <tr key={ride.id} style={{ 
+                           borderBottom: '1px solid #e9ecef',
+                           backgroundColor: index % 2 === 0 ? '#ffffff' : '#f8f9fa',
+                           transition: 'background-color 0.2s ease'
+                         }}>
+                           <td style={{ 
+                             padding: '12px 8px', 
+                             verticalAlign: 'top',
+                             fontSize: '14px',
+                             color: '#212529',
+                             wordWrap: 'break-word',
+                             maxWidth: '200px'
+                           }}>
+                             <div style={{ fontWeight: '500', marginBottom: '2px' }}>
+                               {ride.pickup || 'N/A'}
+                             </div>
+                           </td>
+                           <td style={{ 
+                             padding: '12px 8px', 
+                             verticalAlign: 'top',
+                             fontSize: '14px',
+                             color: '#212529',
+                             wordWrap: 'break-word',
+                             maxWidth: '200px'
+                           }}>
+                             <div style={{ fontWeight: '500', marginBottom: '2px' }}>
+                               {ride.dropoff || 'N/A'}
+                             </div>
+                           </td>
+                           <td style={{ 
+                             padding: '12px 8px', 
+                             textAlign: 'center',
+                             verticalAlign: 'middle',
+                             fontSize: '16px',
+                             fontWeight: '600',
+                             color: '#007bff'
+                           }}>
+                             {ride.passengers || 'N/A'}
+                           </td>
+                           <td style={{ 
+                             padding: '12px 8px', 
+                             textAlign: 'center',
+                             verticalAlign: 'middle',
+                             fontSize: '13px',
+                             color: '#6c757d'
+                           }}>
+                             {ride.datetime ? (
+                               <div>
+                                 <div style={{ fontWeight: '500', color: '#495057' }}>
+                                   {new Date(ride.datetime).toLocaleDateString()}
+                                 </div>
+                                 <div style={{ fontSize: '12px' }}>
+                                   {new Date(ride.datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                 </div>
+                               </div>
+                             ) : 'N/A'}
+                           </td>
+                           <td style={{ 
+                             padding: '12px 8px', 
+                             textAlign: 'center',
+                             verticalAlign: 'middle'
+                           }}>
+                             <span style={{
+                               padding: '4px 8px',
+                               borderRadius: '12px',
+                               fontSize: '12px',
+                               fontWeight: '500',
+                               backgroundColor: '#fff3cd',
+                               color: '#856404',
+                               border: '1px solid #ffeaa7'
+                             }}>
+                               {ride.status || 'pending'}
+                             </span>
+                           </td>
+                           <td style={{ 
+                             padding: '12px 8px', 
+                             textAlign: 'center',
+                             verticalAlign: 'middle'
+                           }}>
+                             <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                               <button 
+                                 className="action-button accept" 
+                                 onClick={() => updateRideRequest(ride.id, { status: "accepted" }, ride)}
+                                 style={{
+                                   padding: '6px 12px',
+                                   fontSize: '12px',
+                                   fontWeight: '500',
+                                   border: 'none',
+                                   borderRadius: '4px',
+                                   cursor: 'pointer',
+                                   backgroundColor: '#28a745',
+                                   color: 'white',
+                                   transition: 'background-color 0.2s ease'
+                                 }}
+                                 onMouseOver={(e) => e.target.style.backgroundColor = '#218838'}
+                                 onMouseOut={(e) => e.target.style.backgroundColor = '#28a745'}
+                               >
+                                 Accept
+                               </button>
+                               <button 
+                                 className="action-button decline" 
+                                 onClick={() => updateRideRequest(ride.id, { status: "declined" }, ride)}
+                                 style={{
+                                   padding: '6px 12px',
+                                   fontSize: '12px',
+                                   fontWeight: '500',
+                                   border: 'none',
+                                   borderRadius: '4px',
+                                   cursor: 'pointer',
+                                   backgroundColor: '#dc3545',
+                                   color: 'white',
+                                   transition: 'background-color 0.2s ease'
+                                 }}
+                                 onMouseOver={(e) => e.target.style.backgroundColor = '#c82333'}
+                                 onMouseOut={(e) => e.target.style.backgroundColor = '#dc3545'}
+                               >
+                                 Decline
+                               </button>
+                             </div>
+                           </td>
+                         </tr>
+                       ))}
+                       {/* Show message if there are requests but none are pending */}
+                       {rideRequests.filter(ride => ride.status === 'pending').length === 0 && (
+                         <tr>
+                           <td colSpan="6" style={{
+                             textAlign: 'center', 
+                             padding: '20px',
+                             color: '#6c757d',
+                             fontStyle: 'italic'
+                           }}>
+                             No pending requests found.
+                           </td>
+                         </tr>
+                       )}
+                     </tbody>
+                   </table>
+                 </div>
+               ) : ( 
+                 <div style={{
+                   textAlign: 'center', 
+                   padding: '40px 20px',
+                   backgroundColor: 'white',
+                   borderRadius: '8px',
+                   boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                   color: '#6c757d'
+                 }}>
+                   <div style={{ fontSize: '48px', marginBottom: '15px' }}>🚗</div>
+                   <h4 style={{ margin: '0 0 10px 0', color: '#495057' }}>No Ride Requests Available</h4>
+                   <p style={{ margin: 0, fontSize: '14px' }}>There are no incoming ride requests at the moment. Check back later!</p>
+                 </div>
+               )}
              </div>
         );
       case "history":
-        // Placeholder for History view
-        // --- TODO: Fetch and display past rides ---
-        return <div className="content-placeholder"><h2>History</h2><p>Display completed or canceled rides here...</p></div>;
+        // Display Ride History (completed, declined, withdrawn rides)
+        return (
+          <div className="rides-list" style={{ 
+            padding: '20px', 
+            backgroundColor: '#f8f9fa', 
+            minHeight: '100vh',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              marginBottom: '20px',
+              backgroundColor: 'white',
+              padding: '15px 20px',
+              borderRadius: '8px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}>
+              <h3 style={{ 
+                margin: 0, 
+                color: '#343a40', 
+                fontSize: '24px', 
+                fontWeight: '600' 
+              }}>
+                Ride History
+              </h3>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button 
+                  onClick={fetchCurrentRides}
+                  disabled={loading}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: loading ? '#6c757d' : '#6c757d',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 2px 4px rgba(108,117,125,0.2)'
+                  }}
+                >
+                  {loading ? 'Refreshing...' : 'Refresh'}
+                </button>
+                <button 
+                  onClick={() => {
+                    if (window.confirm('Clear all local declined ride history?')) {
+                      localStorage.removeItem('declinedRides');
+                      window.location.reload();
+                    }
+                  }}
+                  style={{
+                    padding: '10px 15px',
+                    backgroundColor: '#dc3545',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '500'
+                  }}
+                >
+                  Clear Local
+                </button>
+              </div>
+            </div>
+            
+            {error && (
+              <div style={{
+                backgroundColor: '#f8d7da',
+                color: '#721c24',
+                padding: '15px 20px',
+                borderRadius: '8px',
+                marginBottom: '20px',
+                border: '1px solid #f5c6cb',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}>
+                <strong>Error:</strong> {error}
+              </div>
+            )}
+            
+            {loading ? (
+              <div style={{
+                textAlign: 'center', 
+                padding: '40px 20px',
+                backgroundColor: 'white',
+                borderRadius: '8px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}>
+                <div style={{ 
+                  fontSize: '16px', 
+                  color: '#6c757d', 
+                  marginBottom: '10px' 
+                }}>
+                  Loading ride history...
+                </div>
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  border: '4px solid #e9ecef',
+                  borderTop: '4px solid #6c757d',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite',
+                  margin: '0 auto'
+                }}></div>
+              </div>
+            ) : rideHistory && rideHistory.length > 0 ? (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{
+                  width: '100%',
+                  borderCollapse: 'collapse',
+                  backgroundColor: 'white',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+                }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
+                      <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', color: '#495057', width: '25%' }}>Pickup</th>
+                      <th style={{ padding: '12px 8px', textAlign: 'left', fontWeight: '600', color: '#495057', width: '25%' }}>Drop-off</th>
+                      <th style={{ padding: '12px 8px', textAlign: 'center', fontWeight: '600', color: '#495057', width: '10%' }}>Passengers</th>
+                      <th style={{ padding: '12px 8px', textAlign: 'center', fontWeight: '600', color: '#495057', width: '15%' }}>Departure</th>
+                      <th style={{ padding: '12px 8px', textAlign: 'center', fontWeight: '600', color: '#495057', width: '15%' }}>Status</th>
+                      <th style={{ padding: '12px 8px', textAlign: 'center', fontWeight: '600', color: '#495057', width: '10%' }}>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rideHistory.map((ride, index) => {
+                      // Define status colors
+                      const getStatusStyle = (status) => {
+                        switch(status) {
+                          case 'completed':
+                            return { backgroundColor: '#d4edda', color: '#155724', border: '1px solid #c3e6cb' };
+                          case 'declined':
+                            return { backgroundColor: '#f8d7da', color: '#721c24', border: '1px solid #f5c6cb' };
+                          case 'withdrawn':
+                            return { backgroundColor: '#fff3cd', color: '#856404', border: '1px solid #ffeaa7' };
+                          default:
+                            return { backgroundColor: '#e2e3e5', color: '#383d41', border: '1px solid #d6d8db' };
+                        }
+                      };
+                      
+                      return (
+                        <tr key={ride.id} style={{ 
+                          borderBottom: '1px solid #e9ecef',
+                          backgroundColor: index % 2 === 0 ? '#ffffff' : '#f8f9fa',
+                          transition: 'background-color 0.2s ease'
+                        }}>
+                          <td style={{ 
+                            padding: '12px 8px', 
+                            verticalAlign: 'top',
+                            fontSize: '14px',
+                            color: '#212529',
+                            wordWrap: 'break-word',
+                            maxWidth: '200px'
+                          }}>
+                            <div style={{ fontWeight: '500', marginBottom: '2px' }}>
+                              {ride.pickup || 'N/A'}
+                            </div>
+                          </td>
+                          <td style={{ 
+                            padding: '12px 8px', 
+                            verticalAlign: 'top',
+                            fontSize: '14px',
+                            color: '#212529',
+                            wordWrap: 'break-word',
+                            maxWidth: '200px'
+                          }}>
+                            <div style={{ fontWeight: '500', marginBottom: '2px' }}>
+                              {ride.dropoff || 'N/A'}
+                            </div>
+                          </td>
+                          <td style={{ 
+                            padding: '12px 8px', 
+                            textAlign: 'center',
+                            verticalAlign: 'middle',
+                            fontSize: '16px',
+                            fontWeight: '600',
+                            color: '#6c757d'
+                          }}>
+                            {ride.passengers || 'N/A'}
+                          </td>
+                          <td style={{ 
+                            padding: '12px 8px', 
+                            textAlign: 'center',
+                            verticalAlign: 'middle',
+                            fontSize: '13px',
+                            color: '#6c757d'
+                          }}>
+                            {ride.datetime ? (
+                              <div>
+                                <div style={{ fontWeight: '500', color: '#495057' }}>
+                                  {new Date(ride.datetime).toLocaleDateString()}
+                                </div>
+                                <div style={{ fontSize: '12px' }}>
+                                  {new Date(ride.datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </div>
+                              </div>
+                            ) : 'N/A'}
+                          </td>
+                          <td style={{ 
+                            padding: '12px 8px', 
+                            textAlign: 'center',
+                            verticalAlign: 'middle'
+                          }}>
+                            <span style={{
+                              padding: '4px 8px',
+                              borderRadius: '12px',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                              textTransform: 'capitalize',
+                              ...getStatusStyle(ride.status)
+                            }}>
+                              {ride.status || 'unknown'}
+                            </span>
+                          </td>
+                          <td style={{ 
+                            padding: '12px 8px', 
+                            textAlign: 'center',
+                            verticalAlign: 'middle',
+                            fontSize: '12px',
+                            color: '#6c757d'
+                          }}>
+                            {ride.createdAt ? new Date(ride.createdAt).toLocaleDateString() : 'N/A'}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : ( 
+              <div style={{
+                textAlign: 'center', 
+                padding: '40px 20px',
+                backgroundColor: 'white',
+                borderRadius: '8px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                color: '#6c757d'
+              }}>
+                <div style={{ fontSize: '48px', marginBottom: '15px' }}>📚</div>
+                <h4 style={{ margin: '0 0 10px 0', color: '#495057' }}>No Ride History</h4>
+                <p style={{ margin: 0, fontSize: '14px' }}>You haven't completed or declined any rides yet.</p>
+              </div>
+            )}
+          </div>
+        );
       case "schedule":
         // Placeholder for Schedule view
         // --- TODO: Fetch and display upcoming scheduled rides ---

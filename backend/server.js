@@ -35,7 +35,7 @@ app.use("/api/admin", adminRouter);
 
 // new flow
 app.use("/api", rideDemandsRouter); // /api/demands, /api/demands/mine, /api/demands/open, /api/demands/:id/cancel
-app.use("/api", rideClaimsRouter);  // /api/demands/:id/claims, /api/claims/mine, /api/claims/:id/withdraw
+app.use("/api", rideClaimsRouter);  // /api/demands/:id/claims, /api/claims/mine, /api/claims/:id/withdraw, /api/claims/:id/complete, /api/claims/:id/decline
 
 // fallbacks
 app.use((req, res) => res.status(404).json({ error: "Not found" }));

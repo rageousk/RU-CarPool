@@ -561,3 +561,9 @@ body::-webkit-scrollbar, html::-webkit-scrollbar {
   .rides-requested-table th, .rides-requested-table td { padding: 8px 10px; font-size: 0.8rem; white-space: nowrap; /* Prevent wrapping in scrollable table */ }
   .rides-requested-table td button { padding: 4px 8px; font-size: 0.8rem; }
 }
+
+/* ============ LOADING SPINNER ANIMATION ============ */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
