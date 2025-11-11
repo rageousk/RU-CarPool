@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 
 const RideContext = createContext();
 
-const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5050";
+const apiBase = import.meta.env.VITE_API_URL ;
 
 export const RideProvider = ({ children }) => {
   const [rideRequests, setRideRequests] = useState([]);
