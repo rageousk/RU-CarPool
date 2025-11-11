@@ -42,6 +42,39 @@ router.post("/demands", async (req, res) => {
     });
   }
 
+  // --- Enforce one request per rider per calendar day ---
+  // Parse the provided departure_time and compute the UTC day range [start, nextDay)
+  const depDate = new Date(departure_time);
+  if (isNaN(depDate.getTime())) {
+    return res.status(400).json({ error: "Invalid departure_time format" });
+  }
+  const startOfDay = new Date(Date.UTC(depDate.getUTCFullYear(), depDate.getUTCMonth(), depDate.getUTCDate(), 0, 0, 0)).toISOString();
+  const nextDay = new Date(Date.UTC(depDate.getUTCFullYear(), depDate.getUTCMonth(), depDate.getUTCDate() + 1, 0, 0, 0)).toISOString();
+
+  // Fetch all existing demands for this rider and do a UTC-day comparison on the server
+  const { data: allDemands, error: allErr } = await supabaseAdmin
+    .from("ride_demands")
+    .select("id, status, departure_time")
+    .eq("rider_id", user.id);
+
+  if (allErr) return res.status(500).json({ error: allErr.message });
+
+  // Compare by UTC calendar day to avoid timezone string comparison issues
+  const depY = depDate.getUTCFullYear();
+  const depM = depDate.getUTCMonth();
+  const depD = depDate.getUTCDate();
+
+  const hasActive = (allDemands || []).some((r) => {
+    if (!r.departure_time) return false;
+    const existingDep = new Date(r.departure_time);
+    if (isNaN(existingDep.getTime())) return false;
+    const sameDay = existingDep.getUTCFullYear() === depY && existingDep.getUTCMonth() === depM && existingDep.getUTCDate() === depD;
+    return sameDay && r.status !== "cancelled" && r.status !== "completed";
+  });
+  if (hasActive) {
+    return res.status(400).json({ error: "You already have a ride scheduled for that day. Only one active request per day is allowed." });
+  }
+
   const insert = {
     rider_id: user.id,
     origin,
