@@ -171,8 +171,11 @@ function RiderRideHistory({ user, token }) {
       <div className="rides-list">
         {rides.map((ride) => {
           const statusInfo = getStatusInfo(ride.status);
-          const driverInfo = ride.ride_claims && ride.ride_claims.length > 0 
+          const driverInfo = ride.ride_claims && ride.ride_claims.length > 0
             ? ride.ride_claims[0].driver_user
+            : null;
+          const driverProfile = ride.ride_claims && ride.ride_claims.length > 0
+            ? ride.ride_claims[0].driver_profile
             : null;
 
           return (
@@ -277,23 +280,49 @@ function RiderRideHistory({ user, token }) {
               )}
 
               {/* Driver Information (if ride was completed with a driver) */}
-              {ride.status === "completed" && driverInfo && (
+              {ride.status === "completed" && (driverInfo || driverProfile) && (
                 <div className="driver-info-card">
                   <div className="driver-header">
                     <h4 className="driver-title">Driver</h4>
                   </div>
                   <div className="driver-details">
-                    <div className="driver-item">
-                      <span className="driver-label">Name</span>
-                      <p className="driver-value">
-                        {driverInfo.first_name || "N/A"} {driverInfo.last_name || ""}
-                      </p>
-                    </div>
-                    {driverInfo.phone && (
+                    {driverInfo && (
+                      <div className="driver-item">
+                        <span className="driver-label">Name</span>
+                        <p className="driver-value">
+                          {driverInfo.first_name || "N/A"} {driverInfo.last_name || ""}
+                        </p>
+                      </div>
+                    )}
+
+                    { (driverInfo && driverInfo.phone) || (driverProfile && driverProfile.phone_number) ? (
                       <div className="driver-item">
                         <span className="driver-label">Contact</span>
-                        <p className="driver-value">{driverInfo.phone}</p>
+                        <p className="driver-value">{driverInfo?.phone || driverProfile?.phone_number}</p>
                       </div>
+                    ) : null}
+
+                    {driverProfile && (
+                      <>
+                        {driverProfile.car_make && (
+                          <div className="driver-item">
+                            <span className="driver-label">Vehicle</span>
+                            <p className="driver-value">{driverProfile.car_make}</p>
+                          </div>
+                        )}
+                        {driverProfile.plate_number && (
+                          <div className="driver-item">
+                            <span className="driver-label">Plate</span>
+                            <p className="driver-value">{driverProfile.plate_number}</p>
+                          </div>
+                        )}
+                        {driverProfile.license && (
+                          <div className="driver-item">
+                            <span className="driver-label">License</span>
+                            <p className="driver-value">{driverProfile.license}</p>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

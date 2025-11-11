@@ -90,6 +90,21 @@ router.post("/demands/:id/claims", async (req, res) => {
     .eq("id", demandId)
     .eq("status", "open");
 
+  // Attach driver user + driver profile details to the returned claim so the rider
+  // immediately knows who accepted the request (plate, car_make, phone_number)
+  try {
+    const [{ data: driverUser }, { data: driverProfile }] = await Promise.all([
+      supabaseAdmin.from("users").select("id, first_name, last_name, phone").eq("id", user.id).maybeSingle(),
+      supabaseAdmin.from("driver").select("id, plate_number, car_make, license, phone_number, car_insurance, user_id").eq("user_id", user.id).maybeSingle(),
+    ]);
+
+    if (driverUser) claim.driver_user = driverUser;
+    if (driverProfile) claim.driver_profile = driverProfile;
+  } catch (e) {
+    // non-fatal: if attaching extra info fails, still return the claim we created
+    console.error("Failed to attach driver details to claim:", e?.message || e);
+  }
+
   return res.status(201).json({ claim });
 });
 

@@ -257,8 +257,11 @@ function RiderCurrentRide({ user, token }) {
             new Date(ride.departure_time) - new Date() > 24 * 60 * 60 * 1000;
           
           // Get driver info if claim exists
-          const driverInfo = ride.ride_claims && ride.ride_claims.length > 0 
+          const driverInfo = ride.ride_claims && ride.ride_claims.length > 0
             ? ride.ride_claims[0].driver_user
+            : null;
+          const driverProfile = ride.ride_claims && ride.ride_claims.length > 0
+            ? ride.ride_claims[0].driver_profile
             : null;
 
           return (
@@ -370,11 +373,29 @@ function RiderCurrentRide({ user, token }) {
                         {driverInfo.first_name || "N/A"} {driverInfo.last_name || ""}
                       </p>
                     </div>
-                    {driverInfo.phone && (
+                    { (driverInfo.phone || (driverProfile && driverProfile.phone_number)) && (
                       <div className="driver-item">
                         <span className="driver-label">Contact</span>
-                        <p className="driver-value">{driverInfo.phone}</p>
+                        <p className="driver-value">{driverInfo.phone || (driverProfile && driverProfile.phone_number)}</p>
                       </div>
+                    )}
+
+                    {/* Vehicle / profile details from driver table when available */}
+                    {driverProfile && (
+                      <>
+                        {driverProfile.car_make && (
+                          <div className="driver-item">
+                            <span className="driver-label">Vehicle</span>
+                            <p className="driver-value">{driverProfile.car_make}</p>
+                          </div>
+                        )}
+                        {driverProfile.plate_number && (
+                          <div className="driver-item">
+                            <span className="driver-label">Plate</span>
+                            <p className="driver-value">{driverProfile.plate_number}</p>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

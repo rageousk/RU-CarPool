@@ -70,39 +70,62 @@ router.get("/demands/mine", async (req, res) => {
   const user = await requireUser(req, res);
   if (!user) return;
 
-  const { data, error } = await supabaseAdmin
+  const { data: demands, error } = await supabaseAdmin
     .from("ride_demands")
-    .select(
-      `
-      *,
-      ride_claims(id, status, driver_id)
-    `
-    )
+    .select("*")
     .eq("rider_id", user.id)
     .order("created_at", { ascending: false });
 
   if (error) return res.status(500).json({ error: error.message });
 
-  // Fetch driver information for each claim
-  const demandsWithDrivers = await Promise.all(
-    (data || []).map(async (demand) => {
-      if (demand.ride_claims && demand.ride_claims.length > 0) {
-        const claim = demand.ride_claims[0];
-        const { data: driverData, error: driverError } = await supabaseAdmin
-          .from("users")
-          .select("id, first_name, last_name, phone")
-          .eq("id", claim.driver_id)
-          .maybeSingle();
-        
-        if (driverData) {
-          claim.driver_user = driverData;
-        }
-      }
-      return demand;
-    })
-  );
+  // If no demands, return early
+  const demandList = (demands || []);
+  if (demandList.length === 0) return res.json({ demands: [] });
 
-  return res.json({ demands: demandsWithDrivers });
+  // Fetch any claims that reference these demands (batch to avoid N+1)
+  const demandIds = demandList.map((d) => d.id);
+  const { data: claimsData, error: claimsErr } = await supabaseAdmin
+    .from("ride_claims")
+    .select("id, status, driver_id, demand_id")
+    .in("demand_id", demandIds);
+
+  if (claimsErr) return res.status(500).json({ error: claimsErr.message });
+
+  const claims = claimsData || [];
+
+  // Gather unique driver_ids and fetch related user + profile rows in bulk
+  const driverIds = [...new Set(claims.map((c) => c.driver_id).filter(Boolean))];
+  let usersById = {};
+  let profilesByUserId = {};
+  if (driverIds.length > 0) {
+    const [{ data: usersData }, { data: profilesData }] = await Promise.all([
+      supabaseAdmin.from("users").select("id, first_name, last_name, phone").in("id", driverIds),
+      supabaseAdmin.from("driver").select("id, plate_number, car_make, license, phone_number, car_insurance, user_id").in("user_id", driverIds),
+    ]);
+
+    (usersData || []).forEach((u) => (usersById[u.id] = u));
+    (profilesData || []).forEach((p) => (profilesByUserId[p.user_id] = p));
+  }
+
+  // Attach driver_user and driver_profile to each claim
+  claims.forEach((c) => {
+    c.driver_user = usersById[c.driver_id] || null;
+    c.driver_profile = profilesByUserId[c.driver_id] || null;
+  });
+
+  // Group claims by demand_id and attach to demands
+  const claimsByDemand = claims.reduce((acc, c) => {
+    acc[c.demand_id] = acc[c.demand_id] || [];
+    acc[c.demand_id].push(c);
+    return acc;
+  }, {});
+
+  const demandsWithClaims = demandList.map((d) => ({
+    ...d,
+    ride_claims: claimsByDemand[d.id] || [],
+  }));
+
+  return res.json({ demands: demandsWithClaims });
 });
 
 /** GET /api/demands/open  (drivers browse open demands) */
