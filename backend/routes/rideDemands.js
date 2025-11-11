@@ -65,19 +65,44 @@ router.post("/demands", async (req, res) => {
   return res.status(201).json({ demand: data });
 });
 
-/** GET /api/demands/mine  (rider sees own) */
+/** GET /api/demands/mine  (rider sees own with driver info if claimed) */
 router.get("/demands/mine", async (req, res) => {
   const user = await requireUser(req, res);
   if (!user) return;
 
   const { data, error } = await supabaseAdmin
     .from("ride_demands")
-    .select("*")
+    .select(
+      `
+      *,
+      ride_claims(id, status, driver_id)
+    `
+    )
     .eq("rider_id", user.id)
     .order("created_at", { ascending: false });
 
   if (error) return res.status(500).json({ error: error.message });
-  return res.json({ demands: data });
+
+  // Fetch driver information for each claim
+  const demandsWithDrivers = await Promise.all(
+    (data || []).map(async (demand) => {
+      if (demand.ride_claims && demand.ride_claims.length > 0) {
+        const claim = demand.ride_claims[0];
+        const { data: driverData, error: driverError } = await supabaseAdmin
+          .from("users")
+          .select("id, first_name, last_name, phone")
+          .eq("id", claim.driver_id)
+          .maybeSingle();
+        
+        if (driverData) {
+          claim.driver_user = driverData;
+        }
+      }
+      return demand;
+    })
+  );
+
+  return res.json({ demands: demandsWithDrivers });
 });
 
 /** GET /api/demands/open  (drivers browse open demands) */

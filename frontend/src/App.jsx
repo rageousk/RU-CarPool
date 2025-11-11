@@ -1,4 +1,3 @@
-// frontend/src/App.jsx
 import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
@@ -19,7 +18,6 @@ export default function App() {
   const [loadingAuth, setLoadingAuth] = useState(true);
   const navigate = useNavigate();
 
-  // --- Helper: parse hash tokens (#access_token=...&refresh_token=...) ---
   const extractHashTokens = () => {
     const hash = window.location.hash || "";
     if (!hash.includes("access_token")) return null;
@@ -34,13 +32,11 @@ export default function App() {
     let mounted = true;
 
     (async () => {
-      // 1) If we just returned from a magic link / recovery, consume tokens once.
       const hashTokens = extractHashTokens();
       if (hashTokens) {
         try {
           const { data, error } = await supabase.auth.setSession(hashTokens);
           if (error) console.error("setSession error:", error);
-          // Clean the hash so it doesn't linger in history
           window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
           if (data?.session?.user?.email) {
             localStorage.setItem("ru_email", data.session.user.email);
@@ -51,7 +47,6 @@ export default function App() {
         }
       }
 
-      // 2) Load current session
       const { data } = await supabase.auth.getSession();
       if (!mounted) return;
 
@@ -60,9 +55,8 @@ export default function App() {
       const id = user?.id ?? null;
 
       setUserEmail(email);
-      setUserId(id); // ✅ set userId so ProfileSettings can render
+      setUserId(id);
 
-      // Mirror into your existing keys (so your current logic continues to work)
       if (email) {
         localStorage.setItem("ru_email", email);
         localStorage.setItem("ru_token", data.session.access_token);
@@ -74,7 +68,6 @@ export default function App() {
       setLoadingAuth(false);
     })();
 
-    // 3) Keep localStorage + state in sync on any change (sign in/out/refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const user = session?.user ?? null;
       const email = user?.email ?? null;
@@ -110,22 +103,16 @@ export default function App() {
         ) : (
           <Routes>
             <Route path="/" element={<HomePage signedIn={signedIn} />} />
-            <Route 
-              path="/login" 
-              element={signedIn ? <Navigate to="/dashboard" replace /> : <LoginPage />}
-            />
-            <Route 
-              path="/signup" 
-              element={signedIn ? <Navigate to="/dashboard" replace /> : <SignupPage />}
-            />
+            <Route path="/login" element={signedIn ? <Navigate to="/dashboard" replace /> : <LoginPage />} />
+            <Route path="/signup" element={signedIn ? <Navigate to="/dashboard" replace /> : <SignupPage />} />
             <Route
               path="/dashboard"
               element={
                 signedIn ? (
-                  <UserDashboard 
-                    user={{ id: displayEmail }} 
-                    signedIn={signedIn} 
-                    navigate={navigate} 
+                  <UserDashboard
+                    user={{ id: userId, email: displayEmail }}
+                    signedIn={signedIn}
+                    navigate={navigate}
                   />
                 ) : (
                   <Navigate to="/login?redirect=/dashboard" replace />
@@ -136,11 +123,7 @@ export default function App() {
               path="/settings"
               element={
                 signedIn ? (
-                  userId ? (
-                    <ProfileSettings userId={userId} />
-                  ) : (
-                    <div className="loading-screen">Loading user data...</div>
-                  )
+                  userId ? <ProfileSettings userId={userId} /> : <div className="loading-screen">Loading user data...</div>
                 ) : (
                   <Navigate to="/login?redirect=/settings" replace />
                 )

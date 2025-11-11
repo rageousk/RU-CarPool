@@ -9,10 +9,12 @@ import {
   faClockRotateLeft as fasHistory,
   faCircleQuestion as fasCircleQuestion,
   faLocationArrow as fasLocationArrow,
-  faCar as fasCar, // For Current Ride
-  faMagnifyingGlass as fasSearch, // For Available Rides
-  faPlus as fasPlus // For the submit button
+  faCar as fasCar, 
+  faMagnifyingGlass as fasSearch, 
+  faPlus as fasPlus 
 } from "@fortawesome/free-solid-svg-icons";
+import RiderCurrentRide from "./RiderCurrentRide.jsx";
+import RiderRideHistory from "./RiderRideHistory.jsx";
 import { useRides } from "../context/RideContext.jsx"; // Assuming context exists
 import { GoogleMap, DirectionsRenderer, Marker } from "@react-google-maps/api";
 
@@ -427,23 +429,9 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
         ); // End case 'home'
 
       case 'currentRide':
-        // --- TODO: Fetch and display rides the user has requested or joined ---
-        // Example: You might filter rideRequests from context or fetch user-specific rides
-        const myRides = rideRequests.filter(ride => ride.rider_id === user?.id); // Basic filter example
-        return (
-            <div className="content-placeholder">
-                <h2>Current Ride Requests</h2>
-                {myRides.length > 0 ? (
-                    <ul>{myRides.map(ride => <li key={ride.id}>{ride.pickup} to {ride.dropoff} - Status: {ride.status}</li>)}</ul>
-                ) : ( <p>You have no active ride requests.</p> )}
-            </div>
-        );
-      case 'availableRides':
-        // --- TODO: Fetch and display rides offered by drivers ---
-        // This will likely require a new API call to get rides where status is 'available'
-        return <div className="content-placeholder"><h2>Available Rides</h2><p>Display rides offered by drivers that you can join...</p></div>;
-      // Other cases from DriverDashboard sidebar can be reused/adapted
-      case 'history': return <div className="content-placeholder"><h2>History</h2><p>Display your past rides here...</p></div>;
+        return <RiderCurrentRide user={user} token={localStorage.getItem('ru_token')} />;
+      case 'history':
+        return <RiderRideHistory user={user} token={localStorage.getItem('ru_token')} />;
       case 'schedule': return <div className="content-placeholder"><h2>Schedule</h2><p>Display your upcoming scheduled rides here...</p></div>;
       case 'message': return <div className="content-placeholder"><h2>Messages</h2><p>Implement messaging here...</p></div>;
       case 'help': return <div className="content-placeholder"><h2>Help</h2><p>Display help info here...</p></div>;
@@ -464,9 +452,6 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
             </li>
             <li className={activeView === 'currentRide' ? 'active' : ''} onClick={() => setActiveView('currentRide')}>
               <FontAwesomeIcon icon={fasCar} style={iconStyle} /> Current Ride
-            </li>
-            <li className={activeView === 'availableRides' ? 'active' : ''} onClick={() => setActiveView('availableRides')}>
-              <FontAwesomeIcon icon={fasSearch} style={iconStyle} /> Available Rides
             </li>
             <li className={activeView === 'history' ? 'active' : ''} onClick={() => setActiveView('history')}>
               <FontAwesomeIcon icon={fasHistory} style={iconStyle} /> History
