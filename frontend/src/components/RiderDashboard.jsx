@@ -106,8 +106,8 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
     }
     // Safety check: ensure Google Maps API objects are available
     if (!window.google || !window.google.maps || !window.google.maps.DirectionsService || !window.google.maps.DistanceMatrixService) {
-        console.error("Google Maps services not available for route/distance calculation.");
-        return;
+      console.error("Google Maps services not available for route/distance calculation.");
+      return;
     }
 
     // --- Calculate Route using Directions Service ---
@@ -129,7 +129,7 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
           const element = response.rows[0].elements[0];
           const miles = parseFloat(element.distance.text.replace(" mi", ""));
           setDistanceInfo(`${element.distance.text} (${element.duration.text})`); // Format display string
-          
+
           // Calculate cost based on number of passengers and new pricing structure
           const pricePerMile = calculatePricePerMile(passengers);
           setTotalCost(miles * pricePerMile);
@@ -149,7 +149,7 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
       (position) => {
         const { latitude, longitude } = position.coords;
         const userLocation = { lat: latitude, lng: longitude };
-        
+
         // Set the user marker position to show current location
         setUserMarkerPosition(userLocation);
         // Center the map on user's current location
@@ -187,7 +187,8 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
             setMapCenter(latLng); setUserMarkerPosition(latLng);
             clearSuggestions();
           } else { alert("Could not find address for your location."); }
-        } catch (error) { console.error("Error reverse geocoding:", error); alert("Error fetching address.");
+        } catch (error) {
+          console.error("Error reverse geocoding:", error); alert("Error fetching address.");
         } finally { setIsGettingLocation(false); }
       },
       (error) => {
@@ -264,9 +265,9 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
       const response = await fetch(`${apiBase}/api/demands`, { // <<< VERIFY THIS URL
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            // Add Authorization header if needed
-            'Authorization': `Bearer ${localStorage.getItem('ru_token')}`
+          'Content-Type': 'application/json',
+          // Add Authorization header if needed
+          'Authorization': `Bearer ${localStorage.getItem('ru_token')}`
         },
         body: JSON.stringify(rideRequestData),
       });
@@ -300,7 +301,7 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
   // --- Render Logic for Rider Views ---
   const renderActiveView = () => {
     switch (activeView) {
-    case 'home': // Request a Ride Form
+      case 'home': // Request a Ride Form
         return (
           <>
             <header className="dashboard-header"><div className="title-area"><h2>Request Carpool</h2></div></header>
@@ -332,8 +333,8 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
                     </div>
                     {/* Autocomplete Dropdown */}
                     {activeInput === "pickup" && status === "OK" && (
-                       <div className="autocomplete-dropdown"> {data.map(({ place_id, description }) => (<div key={place_id} onClick={() => handleSelect(description, "pickup")}>{description}</div>))} </div>
-                     )}
+                      <div className="autocomplete-dropdown"> {data.map(({ place_id, description }) => (<div key={place_id} onClick={() => handleSelect(description, "pickup")}>{description}</div>))} </div>
+                    )}
                   </div>
 
                   {/* Pickup Info */}
@@ -376,22 +377,22 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
                   <div className="form-row">
                     {/* DateTime Input */}
                     <div className="form-group">
-                          <label htmlFor="datetime-rider-date">Departure Date & Time</label>
-                          {/* Use wrapper with specific class */}
-                          <div className="datetime-input-wrapper">
-                             <input id="datetime-rider-date" type="date" value={datetime.split('T')[0] || ''} onChange={(e) => setDatetime(`${e.target.value}T${datetime.split('T')[1] || '00:00'}`)} required/>
-                             <input id="datetime-rider-time" type="time" value={datetime.split('T')[1] || ''} onChange={(e) => setDatetime(`${datetime.split('T')[0] || new Date().toISOString().split('T')[0]}T${e.target.value}`)} required/>
-                          </div>
+                      <label htmlFor="datetime-rider-date">Departure Date & Time</label>
+                      {/* Use wrapper with specific class */}
+                      <div className="datetime-input-wrapper">
+                        <input id="datetime-rider-date" type="date" value={datetime.split('T')[0] || ''} onChange={(e) => setDatetime(`${e.target.value}T${datetime.split('T')[1] || '00:00'}`)} required />
+                        <input id="datetime-rider-time" type="time" value={datetime.split('T')[1] || ''} onChange={(e) => setDatetime(`${datetime.split('T')[0] || new Date().toISOString().split('T')[0]}T${e.target.value}`)} required />
                       </div>
-                      {/* Passenger Selector */}
-                      <div className="passenger-selector form-group">
-                          <label htmlFor="passengers-rider">No. of passengers: </label>
-                          <div className="passenger-controls">
-                              <button type="button" onClick={() => setPassengers(p => Math.max(1, p - 1))} disabled={passengers <= 1}>−</button>
-                              <span>{passengers}</span>
-                              <button type="button" onClick={() => setPassengers(p => Math.min(3, p + 1))} disabled={passengers >= 3}>+</button>
-                          </div>
+                    </div>
+                    {/* Passenger Selector */}
+                    <div className="passenger-selector form-group">
+                      <label htmlFor="passengers-rider">No. of passengers: </label>
+                      <div className="passenger-controls">
+                        <button type="button" onClick={() => setPassengers(p => Math.max(1, p - 1))} disabled={passengers <= 1}>−</button>
+                        <span>{passengers}</span>
+                        <button type="button" onClick={() => setPassengers(p => Math.min(3, p + 1))} disabled={passengers >= 3}>+</button>
                       </div>
+                    </div>
                   </div>
 
 
@@ -405,8 +406,8 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
 
                   {/* Submit Button */}
                   <button type="submit" className="new-offer-button" // Reuse driver button style
-                     disabled={isGettingLocation || !isMapsLoaded}>
-                     <FontAwesomeIcon icon={fasPlus} /> Request Ride
+                    disabled={isGettingLocation || !isMapsLoaded}>
+                    <FontAwesomeIcon icon={fasPlus} /> Request Ride
                   </button>
 
                 </form>
@@ -416,11 +417,11 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
               <div className="map-area">
                 {isMapsLoaded && (
                   <GoogleMap mapContainerStyle={containerStyle} center={mapCenter} zoom={12} options={{ disableDefaultUI: true, zoomControl: true }}>
-                    {directions && <DirectionsRenderer directions={directions} options={{ suppressMarkers: false /* Show A/B markers */ }}/>}
-                    {userMarkerPosition && <Marker position={userMarkerPosition} title="Your Location"/>}
+                    {directions && <DirectionsRenderer directions={directions} options={{ suppressMarkers: false /* Show A/B markers */ }} />}
+                    {userMarkerPosition && <Marker position={userMarkerPosition} title="Your Location" />}
                   </GoogleMap>
                 )}
-                {!isMapsLoaded && <div style={{display:'flex', justifyContent:'center', alignItems:'center', height:'100%'}}>Loading Map...</div>}
+                {!isMapsLoaded && <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>Loading Map...</div>}
               </div> {/* End map-area */}
             </div> {/* End request-section */}
           </>
@@ -431,12 +432,12 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
         // Example: You might filter rideRequests from context or fetch user-specific rides
         const myRides = rideRequests.filter(ride => ride.rider_id === user?.id); // Basic filter example
         return (
-            <div className="content-placeholder">
-                <h2>Current Ride Requests</h2>
-                {myRides.length > 0 ? (
-                    <ul>{myRides.map(ride => <li key={ride.id}>{ride.pickup} to {ride.dropoff} - Status: {ride.status}</li>)}</ul>
-                ) : ( <p>You have no active ride requests.</p> )}
-            </div>
+          <div className="content-placeholder">
+            <h2>Current Ride Requests</h2>
+            {myRides.length > 0 ? (
+              <ul>{myRides.map(ride => <li key={ride.id}>{ride.pickup} to {ride.dropoff} - Status: {ride.status}</li>)}</ul>
+            ) : (<p>You have no active ride requests.</p>)}
+          </div>
         );
       case 'availableRides':
         // --- TODO: Fetch and display rides offered by drivers ---
@@ -474,7 +475,7 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
             <li className={activeView === 'schedule' ? 'active' : ''} onClick={() => setActiveView('schedule')}>
               <FontAwesomeIcon icon={farCalendarDays} style={iconStyle} /> Schedule
             </li>
-            <li className={activeView === 'message' ? 'active' : ''} onClick={() => setActiveView('message')}>
+            <li onClick={() => window.location.href = '/messages'}>
               <FontAwesomeIcon icon={farMessage} style={iconStyle} /> Message
             </li>
             <li className={activeView === 'help' ? 'active' : ''} onClick={() => setActiveView('help')}>
@@ -485,7 +486,7 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
       </aside>
       <main className="dashboard-main">
         {/* Render content based on view, only after maps are loaded */}
-        {isMapsLoaded ? renderActiveView() : <div style={{display:'flex', justifyContent:'center', alignItems:'center', height:'100%'}}>Loading Dashboard...</div>}
+        {isMapsLoaded ? renderActiveView() : <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>Loading Dashboard...</div>}
       </main>
     </div>
   );

@@ -70,25 +70,67 @@ router.post("/demands/:id/claims", async (req, res) => {
   if (dem.status !== "open")
     return res.status(409).json({ error: "Demand is not open" });
 
-  // create claim as accepted
+  // Get status from request body (default to 'accepted')
+  const claimStatus = req.body?.status || "accepted";
+
+  // Validate status
+  if (!["accepted", "declined"].includes(claimStatus)) {
+    return res.status(400).json({ error: "Invalid status. Must be 'accepted' or 'declined'" });
+  }
+
+  // create claim with specified status
   const { data: claim, error: cErr } = await supabaseAdmin
     .from("ride_claims")
     .insert({
       demand_id: demandId,
       driver_id: user.id,
-      status: "accepted",
+      status: claimStatus,
     })
     .select()
     .maybeSingle();
 
   if (cErr) return res.status(400).json({ error: cErr.message });
 
-  // mark demand as claimed (best-effort)
-  await supabaseAdmin
-    .from("ride_demands")
-    .update({ status: "claimed" })
-    .eq("id", demandId)
-    .eq("status", "open");
+  // Only mark demand as claimed and create conversation if status is 'accepted'
+  if (claimStatus === "accepted") {
+    // mark demand as claimed (best-effort)
+    await supabaseAdmin
+      .from("ride_demands")
+      .update({ status: "claimed" })
+      .eq("id", demandId)
+      .eq("status", "open");
+
+    // --- Create Conversation automatically ---
+    const { error: convErr } = await supabaseAdmin
+      .from("conversations")
+      .insert({
+        demand_id: demandId,
+        rider_id: dem.rider_id,
+        driver_id: user.id
+      });
+
+    if (convErr) {
+      console.error("Failed to create conversation:", convErr.message);
+      // We don't fail the claim if conversation creation fails, but we log it.
+    }
+  }
+  // If declined, demand stays 'open' for other drivers
+  // ----------------------------------------------
+
+  // Attach driver user + driver profile details to the returned claim so the rider
+  // immediately knows who accepted the request (plate, car_make, phone_number)
+  try {
+    const [{ data: driverUser }, { data: driverProfile }] = await Promise.all([
+      supabaseAdmin.from("users").select("id, first_name, last_name, phone").eq("id", user.id).maybeSingle(),
+      supabaseAdmin.from("driver").select("id, plate_number, car_make, license, phone_number, car_insurance, user_id").eq("user_id", user.id).maybeSingle(),
+    ]);
+
+    if (driverUser) claim.driver_user = driverUser;
+    if (driverProfile) claim.driver_profile = driverProfile;
+  } catch (e) {
+    // non-fatal: if attaching extra info fails, still return the claim we created
+    console.error("Failed to attach driver details to claim:", e?.message || e);
+  }
 
   return res.status(201).json({ claim });
 });
@@ -143,6 +185,80 @@ router.patch("/claims/:id/withdraw", async (req, res) => {
 
   // if demand was 'claimed' and this was the accepted claim, consider re-opening.
   // (safe best-effort; if another logic promotes to 'completed', it won't reopen.)
+  await supabaseAdmin
+    .from("ride_demands")
+    .update({ status: "open" })
+    .eq("id", claim.demand_id)
+    .eq("status", "claimed");
+
+  return res.json({ claim: data });
+});
+
+/** PATCH /api/claims/:id/complete  (driver marks ride as completed) */
+router.patch("/claims/:id/complete", async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+
+  const { id } = req.params;
+
+  const { data: claim, error: cErr } = await supabaseAdmin
+    .from("ride_claims")
+    .select("id, driver_id, status, demand_id")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (cErr) return res.status(500).json({ error: cErr.message });
+  if (!claim) return res.status(404).json({ error: "Claim not found" });
+  if (claim.driver_id !== user.id) return res.status(403).json({ error: "Forbidden" });
+  if (claim.status !== "accepted") return res.status(400).json({ error: "Only accepted rides can be completed" });
+
+  const { data, error } = await supabaseAdmin
+    .from("ride_claims")
+    .update({ status: "completed" })
+    .eq("id", id)
+    .select()
+    .maybeSingle();
+
+  if (error) return res.status(400).json({ error: error.message });
+
+  // Mark the demand as completed as well
+  await supabaseAdmin
+    .from("ride_demands")
+    .update({ status: "completed" })
+    .eq("id", claim.demand_id);
+
+  return res.json({ claim: data });
+});
+
+/** PATCH /api/claims/:id/decline  (driver declines a ride - different from withdraw) */
+router.patch("/claims/:id/decline", async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+
+  const { id } = req.params;
+
+  const { data: claim, error: cErr } = await supabaseAdmin
+    .from("ride_claims")
+    .select("id, driver_id, status, demand_id")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (cErr) return res.status(500).json({ error: cErr.message });
+  if (!claim) return res.status(404).json({ error: "Claim not found" });
+  if (claim.driver_id !== user.id) return res.status(403).json({ error: "Forbidden" });
+
+  const { data, error } = await supabaseAdmin
+    .from("ride_claims")
+    .update({
+      status: "declined"
+    })
+    .eq("id", id)
+    .select()
+    .maybeSingle();
+
+  if (error) return res.status(400).json({ error: error.message });
+
+  // Re-open the demand so other drivers can claim it
   await supabaseAdmin
     .from("ride_demands")
     .update({ status: "open" })

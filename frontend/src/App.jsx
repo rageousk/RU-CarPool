@@ -8,6 +8,8 @@ import LoginPage from "./pages/LoginPage.jsx";
 import SignupPage from "./pages/SignupPage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
+import ProfileSettings from "./components/ProfileSettings.jsx";
+import MessagesPage from "./pages/MessagesPage.jsx";
 import { RideProvider } from "./context/RideContext.jsx";
 import { supabase } from "./lib/supabaseClient";
 import "./App.css";
@@ -89,6 +91,8 @@ export default function App() {
 
   const signedIn = !loadingAuth && (!!localStorage.getItem("ru_token") || !!userEmail);
   const displayEmail = userEmail || localStorage.getItem("ru_email") || "";
+  // Use displayEmail as userId for now, or null if not signed in
+  const userId = displayEmail;
 
   return (
     <RideProvider>
@@ -99,28 +103,40 @@ export default function App() {
         ) : (
           <Routes>
             <Route path="/" element={<HomePage signedIn={signedIn} />} />
-            <Route 
-              path="/login" 
+            <Route
+              path="/login"
               element={signedIn ? <Navigate to="/dashboard" replace /> : <LoginPage />}
             />
-            <Route 
-              path="/signup" 
+            <Route
+              path="/signup"
               element={signedIn ? <Navigate to="/dashboard" replace /> : <SignupPage />}
             />
             <Route
               path="/dashboard"
               element={
                 signedIn ? (
-                  <UserDashboard 
-                    user={{ id: displayEmail }} 
-                    signedIn={signedIn} 
-                    navigate={navigate} 
+                  <UserDashboard
+                    user={{ id: displayEmail }}
+                    signedIn={signedIn}
+                    navigate={navigate}
                   />
                 ) : (
                   <Navigate to="/login?redirect=/dashboard" replace />
                 )
               }
             />
+            <Route
+              path="/settings"
+              element={
+                signedIn ? (
+                  userId ? <ProfileSettings userId={userId} /> : <div className="loading-screen">Loading user data...</div>
+                ) : (
+                  <Navigate to="/login?redirect=/settings" replace />
+                )
+              }
+            />
+            <Route path="/profile" element={<ProfileSettings />} />
+            <Route path="/messages" element={<MessagesPage />} />
             <Route path="/about-us" element={<AboutPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />

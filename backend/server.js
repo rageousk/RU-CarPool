@@ -9,6 +9,7 @@ import healthRouter from "./routes/health.js";
 import adminRouter from "./routes/admin.js";
 import rideDemandsRouter from "./routes/rideDemands.js";
 import rideClaimsRouter from "./routes/rideClaims.js";
+import messagesRouter from "./routes/messages.js";
 
 const app = express();
 
@@ -36,6 +37,8 @@ app.use("/api/admin", adminRouter);
 // new flow
 app.use("/api", rideDemandsRouter); // /api/demands, /api/demands/mine, /api/demands/open, /api/demands/:id/cancel
 app.use("/api", rideClaimsRouter);  // /api/demands/:id/claims, /api/claims/mine, /api/claims/:id/withdraw
+
+app.use("/api/messages", messagesRouter);
 
 // fallbacks
 app.use((req, res) => res.status(404).json({ error: "Not found" }));
