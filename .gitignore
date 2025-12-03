@@ -1,11 +1,14 @@
-# Global dependencies
+# Dependencies
 node_modules/
+**/node_modules/
 
-# Package lock files
+# Package lock files  
 package-lock.json
-*/package-lock.json
+**/package-lock.json
 yarn.lock
-*/yarn.lock
+**/yarn.lock
+pnpm-lock.yaml
+**/pnpm-lock.yaml
 
 # Environment variable files
 # These files contain secrets and should not be committed!

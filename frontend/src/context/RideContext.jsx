@@ -30,6 +30,25 @@ export const RideProvider = ({ children }) => {
       
       const data = await response.json();
       
+      // Get current user ID from localStorage token
+      const token = localStorage.getItem('ru_token');
+      let currentUserId = null;
+      
+      if (token) {
+        try {
+          // Decode JWT token to get user ID (basic decode, not verification)
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          }).join(''));
+          const payload = JSON.parse(jsonPayload);
+          currentUserId = payload.sub; // 'sub' field contains user ID in Supabase JWT
+        } catch (e) {
+          console.warn('Could not decode token for user filtering:', e);
+        }
+      }
+      
       // Get IDs of declined rides from localStorage
       const stored = localStorage.getItem('declinedRides');
       const declinedRideIds = stored ? JSON.parse(stored).map(ride => {
@@ -53,9 +72,10 @@ export const RideProvider = ({ children }) => {
         destinationCoords: demand.destination_coords
       })) || [];
       
-      // Filter out declined rides
+      // Filter out declined rides AND current user's own ride requests
       const filteredRequests = mappedRequests.filter(request => 
-        !declinedRideIds.includes(request.id)
+        !declinedRideIds.includes(request.id) &&
+        request.riderId !== currentUserId  // Exclude current user's own requests
       );
       
       setRideRequests(filteredRequests);
