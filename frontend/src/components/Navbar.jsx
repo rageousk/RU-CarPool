@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import "../css/Navbar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
+import { faRightFromBracket, faUser } from "@fortawesome/free-solid-svg-icons";
 
 export default function Navbar({ userProp }) {
   const [user, setUser] = useState(userProp || null);
@@ -41,6 +41,10 @@ export default function Navbar({ userProp }) {
             </span>
             {dropdownOpen && (
               <div className="dropdown-menu">
+                <Link to="/profile" className="dropdown-item" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+                  <FontAwesomeIcon icon={faUser} className="logout-icon" style={{ marginRight: '10px' }} />
+                  Profile
+                </Link>
                 <button onClick={handleLogout} className="dropdown-item">
                   <FontAwesomeIcon icon={faRightFromBracket} className="logout-icon" />
                   Logout

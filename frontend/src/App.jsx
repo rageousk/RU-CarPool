@@ -135,7 +135,7 @@ export default function App() {
                 )
               }
             />
-            <Route path="/profile" element={<ProfileSettings />} />
+            <Route path="/profile" element={<ProfileSettings userId={userId} />} />
             <Route path="/messages" element={<MessagesPage />} />
             <Route path="/about-us" element={<AboutPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />

@@ -9,6 +9,7 @@ import {
   faCircleQuestion as fasCircleQuestion,
   faCar as fasCar,
   faListCheck as fasListCheck,
+  faUser as fasUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { useRides } from "../context/RideContext.jsx";
 
@@ -44,13 +45,16 @@ function DriverDashboard({ user }) {
   const isMapsLoaded = useGoogleMapsLoaded();
 
   // Context - Get rideHistory, loading, error from RideContext
-  const { rideRequests, updateRideRequest, rideHistory, loading, error, fetchCurrentRides } = useRides() || {
+  const { rideRequests, updateRideRequest, rideHistory, currentRides, completeRide, loading, error, fetchCurrentRides, fetchRideRequests } = useRides() || {
     rideRequests: [],
     updateRideRequest: (id, data) => console.warn("updateRideRequest called without RideProvider:", id, data),
     rideHistory: [],
+    currentRides: [],
+    completeRide: (id) => console.warn("completeRide called without RideProvider:", id),
     loading: false,
     error: null,
-    fetchCurrentRides: () => { }
+    fetchCurrentRides: () => { },
+    fetchRideRequests: () => { }
   };
 
 
@@ -58,8 +62,10 @@ function DriverDashboard({ user }) {
 
   // --- Effect: Fetch history when viewing history tab ---
   useEffect(() => {
-    if (activeView === 'history') {
+    if (activeView === 'history' || activeView === 'currentRide') {
       fetchCurrentRides();
+    } else if (activeView === 'requestedRides') {
+      fetchRideRequests();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeView]);
@@ -71,7 +77,78 @@ function DriverDashboard({ user }) {
   const renderActiveView = () => {
     switch (activeView) {
       case "currentRide":
-        return <div className="content-placeholder"><h2>Current Ride</h2><p>Display rides the driver has accepted or confirmed here...</p></div>;
+        return (
+          <div className="rides-list" style={{ padding: '20px', backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
+            <h3 style={{ marginBottom: '20px', color: '#343a40' }}>Current Accepted Rides</h3>
+
+            {loading ? (
+              <div className="loading-container">
+                <div className="loading-text">Loading current rides...</div>
+                <div className="loading-spinner"></div>
+              </div>
+            ) : currentRides && currentRides.length > 0 ? (
+              <div className="table-container">
+                <table className="rides-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: '25%' }}>Pickup</th>
+                      <th style={{ width: '25%' }}>Drop-off</th>
+                      <th className="center" style={{ width: '10%' }}>Passengers</th>
+                      <th className="center" style={{ width: '15%' }}>Departure</th>
+                      <th className="center" style={{ width: '10%' }}>Status</th>
+                      <th className="center" style={{ width: '15%' }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentRides.map((ride) => (
+                      <tr key={ride.id}>
+                        <td className="top-align">
+                          <div className="location-cell">
+                            <div className="location-text">{ride.pickup || 'N/A'}</div>
+                          </div>
+                        </td>
+                        <td className="top-align">
+                          <div className="location-cell">
+                            <div className="location-text">{ride.dropoff || 'N/A'}</div>
+                          </div>
+                        </td>
+                        <td className="passengers-cell">{ride.passengers || 'N/A'}</td>
+                        <td className="datetime-cell">
+                          {ride.datetime ? (
+                            <div>
+                              <div className="date-text">{new Date(ride.datetime).toLocaleDateString()}</div>
+                              <div className="time-text">{new Date(ride.datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                            </div>
+                          ) : 'N/A'}
+                        </td>
+                        <td className="center">
+                          <span className={`status-badge ${ride.status || 'accepted'}`}>
+                            {ride.status || 'accepted'}
+                          </span>
+                        </td>
+                        <td className="center">
+                          <button
+                            className="action-button accept"
+                            onClick={() => completeRide(ride.claimId, ride)}
+                            style={{ backgroundColor: '#28a745' }}
+                          >
+                            Complete Ride
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="empty-state-container">
+                <div className="empty-state-icon">🚖</div>
+                <h4 className="empty-state-title">No Active Rides</h4>
+                <p className="empty-state-text">You don't have any active rides at the moment. Check "Requested Rides" to accept new ones!</p>
+              </div>
+            )}
+          </div>
+        );
 
       case "requestedRides":
         return (
@@ -98,7 +175,7 @@ function DriverDashboard({ user }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {rideRequests.filter(ride => ride.status === 'pending').map((ride) => (
+                    {rideRequests.filter(ride => ride.status === 'open').map((ride) => (
                       <tr key={ride.id}>
                         <td className="top-align">
                           <div className="location-cell">
@@ -120,8 +197,8 @@ function DriverDashboard({ user }) {
                           ) : 'N/A'}
                         </td>
                         <td className="center">
-                          <span className={`status-badge ${ride.status || 'pending'}`}>
-                            {ride.status || 'pending'}
+                          <span className={`status-badge ${ride.status || 'open'}`}>
+                            {ride.status || 'open'}
                           </span>
                         </td>
                         <td className="center">
@@ -132,10 +209,10 @@ function DriverDashboard({ user }) {
                         </td>
                       </tr>
                     ))}
-                    {rideRequests.filter(ride => ride.status === 'pending').length === 0 && (
+                    {rideRequests.filter(ride => ride.status === 'open').length === 0 && (
                       <tr>
                         <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: '#6c757d', fontStyle: 'italic' }}>
-                          No pending requests found.
+                          No open requests found.
                         </td>
                       </tr>
                     )}
@@ -275,6 +352,9 @@ function DriverDashboard({ user }) {
             </li>
             <li className={activeView === 'help' ? 'active' : ''} onClick={() => setActiveView('help')}>
               <FontAwesomeIcon icon={fasCircleQuestion} style={iconStyle} /> Help
+            </li>
+            <li onClick={() => window.location.href = '/profile'}>
+              <FontAwesomeIcon icon={fasUser} style={iconStyle} /> Profile
             </li>
           </ul>
         </nav>

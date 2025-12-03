@@ -11,7 +11,8 @@ import {
   faLocationArrow as fasLocationArrow,
   faCar as fasCar, // For Current Ride
   faMagnifyingGlass as fasSearch, // For Available Rides
-  faPlus as fasPlus // For the submit button
+  faPlus as fasPlus, // For the submit button
+  faUser as fasUser
 } from "@fortawesome/free-solid-svg-icons";
 import { useRides } from "../context/RideContext.jsx"; // Assuming context exists
 import { GoogleMap, DirectionsRenderer, Marker } from "@react-google-maps/api";
@@ -477,6 +478,9 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
             </li>
             <li onClick={() => window.location.href = '/messages'}>
               <FontAwesomeIcon icon={farMessage} style={iconStyle} /> Message
+            </li>
+            <li onClick={() => window.location.href = '/profile'}>
+              <FontAwesomeIcon icon={fasUser} style={iconStyle} /> Profile
             </li>
             <li className={activeView === 'help' ? 'active' : ''} onClick={() => setActiveView('help')}>
               <FontAwesomeIcon icon={fasCircleQuestion} style={iconStyle} /> Help
