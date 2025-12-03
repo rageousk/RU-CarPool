@@ -180,7 +180,7 @@ export const RideProvider = ({ children }) => {
     if (updates.status === 'accepted') {
       // Show confirmation dialog
       const confirmMessage = rideDetails 
-        ? `Are you sure you want to accept this ride?\n\nFrom: ${rideDetails.pickup}\nTo: ${rideDetails.dropoff}\nPassengers: ${rideDetails.passengers}\nDeparture: ${new Date(rideDetails.datetime).toLocaleString()}`
+        ? `Are you sure you want to accept this ride?\n\nFrom: ${rideDetails.pickup}\nTo: ${rideDetails.dropoff}\nPassengers: ${rideDetails.passengers}\nDeparture: ${new Date(rideDetails.datetime).toLocaleString('en-US', { timeZone: 'America/New_York' })}`
         : 'Are you sure you want to accept this ride request?';
       
       const confirmed = window.confirm(confirmMessage);
@@ -225,7 +225,7 @@ export const RideProvider = ({ children }) => {
     } else if (updates.status === 'declined') {
       // Show confirmation dialog for decline
       const confirmMessage = rideDetails 
-        ? `Are you sure you want to decline this ride?\n\nFrom: ${rideDetails.pickup}\nTo: ${rideDetails.dropoff}\nPassengers: ${rideDetails.passengers}\nDeparture: ${new Date(rideDetails.datetime).toLocaleString()}`
+        ? `Are you sure you want to decline this ride?\n\nFrom: ${rideDetails.pickup}\nTo: ${rideDetails.dropoff}\nPassengers: ${rideDetails.passengers}\nDeparture: ${new Date(rideDetails.datetime).toLocaleString('en-US', { timeZone: 'America/New_York' })}`
         : 'Are you sure you want to decline this ride request?';
       
       const confirmed = window.confirm(confirmMessage);

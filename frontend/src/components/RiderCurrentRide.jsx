@@ -124,7 +124,7 @@ function RiderCurrentRide({ user, token }) {
   };
 
   /**
-   * Format departure time for display
+   * Format departure time for display in Eastern Time
    */
   const formatDateTime = (isoString) => {
     try {
@@ -137,6 +137,7 @@ function RiderCurrentRide({ user, token }) {
         hour: "2-digit",
         minute: "2-digit",
         hour12: true,
+        timeZone: "America/New_York" // Force Eastern Time display
       });
     } catch {
       return isoString;

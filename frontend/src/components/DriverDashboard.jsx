@@ -652,10 +652,10 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
                           {ride.datetime ? (
                             <div>
                               <div style={{ fontWeight: '500', color: '#495057' }}>
-                                {new Date(ride.datetime).toLocaleDateString()}
+                                {new Date(ride.datetime).toLocaleDateString('en-US', { timeZone: 'America/New_York' })}
                               </div>
                               <div style={{ fontSize: '12px' }}>
-                                {new Date(ride.datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {new Date(ride.datetime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York' })}
                               </div>
                             </div>
                           ) : 'N/A'}
@@ -886,10 +886,10 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
                              {ride.datetime ? (
                                <div>
                                  <div style={{ fontWeight: '500', color: '#495057' }}>
-                                   {new Date(ride.datetime).toLocaleDateString()}
+                                   {new Date(ride.datetime).toLocaleDateString('en-US', { timeZone: 'America/New_York' })}
                                  </div>
                                  <div style={{ fontSize: '12px' }}>
-                                   {new Date(ride.datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                   {new Date(ride.datetime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York' })}
                                  </div>
                                </div>
                              ) : 'N/A'}
@@ -1186,10 +1186,10 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
                             {ride.datetime ? (
                               <div>
                                 <div style={{ fontWeight: '500', color: '#495057' }}>
-                                  {new Date(ride.datetime).toLocaleDateString()}
+                                  {new Date(ride.datetime).toLocaleDateString('en-US', { timeZone: 'America/New_York' })}
                                 </div>
                                 <div style={{ fontSize: '12px' }}>
-                                  {new Date(ride.datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  {new Date(ride.datetime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York' })}
                                 </div>
                               </div>
                             ) : 'N/A'}

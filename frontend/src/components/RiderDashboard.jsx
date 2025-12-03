@@ -246,6 +246,26 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
       return coords ? `(${coords.x}, ${coords.y})` : null;
     }
 
+    // Convert datetime input to Eastern Time ISO string
+    const convertToEasternTime = (dateTimeString) => {
+      if (!dateTimeString) return null;
+      
+      // Treat the input datetime as Eastern Time by appending timezone
+      // Check if it's during Daylight Saving Time period (rough estimate)
+      const inputDate = new Date(dateTimeString);
+      const year = inputDate.getFullYear();
+      
+      // DST roughly runs from 2nd Sunday of March to 1st Sunday of November
+      const dstStart = new Date(year, 2, 14 - new Date(year, 2, 1).getDay()); // 2nd Sunday of March
+      const dstEnd = new Date(year, 10, 7 - new Date(year, 10, 1).getDay());   // 1st Sunday of November
+      
+      const isDST = inputDate >= dstStart && inputDate < dstEnd;
+      const offset = isDST ? '-04:00' : '-05:00'; // EDT or EST
+      
+      // Create ISO string with proper Eastern timezone
+      return new Date(dateTimeString + offset).toISOString();
+    };
+
     const rideRequestData = {
       rider_id: user?.id, // Get rider ID from user prop
       origin: pickup,
@@ -253,7 +273,7 @@ function RiderDashboard({ user }) { // Assuming 'user' prop has user info (like 
       notes: pickupInfo, // Include specific pickup details
       destination: dropoff,
       destination_coords: convertCoordsToPoint(await getAddressCoords(dropoff)), // 
-      departure_time: datetime, // Use combined datetime state
+      departure_time: convertToEasternTime(datetime), // Convert to Eastern Time
       seats_needed: parseInt(passengers, 10),
       estimated_cost: totalCost ? parseFloat(totalCost.toFixed(2)) : null,
     };
