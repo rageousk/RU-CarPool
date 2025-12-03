@@ -91,7 +91,8 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
     loading, 
     error, 
     fetchRideRequests, 
-    fetchCurrentRides 
+    fetchCurrentRides,
+    cleanupExpiredRides
   } = useRides() || {
     rideRequests: [],
     currentRides: [],
@@ -103,6 +104,7 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
     error: null,
     fetchRideRequests: () => console.warn("fetchRideRequests called without RideProvider"),
     fetchCurrentRides: () => console.warn("fetchCurrentRides called without RideProvider"),
+    cleanupExpiredRides: () => console.warn("cleanupExpiredRides called without RideProvider"),
   };
   const isMapsLoaded = useGoogleMapsLoaded(); // Check if Google Maps script is ready
 
@@ -116,6 +118,14 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
     debounce: 300, // Wait 300ms after user stops typing before fetching suggestions
     enabled: isMapsLoaded, // Only run the hook if Google Maps is loaded
   });
+
+  // --- Auto-cleanup expired rides when component mounts ---
+  useEffect(() => {
+    // Automatically clean up expired rides when driver dashboard loads
+    if (cleanupExpiredRides) {
+      cleanupExpiredRides();
+    }
+  }, []); // Empty dependency array = run once on mount
 
   // --- Effect for calculating route, distance, AND suggested cost ---
   useEffect(() => {
@@ -766,7 +776,7 @@ function DriverDashboard({ user }) { // Assuming 'user' prop contains logged-in 
                      boxShadow: '0 2px 4px rgba(0,123,255,0.2)'
                    }}
                  >
-                   {loading ? 'Refreshing...' : 'Refresh'}
+                   {loading ? 'Refreshing...' : 'Refresh & Clean'}
                  </button>
                </div>
                

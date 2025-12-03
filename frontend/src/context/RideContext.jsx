@@ -72,11 +72,33 @@ export const RideProvider = ({ children }) => {
         destinationCoords: demand.destination_coords
       })) || [];
       
-      // Filter out declined rides AND current user's own ride requests
-      const filteredRequests = mappedRequests.filter(request => 
-        !declinedRideIds.includes(request.id) &&
-        request.riderId !== currentUserId  // Exclude current user's own requests
-      );
+      // Get current time for filtering expired requests
+      const now = new Date();
+      
+      // Filter out declined rides, current user's own ride requests, AND expired requests
+      const filteredRequests = mappedRequests.filter(request => {
+        // Check if ride request has expired (departure time has passed)
+        const departureTime = new Date(request.datetime);
+        const isExpired = departureTime <= now;
+        
+        // Log expired requests for debugging (can be removed in production)
+        if (isExpired) {
+          console.log(`Filtering out expired ride request: ID ${request.id}, departure: ${request.datetime}, now: ${now.toISOString()}`);
+        }
+        
+        const isDeclined = declinedRideIds.includes(request.id);
+        const isOwnRequest = request.riderId === currentUserId;
+        
+        return !isDeclined && !isOwnRequest && !isExpired;
+      });
+      
+      // Log filtering results for debugging
+      const totalRequests = mappedRequests.length;
+      const expiredCount = mappedRequests.filter(r => new Date(r.datetime) <= now).length;
+      const ownRequestsCount = mappedRequests.filter(r => r.riderId === currentUserId).length;
+      const declinedCount = mappedRequests.filter(r => declinedRideIds.includes(r.id)).length;
+      
+      console.log(`Ride requests filtering: Total: ${totalRequests}, Expired: ${expiredCount}, Own: ${ownRequestsCount}, Declined: ${declinedCount}, Final: ${filteredRequests.length}`);
       
       setRideRequests(filteredRequests);
     } catch (err) {
@@ -173,6 +195,16 @@ export const RideProvider = ({ children }) => {
   useEffect(() => {
     fetchRideRequests();
     fetchCurrentRides();
+  }, []);
+
+  // Periodic cleanup of expired ride requests (every 5 minutes)
+  useEffect(() => {
+    const cleanupInterval = setInterval(() => {
+      // Re-fetch to get updated data and apply current filtering
+      fetchRideRequests();
+    }, 5 * 60 * 1000); // 5 minutes
+
+    return () => clearInterval(cleanupInterval);
   }, []);
 
   // Accept a ride request (driver claims it)
@@ -302,9 +334,14 @@ export const RideProvider = ({ children }) => {
     setRideRequests((prev) => [...prev, ride]);
   };
 
+  // Manual cleanup function for expired rides
+  const cleanupExpiredRides = () => {
+    fetchRideRequests();
+  };
+
   return (
-    <RideContext.Provider value={{ 
-      rideRequests, 
+    <RideContext.Provider value={{
+      rideRequests,
       currentRides,
       rideHistory,
       declinedRides,
@@ -313,6 +350,7 @@ export const RideProvider = ({ children }) => {
       completeRide,
       fetchRideRequests,
       fetchCurrentRides,
+      cleanupExpiredRides,
       loading,
       error 
     }}>
