@@ -28,6 +28,22 @@ function RiderCurrentRide({ user, token }) {
     fetchMyRides();
   }, [token, user?.id]);
 
+  // Auto-cancel ride function
+  const autoCancelRide = async (rideId) => {
+    try {
+      const response = await fetch(`${apiBase}/api/demands/${rideId}/cancel`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ auto: true })  // <- tells backend to bypass 24h rule
+      });
+    } catch (err) {
+      console.error("Auto-cancel failed:", err);
+    }
+  };
+
   /**
    * Fetch all ride requests for the current user
    */
@@ -52,11 +68,34 @@ function RiderCurrentRide({ user, token }) {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Failed to fetch rides: ${response.status}`);
+        throw new Error(
+          errorData.error || `Failed to fetch rides: ${response.status}`
+        );
       }
 
       const data = await response.json();
-      setRides(data.demands || []);
+      const loadedRides = data.demands || [];
+
+      // Auto-cancel expired rides
+      const now = new Date();
+      const updatedRides = loadedRides.map((ride) => {
+        const hasAcceptedClaim =
+          ride.ride_claims &&
+          ride.ride_claims.length > 0 &&
+          ride.ride_claims[0].status === "accepted";
+
+        const departureTime = new Date(ride.departure_time);
+        const isPastDeparture = departureTime <= now;
+
+        if (ride.status === "open" && !hasAcceptedClaim && isPastDeparture) {
+          autoCancelRide(ride.id);  // <-- FIX ADDED
+          return { ...ride, status: "cancelled" };
+        }
+
+        return ride;
+      });
+
+      setRides(updatedRides);
     } catch (err) {
       console.error("Error fetching rides:", err);
       setError(err.message || "Failed to load your ride requests.");
@@ -67,7 +106,6 @@ function RiderCurrentRide({ user, token }) {
 
   /**
    * Handle cancelling a ride request
-   * Only available for "open" rides at least 24 hours before departure
    */
   const handleCancelRide = async (rideId) => {
     if (!token) {
@@ -75,7 +113,6 @@ function RiderCurrentRide({ user, token }) {
       return;
     }
 
-    // Confirm cancellation
     const ride = rides.find((r) => r.id === rideId);
     if (!ride) return;
 
@@ -105,15 +142,17 @@ function RiderCurrentRide({ user, token }) {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Failed to cancel ride: ${response.status}`);
+        throw new Error(
+          errorData.error || `Failed to cancel ride: ${response.status}`
+        );
       }
 
-      // Update the ride status locally
       setRides((prevRides) =>
         prevRides.map((ride) =>
           ride.id === rideId ? { ...ride, status: "cancelled" } : ride
         )
       );
+
       alert("Ride cancelled successfully.");
     } catch (err) {
       console.error("Error cancelling ride:", err);
@@ -123,9 +162,7 @@ function RiderCurrentRide({ user, token }) {
     }
   };
 
-  /**
-   * Format departure time for display in Eastern Time
-   */
+  /** Format Departure Time **/
   const formatDateTime = (isoString) => {
     try {
       const date = new Date(isoString);
@@ -137,18 +174,15 @@ function RiderCurrentRide({ user, token }) {
         hour: "2-digit",
         minute: "2-digit",
         hour12: true,
-        timeZone: "America/New_York" // Force Eastern Time display
+        timeZone: "America/New_York",
       });
     } catch {
       return isoString;
     }
   };
 
-  /**
-   * Get status badge color and text based on demand and claim status
-   */
+  /** Get Status Badge **/
   const getStatusBadge = (ride) => {
-    // If there are claims attached, use the first claim status
     if (ride.ride_claims && ride.ride_claims.length > 0) {
       const claim = ride.ride_claims[0];
       if (claim.status === "accepted") {
@@ -156,7 +190,6 @@ function RiderCurrentRide({ user, token }) {
       }
     }
 
-    // Otherwise use demand status, map "open" to "Pending" and "claimed" to "Accepted"
     const statusMap = {
       open: { color: "#3498db", text: "Pending" },
       claimed: { color: "#27ae60", text: "Accepted" },
@@ -166,14 +199,12 @@ function RiderCurrentRide({ user, token }) {
     return statusMap[ride.status] || { color: "#95a5a6", text: ride.status };
   };
 
-  // --- Render Loading State ---
+  // Loading state
   if (loading) {
     return (
       <div className="current-ride-container">
         <header className="dashboard-header">
-          <div className="title-area">
-            <h2>My Ride Requests</h2>
-          </div>
+          <h2>My Ride Requests</h2>
         </header>
         <div className="loading-state">
           <p>Loading your ride requests...</p>
@@ -182,14 +213,12 @@ function RiderCurrentRide({ user, token }) {
     );
   }
 
-  // --- Render Error State ---
+  // Error state
   if (error) {
     return (
       <div className="current-ride-container">
         <header className="dashboard-header">
-          <div className="title-area">
-            <h2>My Ride Requests</h2>
-          </div>
+          <h2>My Ride Requests</h2>
         </header>
         <div className="error-state">
           <p>⚠️ {error}</p>
@@ -201,36 +230,31 @@ function RiderCurrentRide({ user, token }) {
     );
   }
 
-  // --- Render Empty State ---
+  // No rides
   if (rides.length === 0) {
     return (
       <div className="current-ride-container">
         <header className="dashboard-header">
-          <div className="title-area">
-            <h2>My Ride Requests</h2>
-          </div>
+          <h2>My Ride Requests</h2>
         </header>
         <div className="empty-state">
           <p>No active ride requests.</p>
-          <p className="empty-subtitle">Request a ride from the Home tab to get started!</p>
         </div>
       </div>
     );
   }
 
-  // Filter out completed and cancelled rides
+  // Filter to show ONLY active rides
   const activeRides = rides.filter(
     (ride) => ride.status !== "completed" && ride.status !== "cancelled"
   );
 
-  // --- Render Empty Active Rides State ---
+  // No active rides
   if (activeRides.length === 0) {
     return (
       <div className="current-ride-container">
         <header className="dashboard-header">
-          <div className="title-area">
-            <h2>My Ride Requests</h2>
-          </div>
+          <h2>My Ride Requests</h2>
         </header>
         <div className="empty-state">
           <p>No active ride requests.</p>
@@ -240,44 +264,36 @@ function RiderCurrentRide({ user, token }) {
     );
   }
 
-  // --- Render Rides List ---
+  // Active rides list
   return (
     <div className="current-ride-container">
       <header className="dashboard-header">
-        <div className="title-area">
-          <h2>My Ride Requests</h2>
-        </div>
+        <h2>My Ride Requests</h2>
       </header>
 
       <div className="rides-list">
-        {activeRides
-          .map((ride) => {
+        {activeRides.map((ride) => {
           const statusInfo = getStatusBadge(ride);
           const canCancel =
             ride.status === "open" &&
             new Date(ride.departure_time) - new Date() > 24 * 60 * 60 * 1000;
-          
-          // Get driver info if claim exists
-          const driverInfo = ride.ride_claims && ride.ride_claims.length > 0
-            ? ride.ride_claims[0].driver_user
-            : null;
-          const driverProfile = ride.ride_claims && ride.ride_claims.length > 0
-            ? ride.ride_claims[0].driver_profile
-            : null;
+
+          const driverInfo =
+            ride.ride_claims && ride.ride_claims.length > 0
+              ? ride.ride_claims[0].driver_user
+              : null;
+
+          const driverProfile =
+            ride.ride_claims && ride.ride_claims.length > 0
+              ? ride.ride_claims[0].driver_profile
+              : null;
 
           return (
-            <div
-              key={ride.id}
-              className={`ride-card ride-status-${ride.status}`}
-              data-status={ride.status}
-            >
-              {/* Status Badge */}
+            <div key={ride.id} className={`ride-card ride-status-${ride.status}`}>
               <div className="ride-header">
-                <div>
-                  <h3 className="ride-title">
-                    {ride.origin} → {ride.destination}
-                  </h3>
-                </div>
+                <h3 className="ride-title">
+                  {ride.origin} → {ride.destination}
+                </h3>
                 <span
                   className="status-badge"
                   style={{ backgroundColor: statusInfo.color }}
@@ -286,9 +302,8 @@ function RiderCurrentRide({ user, token }) {
                 </span>
               </div>
 
-              {/* Ride Details Grid */}
+              {/* Ride details */}
               <div className="ride-details">
-                {/* Pickup Location */}
                 <div className="detail-item">
                   <div className="detail-icon" style={{ color: "#1abc9c" }}>
                     <FontAwesomeIcon icon={fasMapPin} />
@@ -299,7 +314,6 @@ function RiderCurrentRide({ user, token }) {
                   </div>
                 </div>
 
-                {/* Dropoff Location */}
                 <div className="detail-item">
                   <div className="detail-icon" style={{ color: "#e74c3c" }}>
                     <FontAwesomeIcon icon={fasMapPin} />
@@ -310,20 +324,16 @@ function RiderCurrentRide({ user, token }) {
                   </div>
                 </div>
 
-                {/* Departure Time */}
                 <div className="detail-item">
                   <div className="detail-icon" style={{ color: "#3498db" }}>
                     <FontAwesomeIcon icon={fasClock} />
                   </div>
                   <div className="detail-content">
                     <span className="detail-label">Departure</span>
-                    <p className="detail-value">
-                      {formatDateTime(ride.departure_time)}
-                    </p>
+                    <p className="detail-value">{formatDateTime(ride.departure_time)}</p>
                   </div>
                 </div>
 
-                {/* Passengers */}
                 <div className="detail-item">
                   <div className="detail-icon" style={{ color: "#9b59b6" }}>
                     <FontAwesomeIcon icon={fasUsers} />
@@ -334,7 +344,6 @@ function RiderCurrentRide({ user, token }) {
                   </div>
                 </div>
 
-                {/* Estimated Cost */}
                 <div className="detail-item">
                   <div className="detail-icon" style={{ color: "#27ae60" }}>
                     <FontAwesomeIcon icon={fasDollarSign} />
@@ -348,12 +357,9 @@ function RiderCurrentRide({ user, token }) {
                 </div>
               </div>
 
-              {/* Pickup Notes */}
               {ride.notes && (
                 <div className="ride-notes">
-                  <div className="notes-icon">
-                    <FontAwesomeIcon icon={fasInfoCircle} />
-                  </div>
+                  <FontAwesomeIcon icon={fasInfoCircle} className="notes-icon" />
                   <div className="notes-content">
                     <span className="notes-label">Pick-up Instructions</span>
                     <p className="notes-value">{ride.notes}</p>
@@ -361,8 +367,7 @@ function RiderCurrentRide({ user, token }) {
                 </div>
               )}
 
-              {/* Driver Information (if claimed/accepted) */}
-              {driverInfo ? (
+              {driverInfo && (
                 <div className="driver-info-card">
                   <div className="driver-header">
                     <h4 className="driver-title">Driver Assigned</h4>
@@ -371,42 +376,37 @@ function RiderCurrentRide({ user, token }) {
                     <div className="driver-item">
                       <span className="driver-label">Name</span>
                       <p className="driver-value">
-                        {driverInfo.first_name || "N/A"} {driverInfo.last_name || ""}
+                        {driverInfo.first_name} {driverInfo.last_name}
                       </p>
                     </div>
-                    { (driverInfo.phone || (driverProfile && driverProfile.phone_number)) && (
+
+                    {(driverInfo.phone ||
+                      (driverProfile && driverProfile.phone_number)) && (
                       <div className="driver-item">
                         <span className="driver-label">Contact</span>
-                        <p className="driver-value">{driverInfo.phone || (driverProfile && driverProfile.phone_number)}</p>
+                        <p className="driver-value">
+                          {driverInfo.phone ||
+                            (driverProfile && driverProfile.phone_number)}
+                        </p>
                       </div>
                     )}
 
-                    {/* Vehicle / profile details from driver table when available */}
-                    {driverProfile && (
-                      <>
-                        {driverProfile.car_make && (
-                          <div className="driver-item">
-                            <span className="driver-label">Vehicle</span>
-                            <p className="driver-value">{driverProfile.car_make}</p>
-                          </div>
-                        )}
-                        {driverProfile.plate_number && (
-                          <div className="driver-item">
-                            <span className="driver-label">Plate</span>
-                            <p className="driver-value">{driverProfile.plate_number}</p>
-                          </div>
-                        )}
-                      </>
+                    {driverProfile && driverProfile.car_make && (
+                      <div className="driver-item">
+                        <span className="driver-label">Vehicle</span>
+                        <p className="driver-value">{driverProfile.car_make}</p>
+                      </div>
+                    )}
+
+                    {driverProfile && driverProfile.plate_number && (
+                      <div className="driver-item">
+                        <span className="driver-label">Plate</span>
+                        <p className="driver-value">{driverProfile.plate_number}</p>
+                      </div>
                     )}
                   </div>
                 </div>
-              ) : ride.ride_claims && ride.ride_claims.length > 0 ? (
-                <div className="driver-info-card" style={{opacity: 0.6}}>
-                  <p style={{margin: 0, color: 'rgba(255,255,255,0.8)', fontSize: '14px'}}>
-                    Driver info loading...
-                  </p>
-                </div>
-              ) : null}
+              )}
 
               {/* Action Buttons */}
               <div className="ride-actions">
@@ -420,11 +420,13 @@ function RiderCurrentRide({ user, token }) {
                     {cancellingId === ride.id ? " Cancelling..." : " Cancel Request"}
                   </button>
                 )}
+
                 {!canCancel && ride.status === "open" && (
                   <p className="cannot-cancel-text">
                     Cannot cancel within 24 hours of departure
                   </p>
                 )}
+
                 {ride.status !== "open" && (
                   <p className="status-info-text">
                     This ride request is {ride.status.toLowerCase()}

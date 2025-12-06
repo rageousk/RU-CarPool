@@ -198,7 +198,10 @@ router.patch("/demands/:id/cancel", async (req, res) => {
   const now = new Date();
   const dep = new Date(dem.departure_time);
   const diffHours = (dep - now) / (1000 * 60 * 60);
-  if (diffHours < 24) {
+  // Manual cancel should follow 24h rule, but auto-cancel should not
+  const isAuto = req.body?.auto === true;
+
+  if (!isAuto && diffHours < 24) {
     return res
       .status(400)
       .json({ error: "Can only cancel at least 24 hours before departure" });
